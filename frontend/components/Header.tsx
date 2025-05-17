@@ -57,7 +57,7 @@ export default function Header() {
             </ul>
           </nav>
 
-          <div className="flex gap-2">
+          {/*<div className="flex gap-2">
             <Link
               href="/ingresar"
               className="px-3 py-1 text-sm border rounded hover:bg-white hover:text-black transition"
@@ -70,7 +70,7 @@ export default function Header() {
             >
               Registrarse
             </Link>
-          </div>
+          </div>*/}
         </div>
       </div>
 
@@ -86,7 +86,7 @@ export default function Header() {
             </ul>
           </nav>
 
-          <div className="flex flex-col gap-2">
+          {/*<div className="flex flex-col gap-2">
             <Link
               href="/ingresar"
               className="px-3 py-1 text-sm border rounded hover:bg-white hover:text-black transition text-center"
@@ -99,7 +99,7 @@ export default function Header() {
             >
               Registrarse
             </Link>
-          </div>
+          </div>*/}
         </div>
       )}
     </header>
