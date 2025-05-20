@@ -7,60 +7,63 @@ export default function Home() {
       {/* === SECCIÓN SOBRE NOSOTROS === */}
       <section className="py-20 px-6 bg-white">
         <div className="max-w-6xl mx-auto space-y-16">
-
           {/* === CONTENEDOR INTERIOR CON FONDO MARRÓN (puedes cambiar bg-[#6B3F22] a blanco si quieres fondo claro) === */}
-            <div className="bg-[#6B3F22] rounded-lg p-8 text-center shadow text-white">
+            <div className="bg-white rounded-lg p-8 text-center shadow text-black">
             {/* === Logo y título alineados en fila en pantallas medianas o mayores === */}
-            <div className="flex flex-col md:flex-row items-center justify-center gap-6">
-              {/* Logo a la izquierda */}
-              <div className="flex-shrink-0 mb-4 md:mb-0">
-                <Image
-                  src="/images/logo-blanco.png"
-                  alt="Logo Mammapizza"
-                  width={180}
-                  height={180}
-                  className="mx-auto md:mx-0"
-                  style={{ minWidth: 180, minHeight: 180 }}
-                />
-              </div>
-              {/* Título a la derecha */}
-                <h2 className="text-4xl font-bold text-center md:text-left">
-                <strong>ASÍ ES COMO AGREGAMOS MÁS DE 60 AÑOS DE AMOR A TU PIZZA</strong>
-                </h2>
-            </div>
+{/* === Sección superior marrón con logo y texto blanco === */}
+<section className="bg-[#5A2A1D] py-4 px-6">
+  <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+    {/* Logo a la izquierda */}
+    <div className="flex-shrink-0">
+      <Image
+        src="/images/logo-blanco.png"
+        alt="Logo Mammapizza"
+        width={160}
+        height={160}
+      />
+    </div>
+    {/* Título blanco a la derecha del logo */}
+    <div className="text-center md:text-left">
+      <h2 className="text-white text-lg md:text-2xl font-semibold">
+        ASÍ ES COMO AGREGAMOS MÁS DE 60 AÑOS DE AMOR A TU PIZZA
+      </h2>
+    </div>
+  </div>
+</section>
 
-            {/* === Imagen + descripción histórica en columnas (en pantallas grandes) === */}
-            <div className="grid md:grid-cols-2 gap-10 items-center mt-10">
-              {/* Imagen con enlace externo a la historia */}
-              <a
-                href="https://www.mammapizza.com/historia"
-                target="_blank"
-                rel="noopener noreferrer"
-                title="Conoce más sobre nuestra historia"
-                className="block w-full h-[400px] relative"
-              >
-                <Image
-                  src="/images/pizzero.png"
-                  alt="Pizzero cocinando"
-                  fill
-                  className="object-cover rounded-lg"
-                />
-              </a>
+{/* === Sección inferior blanca con imagen y texto alineados === */}
+<section className="bg-white py-12">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="grid md:grid-cols-2 gap-10 items-center">
+      {/* Imagen */}
+      <div className="relative w-full h-[400px] bg-white">
+        <Image
+          src="/images/pizzero.png"
+          alt="Pizzero cocinando"
+          fill
+          className="object-cover rounded-md bg-white"
+        />
+      </div>
 
-              {/* Texto con año y descripción */}
-                <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <h3 className="text-4xl font-extrabold">
-                  <strong>1959 Grandes Sueños</strong>
-                </h3>
-                <p className="mt-6 text-lg md:text-xl">
-                  <strong>
-                  Los jóvenes empresarios Mike y Marian Ilitch invierten los
-                  ahorros de toda su vida para abrir un pequeño restaurante de
-                  pizzas en Garden City, Michigan.
-                  </strong>
-                </p>
-                </div>
-            </div>
+      {/* Texto a la derecha */}
+      <div className="flex justify-center items-center w-full">
+        <div className="text-center bg-white">
+          <h3 className="text-2xl md:text-3xl font-extrabold text-[#5A2A1D]">
+            1959 <br /> Grandes Sueños
+          </h3>
+          <p className="mt-4 text-base md:text-lg text-gray-800 leading-relaxed">
+            Los jóvenes empresarios <strong>Mike y Marian Ilitch</strong> invierten los
+            ahorros de toda su vida para abrir un pequeño restaurante de pizzas
+            en Garden City, Michigan.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+            {/* Texto a la derecha */}
+           
           </div>
         </div>
       </section>
@@ -69,22 +72,22 @@ export default function Home() {
       <section className="px-6 py-16 bg-white">
         <div className="flex flex-col md:flex-row gap-10 items-center max-w-6xl mx-auto">
           {/* Texto de invitación a visitar locales */}
-            <div className="flex-1 order-2 md:order-1">
+          <div className="flex-1 order-2 md:order-1">
             <h3 className="text-3xl font-bold">
               <strong>Visítanos en Nuestros Locales</strong>
             </h3>
             <p className="mt-4 text-gray-700">
               <strong>
-              Encuentra tu local más cercano y vive la experiencia Mammapizza.
-              ¡Te esperamos con los brazos abiertos y la mejor pizza!
+                Encuentra tu local más cercano y vive la experiencia Mammapizza.
+                ¡Te esperamos con los brazos abiertos y la mejor pizza!
               </strong>
             </p>
             <p>
               <strong>
-              Nos Ubicamos en la Calle Granados 529 California, Víctor Larco Herrera, Peru, 13001
+                Nos Ubicamos en la Calle Granados 529 California, Víctor Larco Herrera, Peru, 13001
               </strong>
             </p>
-            </div>
+          </div>
 
           {/* Imagen que enlaza a mapa en Waze */}
           <a
@@ -95,7 +98,7 @@ export default function Home() {
             title="Ver mapa en Waze"
           >
             <Image
-              src="/images/ubicacion.png" 
+              src="/images/ubicacion.png"
               alt="Ver mapa de locales"
               width={800}
               height={400}
@@ -112,20 +115,20 @@ export default function Home() {
           <div className="bg-[#1a0f0a] text-white px-6 py-16 w-screen relative left-1/2 right-1/2 -mx-[50vw]">
             <div className="max-w-full mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
 
-                {/* Columna 1: Información sobre la empresa */}
-                <div className="text-left">
+              {/* Columna 1: Información sobre la empresa */}
+              <div className="text-left">
                 <h3 className="text-2xl font-bold mb-4">Sobre nosotros</h3>
                 <p className="text-gray-300 mb-2">
                   <strong>
-                  En Mamma Pizza sentimos pasión por las pizzas y las pastas. Te invitamos a probar las especialidades de la casa.
+                    En Mamma Pizza sentimos pasión por las pizzas y las pastas. Te invitamos a probar las especialidades de la casa.
                   </strong>
                 </p>
                 <p className="text-gray-300">
                   <strong>
-                  Nuestros exquisitos calzones, nuestras tan pedidas pastas y unas pizzas que definitivamente te darán la excusa ideal para regresar!!
+                    Nuestros exquisitos calzones, nuestras tan pedidas pastas y unas pizzas que definitivamente te darán la excusa ideal para regresar!!
                   </strong>
                 </p>
-                </div>
+              </div>
 
               {/* Columna 2: Contacto */}
               <div className="text-left">
@@ -138,14 +141,14 @@ export default function Home() {
                   title="Contáctanos por WhatsApp"
                 >
                   <svg width="24" height="24" fill="currentColor" className="shrink-0">
-                  <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.77 0-3.5-.46-5.01-1.33l-.36-.21-3.69.96.99-3.59-.23-.37A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.6c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.9 1.12-.17.19-.33.21-.62.07-.29-.15-1.22-.45-2.33-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.56-.47-.48-.64-.49-.16-.01-.36-.01-.56-.01-.19 0-.51.07-.78.36-.27.29-1.02 1-1.02 2.43 0 1.43 1.04 2.81 1.19 3 .15.19 2.05 3.13 5.01 4.27.7.3 1.25.48 1.68.61.71.23 1.36.2 1.87.12.57-.09 1.7-.69 1.94-1.36.24-.67.24-1.25.17-1.36-.07-.11-.26-.18-.55-.33z"/>
+                    <path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.62A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.19-1.24-6.19-3.48-8.52zM12 22c-1.77 0-3.5-.46-5.01-1.33l-.36-.21-3.69.96.99-3.59-.23-.37A9.93 9.93 0 0 1 2 12c0-5.52 4.48-10 10-10s10 4.48 10 10-4.48 10-10 10zm5.2-7.6c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.9 1.12-.17.19-.33.21-.62.07-.29-.15-1.22-.45-2.33-1.43-.86-.77-1.44-1.72-1.61-2.01-.17-.29-.02-.45.13-.6.13-.13.29-.34.43-.51.14-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.07-.15-.64-1.54-.88-2.11-.23-.56-.47-.48-.64-.49-.16-.01-.36-.01-.56-.01-.19 0-.51.07-.78.36-.27.29-1.02 1-1.02 2.43 0 1.43 1.04 2.81 1.19 3 .15.19 2.05 3.13 5.01 4.27.7.3 1.25.48 1.68.61.71.23 1.36.2 1.87.12.57-.09 1.7-.69 1.94-1.36.24-.67.24-1.25.17-1.36-.07-.11-.26-.18-.55-.33z" />
                   </svg>
                   Contáctenos
                 </a>
                 <ul className="text-gray-300 space-y-2">
-                 
+
                   <li className="flex items-start gap-2">
-                    💌 {<span><a href="Mammpizza@pizzarico.com" className="underline hover:text-yellow-400">Mammapizza@pizzarico.com</a></span>}
+                    💌 <span><a href="mailto:Mammapizza@pizzarico.com" className="underline hover:text-yellow-400">Mammapizza@pizzarico.com</a></span>
                   </li>
                   <li className="flex items-start gap-2">
                     ☎️ <span><a href="tel:+51 989 481 847" className="underline hover:text-yellow-400">+51 989 481 847</a></span>
@@ -165,7 +168,7 @@ export default function Home() {
                   >
                     {/* Icono de Facebook */}
                     <svg width="24" height="24" fill="currentColor" className="shrink-0">
-                      <path d="M22 12c0-5.522-4.477-10-10-10S2 6.478 2 12c0 5.004 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.242 0-1.632.771-1.632 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 17.004 22 12"/>
+                      <path d="M22 12c0-5.522-4.477-10-10-10S2 6.478 2 12c0 5.004 3.657 9.128 8.438 9.877v-6.987h-2.54v-2.89h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.242 0-1.632.771-1.632 1.562v1.875h2.773l-.443 2.89h-2.33v6.987C18.343 21.128 22 17.004 22 12" />
                     </svg>
                     Facebook
                   </a>
@@ -177,7 +180,7 @@ export default function Home() {
                   >
                     {/* Icono de Instagram */}
                     <svg width="24" height="24" fill="currentColor" className="shrink-0">
-                      <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5zm5.25.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                      <path d="M7.75 2h8.5A5.75 5.75 0 0 1 22 7.75v8.5A5.75 5.75 0 0 1 16.25 22h-8.5A5.75 5.75 0 0 1 2 16.25v-8.5A5.75 5.75 0 0 1 7.75 2zm0 1.5A4.25 4.25 0 0 0 3.5 7.75v8.5A4.25 4.25 0 0 0 7.75 20.5h8.5A4.25 4.25 0 0 0 20.5 16.25v-8.5A4.25 4.25 0 0 0 16.25 3.5h-8.5zm4.25 3.25a5.25 5.25 0 1 1 0 10.5 5.25 5.25 0 0 1 0-10.5zm0 1.5a3.75 3.75 0 1 0 0 7.5 3.75 3.75 0 0 0 0-7.5zm5.25.75a1 1 0 1 1-2 0 1 1 0 0 1 2 0z" />
                     </svg>
                     Instagram
                   </a>
