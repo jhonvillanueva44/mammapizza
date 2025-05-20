@@ -36,17 +36,19 @@ export default function Home() {
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div className="grid md:grid-cols-2 gap-10 items-center">
       {/* Imagen */}
-      <div className="relative w-full h-[400px] bg-white">
+      <div className="relative w-full min-h-[300px] h-[300px] md:h-[400px] bg-white flex items-center justify-center">
         <Image
           src="/images/pizzero.png"
           alt="Pizzero cocinando"
           fill
           className="object-cover rounded-md bg-white"
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
         />
       </div>
 
       {/* Texto a la derecha */}
-      <div className="flex justify-center items-center w-full">
+      <div className="flex flex-col justify-center items-center w-full">
         <div className="text-center bg-white">
           <h3 className="text-2xl md:text-3xl font-extrabold text-[#5A2A1D]">
             1959 <br /> Grandes Sueños
