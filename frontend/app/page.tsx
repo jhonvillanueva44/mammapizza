@@ -3,6 +3,9 @@
 import { useRef } from "react";
 import "../styles/globals.css";
 import CardPizza from "@/components/CardPizza";
+import Carousel from "@/components/CarruselBebidas";
+import Footer from "@/components/Footer";
+
 
 export default function Home() {
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -132,6 +135,17 @@ export default function Home() {
           </button>
         </div>
       </main>
+
+    <div>
+      <Carousel />
+      {/* otras secciones */}
+    </div>
+ 
+    <div>
+      <Footer />
+      {/* otras secciones */}
+    </div>
+
     </div>
   );
 }
