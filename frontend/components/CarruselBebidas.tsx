@@ -27,33 +27,33 @@ export default function Carousel() {
   };
 
   return (
-    <div className="relative w-full h-[70vh] overflow-hidden">
-      {/* Imagen */}
-      <img
-        src={images[current]}
-        alt={`imagen_${current}`}
-        className="w-full h-full object-cover transition-all duration-700"
-      />
+  <div className="relative w-full overflow-hidden">
+    {/* Imagen */}
+    <img
+      src={images[current]}
+      alt={`imagen_${current}`}
+      className="w-full h-auto sm:h-[70vh] object-contain sm:object-cover transition-all duration-700"
+    />
 
-      {/* Fondo oscuro + contenido opcional */}
-      <div className="absolute inset-0 flex items-center justify-center text-white text-3xl font-bold">
-      </div>
+    {/* Flechas y overlay */}
+    <div className="absolute inset-0 flex items-center justify-center text-white text-3xl font-bold pointer-events-none" />
 
-      {/* Flecha izquierda */}
-      <button
-        onClick={prevSlide}
-        className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/70 hover:bg-[#5E3527] text-black p-3 rounded-full shadow-md"
-      >
-        &#8592;
-      </button>
+    {/* Flecha izquierda */}
+    <button
+      onClick={prevSlide}
+      className="absolute top-1/2 left-4 transform -translate-y-1/2 bg-white/70 hover:bg-[#5E3527] text-black p-3 rounded-full shadow-md pointer-events-auto"
+    >
+      &#8592;
+    </button>
 
-      {/* Flecha derecha */}
-      <button
-        onClick={nextSlide}
-        className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/70 hover:bg-[#5E3527] text-black p-3 rounded-full shadow-md"
-      >
-        &#8594;
-      </button>
-    </div>
-  );
+    {/* Flecha derecha */}
+    <button
+      onClick={nextSlide}
+      className="absolute top-1/2 right-4 transform -translate-y-1/2 bg-white/70 hover:bg-[#5E3527] text-black p-3 rounded-full shadow-md pointer-events-auto"
+    >
+      &#8594;
+    </button>
+  </div>
+);
+
 }

@@ -5,6 +5,7 @@ import "../styles/globals.css";
 import CardPizza from "@/components/CardPizza";
 import Carousel from "@/components/CarruselBebidas";
 import Footer from "@/components/Footer";
+import MenuCarrusel from "@/components/MenuCarrusel";
 
 export default function Home() {
   const carouselRef1 = useRef<HTMLDivElement>(null);
@@ -32,7 +33,7 @@ export default function Home() {
     });
   };
 
-  const cards = Array.from({ length: 6 });
+  const cards = Array.from({ length: 8 });
 
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
@@ -59,6 +60,10 @@ export default function Home() {
         </div>
       </section>
 
+      <div>
+        <MenuCarrusel />
+      </div>
+
       {/* PROMOCIONES */}
       <main className="p-2 sm:p-6 lg:p-16 flex flex-col gap-2 sm:gap-6">
         <h1 className="text-xl sm:text-3xl font-bold">Promociones</h1>
@@ -66,8 +71,7 @@ export default function Home() {
           Una promoción se disfruta mejor en familia y amigos
         </p>
 
-        <div className="relative w-full max-w-full sm:max-w-3xl lg:max-w-6xl mx-auto overflow-visible">
-          {/* Flecha Izquierda */}
+<div className="relative w-full px-4 sm:px-8 lg:px-12 overflow-visible">
           <button
             onClick={() => scroll("left", carouselRef1)}
             className="hidden sm:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
@@ -78,10 +82,13 @@ export default function Home() {
           <div className="px-1 sm:px-6 py-2">
             <div
               ref={carouselRef1}
-              className="flex gap-3 sm:gap-6 no-scrollbar overflow-x-auto sm:overflow-hidden"
+              className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto sm:overflow-hidden snap-x snap-mandatory no-scrollbar"
             >
               {cards.map((_, i) => (
-                <div className="min-w-[220px] sm:min-w-[260px] max-w-xs flex-shrink-0" key={i}>
+                <div
+                  key={i}
+                  className="min-w-[180px] sm:min-w-[200px] lg:min-w-[220px] max-w-[220px] flex-shrink-0 snap-start"
+                >
                   <CardPizza
                     title="Súper Promo Aña"
                     description="Disfruta de una pizza familiar y una bebida de 2L."
@@ -95,7 +102,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Flecha Derecha */}
           <button
             onClick={() => scroll("right", carouselRef1)}
             className="hidden sm:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
@@ -112,7 +118,7 @@ export default function Home() {
           Revisa las pizzas, combos y complementos más pedidos que tenemos para ti.
         </p>
 
-        <div className="relative w-full max-w-full sm:max-w-3xl lg:max-w-6xl mx-auto overflow-visible">
+<div className="relative w-full px-4 sm:px-8 lg:px-12 overflow-visible">
           <button
             onClick={() => scroll("left", carouselRef2)}
             className="hidden sm:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
@@ -123,10 +129,13 @@ export default function Home() {
           <div className="px-1 sm:px-6 py-2">
             <div
               ref={carouselRef2}
-              className="flex gap-3 sm:gap-6 no-scrollbar overflow-x-auto sm:overflow-hidden"
+              className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto sm:overflow-hidden snap-x snap-mandatory no-scrollbar"
             >
               {cards.map((_, i) => (
-                <div className="min-w-[220px] sm:min-w-[260px] max-w-xs flex-shrink-0" key={i}>
+                <div
+                  key={i}
+                  className="min-w-[180px] sm:min-w-[200px] lg:min-w-[220px] max-w-[220px] flex-shrink-0 snap-start"
+                >
                   <CardPizza
                     title="Súper Promo Aña"
                     description="Disfruta de una pizza familiar y una bebida de 2L."
