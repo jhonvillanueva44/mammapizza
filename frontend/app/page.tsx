@@ -1,167 +1,279 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import "../styles/globals.css";
-import CardPizza from "@/components/CardPizza";
 import Carousel from "@/components/CarruselBebidas";
 import Footer from "@/components/Footer";
-import MenuCarrusel from "@/components/MenuCarrusel";
+import CategoryCard from "@/components/CategoryCard/CategoryCard";
+import Hero from "@/components/Hero";
+import ProductoCard from "@/components/ProductoCard";
+import BannerCard from "@/components/BannerCard/BannerCard";
 
 export default function Home() {
-  const carouselRef1 = useRef<HTMLDivElement>(null);
-  const carouselRef2 = useRef<HTMLDivElement>(null);
 
-  const scroll = (
-    direction: "left" | "right",
-    ref: React.RefObject<HTMLDivElement | null>
-  ) => {
-    const container = ref.current;
-    if (!container) return;
+  // INFORMACION PARA CATEGORIAS
+  const categories = [
+    { title: "Pizzas", image: "/images/category-pizza.png" },
+    { title: "Calzone", image: "/images/category-calzone.png" },
+    { title: "Pastas", image: "/images/category-pasta.png" },
+    { title: "Adicionales", image: "/images/category-adicional.png" },
+    { title: "Promociones", image: "/images/category-promocion.png" },
+  ];
 
-    const firstCard = container.querySelector("div");
-    if (!firstCard) return;
+  // INFORMACION PARA PRODUCTOS
+  const productosPromocion = Array.from({ length: 10 }).map((_, i) => ({
+    titulo: `Pizza Especial ${i + 1}`,
+    descripcion: "Deliciosa pizza con ingredientes seleccionados.",
+    precio: 89.99,
+    precioAntiguo: 119.99,
+    descuento: 25,
+    imagen: "images/card-pizza.jpg",
+  }));
 
-    const style = getComputedStyle(firstCard);
-    const cardWidth = firstCard.clientWidth;
-    const gap = parseInt(style.marginRight) || 24;
+  // INFORMACION PARA CALZONE
+  const productosCalzone = Array.from({ length: 10 }).map((_, i) => ({
+    titulo: `Calzone Especial ${i + 1}`,
+    descripcion: "Calzone relleno con ingredientes frescos.",
+    precio: 75.99,
+    imagen: "images/card-calzone.jpg",
+  }));
 
-    const scrollAmount = cardWidth + gap;
+  // INFORMACION PARA PASTAS
+  const productosPastas = Array.from({ length: 8 }).map((_, i) => ({
+    titulo: `Pasta Especial ${i + 1}`,
+    descripcion: "Pasta casera con salsa tradicional.",
+    precio: 65.99,
+    imagen: "images/card-pasta.jpeg",
+  }));
 
-    container.scrollBy({
-      left: direction === "left" ? -scrollAmount : scrollAmount,
-      behavior: "smooth",
-    });
+  // SCROLL PARA EL CARRUSEL DE CARDS
+  const promoRef = useRef<HTMLDivElement>(null);
+  const calzoneRef = useRef<HTMLDivElement>(null);
+  const pastasRef = useRef<HTMLDivElement>(null);
+
+  const scrollPizzas = (direction: "left" | "right") => {
+    if (promoRef.current) {
+      const scrollAmount = promoRef.current.offsetWidth * 0.8;
+      promoRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
-  const cards = Array.from({ length: 8 });
+  const scrollCalzone = (direction: "left" | "right") => {
+    if (calzoneRef.current) {
+      const scrollAmount = calzoneRef.current.offsetWidth * 0.8;
+      calzoneRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  const scrollPastas = (direction: "left" | "right") => {
+    if (pastasRef.current) {
+      const scrollAmount = pastasRef.current.offsetWidth * 0.8;
+      pastasRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  // INFORMACION PARA BANNER CARD
+  const images = [
+    '/images/category-calzone.png',
+    '/images/category-calzone.png',
+    '/images/category-calzone.png',
+  ];
 
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
-      {/* IMAGEN PRINCIPAL */}
-      <section className="relative w-full h-[35vh] sm:h-[55vh] lg:h-[70vh]">
-        <img
-          src="/images/pizza.jpg"
-          alt="pizza_deliciosa"
-          className="absolute top-0 left-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-2 sm:px-4 bg-black/60">
-          <h1 className="text-2xl sm:text-4xl lg:text-6xl font-bold mb-2 sm:mb-4">
-            ¡El sabor que conquista!
-          </h1>
-          <p className="text-base sm:text-xl lg:text-3xl mb-1 sm:mb-2">
-            Pizzas artesanales, recién horneadas
-          </p>
-          <p className="max-w-md sm:max-w-xl mb-2 sm:mb-4 text-xs sm:text-base">
-            Descubre el auténtico sabor de nuestras pizzas hechas con ingredientes frescos y masa artesanal.
-          </p>
-          <button className="bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 rounded-2xl text-sm sm:text-base">
-            Llámanos
-          </button>
-        </div>
-      </section>
 
-      <div>
-        <MenuCarrusel />
+      {/* SECCION DE HERO */}
+      <Hero />
+
+      {/* MENUCARRUSEL -> CATEGORYCARD */}
+      <div className="flex flex-wrap justify-center gap-4 p-4">
+        {categories.map((cat, i) => (
+          <CategoryCard key={i} title={cat.title} image={cat.image} />
+        ))}
       </div>
 
       {/* PROMOCIONES */}
-      <main className="p-2 sm:p-6 lg:p-16 flex flex-col gap-2 sm:gap-6">
-        <h1 className="text-xl sm:text-3xl font-bold">Promociones</h1>
-        <p className="text-xs sm:text-base">
-          Una promoción se disfruta mejor en familia y amigos
-        </p>
+      <section className="w-full py-10 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-6 flex-wrap sm:flex-nowrap">
+            <div className="max-w-[70%] sm:max-w-none">
+              <h1 className="text-xl sm:text-3xl font-bold">Promociones</h1>
+              <p className="text-xs sm:text-base break-words">
+                Una promoción se disfruta mejor en familia y amigos
+              </p>
+            </div>
+            <button className="text-sm sm:text-base underline text-red-600 whitespace-nowrap mt-2 sm:mt-0">
+              Ver más
+            </button>
+          </div>
 
-<div className="relative w-full px-4 sm:px-8 lg:px-12 overflow-visible">
-          <button
-            onClick={() => scroll("left", carouselRef1)}
-            className="hidden sm:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
-          >
-            &#8592;
-          </button>
 
-          <div className="px-1 sm:px-6 py-2">
-            <div
-              ref={carouselRef1}
-              className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto sm:overflow-hidden snap-x snap-mandatory no-scrollbar"
+          <div className="relative">
+
+            <button
+              onClick={() => scrollPizzas("left")}
+              className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
             >
-              {cards.map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[180px] sm:min-w-[200px] lg:min-w-[220px] max-w-[220px] flex-shrink-0 snap-start"
-                >
-                  <CardPizza
-                    title="Súper Promo Aña"
-                    description="Disfruta de una pizza familiar y una bebida de 2L."
-                    price="$20.00"
-                    oldPrice="$60.00"
-                    imageUrl="/images/pizza.jpg"
-                    discount="-45%"
-                  />
+              ◀
+            </button>
+
+            <div
+              ref={promoRef}
+              className="flex gap-4 flex-nowrap overflow-x-auto sm:overflow-x-hidden scrollbar-hide"
+            >
+              {productosPromocion.map((producto, index) => (
+                <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
+                  <ProductoCard {...producto} />
                 </div>
               ))}
             </div>
+
+            <button
+              onClick={() => scrollPizzas("right")}
+              className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCION CALZONE */}
+      <section className="w-full py-10 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-6 flex-wrap sm:flex-nowrap">
+            <div className="max-w-[70%] sm:max-w-none">
+              <h1 className="text-xl sm:text-3xl font-bold">Calzone</h1>
+              <p className="text-xs sm:text-base break-words">
+                Disfruta de un delicioso calzone con ingredientes frescos y variados
+              </p>
+            </div>
+            <button className="text-sm sm:text-base underline text-red-600 whitespace-nowrap mt-2 sm:mt-0">
+              Ver más
+            </button>
           </div>
 
-          <button
-            onClick={() => scroll("right", carouselRef1)}
-            className="hidden sm:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
-          >
-            &#8594;
-          </button>
-        </div>
-      </main>
 
-      {/* LO MÁS VENDIDO */}
-      <main className="p-2 sm:p-6 lg:p-16 flex flex-col gap-2 sm:gap-6">
-        <h1 className="text-xl sm:text-3xl font-bold">¡Lo más vendido!</h1>
-        <p className="text-xs sm:text-base">
-          Revisa las pizzas, combos y complementos más pedidos que tenemos para ti.
-        </p>
-
-<div className="relative w-full px-4 sm:px-8 lg:px-12 overflow-visible">
-          <button
-            onClick={() => scroll("left", carouselRef2)}
-            className="hidden sm:flex absolute left-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
-          >
-            &#8592;
-          </button>
-
-          <div className="px-1 sm:px-6 py-2">
-            <div
-              ref={carouselRef2}
-              className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto sm:overflow-hidden snap-x snap-mandatory no-scrollbar"
+          <div className="relative">
+            <button
+              onClick={() => scrollCalzone("left")}
+              className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
+              aria-label="Desplazar calzone izquierda"
             >
-              {cards.map((_, i) => (
-                <div
-                  key={i}
-                  className="min-w-[180px] sm:min-w-[200px] lg:min-w-[220px] max-w-[220px] flex-shrink-0 snap-start"
-                >
-                  <CardPizza
-                    title="Súper Promo Aña"
-                    description="Disfruta de una pizza familiar y una bebida de 2L."
-                    price="$20.00"
-                    oldPrice="$60.00"
-                    imageUrl="/images/pizza.jpg"
-                    discount="-45%"
-                  />
+              ◀
+            </button>
+
+            <div
+              ref={calzoneRef}
+              className="flex gap-4 flex-nowrap overflow-x-auto sm:overflow-x-hidden scrollbar-hide"
+            >
+              {productosCalzone.map((producto, index) => (
+                <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
+                  <ProductoCard {...producto} />
                 </div>
               ))}
             </div>
+
+            <button
+              onClick={() => scrollCalzone("right")}
+              className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
+              aria-label="Desplazar calzone derecha"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCION PASTAS */}
+      <section className="w-full py-10 bg-white relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-6 flex-wrap sm:flex-nowrap">
+            <div className="max-w-[70%] sm:max-w-none">
+              <h1 className="text-xl sm:text-3xl font-bold">Pastas</h1>
+              <p className="text-xs sm:text-base break-words">
+                Prueba nuestras pastas caseras con salsa tradicional, ¡te encantarán!
+              </p>
+            </div>
+            <button className="text-sm sm:text-base underline text-red-600 whitespace-nowrap mt-2 sm:mt-0">
+              Ver más
+            </button>
           </div>
 
-          <button
-            onClick={() => scroll("right", carouselRef2)}
-            className="hidden sm:flex absolute right-0 top-1/2 z-10 -translate-y-1/2 bg-white shadow-md rounded-full p-2 sm:p-3 text-[#5E3527] hover:bg-[#BF7645] transition"
-          >
-            &#8594;
-          </button>
-        </div>
-      </main>
+          <div className="relative">
+            <button
+              onClick={() => scrollPastas("left")}
+              className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
+              aria-label="Desplazar pastas izquierda"
+            >
+              ◀
+            </button>
 
-      <div>
+            <div
+              ref={pastasRef}
+              className="flex gap-4 flex-nowrap overflow-x-auto sm:overflow-x-hidden scrollbar-hide"
+            >
+              {productosPastas.map((producto, index) => (
+                <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
+                  <ProductoCard {...producto} />
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={() => scrollPastas("right")}
+              className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-30 bg-gray-200 border border-gray-300 rounded-full p-3 hover:bg-red-600 hover:text-white transition"
+              aria-label="Desplazar pastas derecha"
+            >
+              ▶
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SECCION DE BANNERS DE JUGOS */}
+      <section className="flex flex-col gap-8 items-center w-full py-12 bg-white">
+        <BannerCard
+          images={images}
+          title="Jugo de Frutas Tropicales"
+          subtitle="Frescura 100% Natural"
+          description="Una mezcla deliciosa de frutas exóticas, perfecta para mantenerte hidratado y saludable."
+          linkLeft="/jugos/tropical"
+          linkRight="/jugos/tropical/info"
+        />
+        <BannerCard
+          images={images}
+          title="Jugo de Naranja y Zanahoria"
+          subtitle="Energía para tu Día"
+          description="El poder de la vitamina C y betacarotenos en un solo sorbo. Ideal para comenzar tu jornada."
+          linkLeft="/jugos/naranja-zanahoria"
+          linkRight="/jugos/naranja-zanahoria/info"
+        />
+        <BannerCard
+          images={images}
+          title="Jugo Verde Detox"
+          subtitle="Limpieza y Vitalidad"
+          description="Una mezcla saludable de manzana, espinaca y pepino. Ideal para revitalizar tu cuerpo."
+          linkLeft="/jugos/detox"
+          linkRight="/jugos/detox/info"
+        />
+      </section>
+
+      {/* CARRUSEL DE BEBIDAS 
+      <div className="mt-10">
         <Carousel />
-      </div>
+      </div> */}
 
+      {/* FOOTER */}
       <div>
         <Footer />
       </div>

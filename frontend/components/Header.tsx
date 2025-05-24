@@ -7,7 +7,7 @@ export default function Header() {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
-    <header className="w-full py-2 bg-[#5E3527] text-white font-[var(--font-geist-sans)]">
+    <header className="w-full py-2 bg-[#0C1011] text-white font-[var(--font-geist-sans)]">
       <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
         
         <div className="flex items-center">
