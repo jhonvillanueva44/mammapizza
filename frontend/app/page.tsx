@@ -21,20 +21,50 @@ export default function Home() {
   ];
 
   // INFORMACION PARA PRODUCTOS
-  const productosPromocion = Array.from({ length: 10 }).map((_, i) => ({
-    titulo: `Pizza Especial ${i + 1}`,
-    descripcion: "Deliciosa pizza con ingredientes seleccionados.",
-    precio: 89.99,
-    precioAntiguo: 119.99,
-    descuento: 25,
-    imagen: "images/card-pizza.jpg",
-  }));
+const [productosPromocion, setProductosPromocion] = useState([]);
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/productos/promociones");
+        const data = await response.json();
+
+        const productosFiltrados = data
+          .map((producto: any) => {
+
+        const impuesto = (producto.impuesto) || 0;
+        const precio = parseFloat(producto.precio) || 0;
+        const descuento = parseFloat(producto.impuesto) || 0;
+        const precioAntiguo = descuento > 0 ? parseFloat((precio / (1 - descuento / 100)).toFixed(2)) : undefined;
+
+
+       return {
+         titulo: producto.nombre || "Producto sin nombre",
+        descripcion: producto.descripcion || "",
+        precio: precio,
+        precioAntiguo: precioAntiguo,
+        descuento: descuento,
+        imagen: typeof producto.imagen === "string" ? producto.imagen : "",
+       };
+     });
+
+
+        setProductosPromocion(productosFiltrados);
+      } catch (error) {
+        console.error("Error al obtener productos:", error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
 
   // INFORMACION PARA CALZONE
   const productosCalzone = Array.from({ length: 10 }).map((_, i) => ({
     titulo: `Calzone Especial ${i + 1}`,
     descripcion: "Calzone relleno con ingredientes frescos.",
     precio: 75.99,
+    precioAntiguo: 85.99,
+    descuento: 12,
     imagen: "images/card-calzone.jpg",
   }));
 
@@ -132,7 +162,7 @@ export default function Home() {
             >
               {productosPromocion.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  <ProductoCard {...producto} />
+                  {/* <ProductoCard {...producto} /> */}
                 </div>
               ))}
             </div>
