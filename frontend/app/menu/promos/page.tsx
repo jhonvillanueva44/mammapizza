@@ -1,9 +1,21 @@
-import Link from "next/link";
+'use client'
+
+import FilterButtons from '@/components/btn-ctnd-pers'
+import ProductoCard from "@/components/ProductoCard";
+
 
 export default function MenuPromosPage() {
+  const handleFilterChange = (value: { filter: 'todos' | 'personas'; selected?: string }) => {
+    console.log('Filtro aplicado:', value)
+    // Aquí puedes aplicar lógica para mostrar resultados según el filtro
+  }
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <h1>MENU - PROMOS</h1>
+    <div className="min-h-screen p-6 sm:p-10 font-[var(--font-geist-sans)]">
+      <div className="flex flex-col items-start gap-4 max-w-[300px]">
+        <h1 className="text-2xl font-bold">Menú - Promociones</h1>
+        <FilterButtons onChange={handleFilterChange} />
+
+      </div>
     </div>
-  );
+  )
 }
