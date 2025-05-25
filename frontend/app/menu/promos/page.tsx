@@ -1,5 +1,5 @@
 'use client'
-
+import Link from "next/link";
 import FilterButtons from '@/components/btn-ctnd-pers'
 import ProductoCard from "@/components/ProductoCard";
 
