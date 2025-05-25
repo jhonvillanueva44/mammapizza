@@ -2,7 +2,7 @@ const pool = require('../db');
 
 const Inventario = {
   getAll: async () => {
-    const res = await pool.query('SELECT * FROM inventarios');
+    const res = await pool.query('SELECT * FROM inventarios ORDER BY id ASC');
     return res.rows;
   },
   getById: async (id) => {

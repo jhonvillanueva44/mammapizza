@@ -1,31 +1,13 @@
+// IMPORTACIONES
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');  // IMPORTANTE: subir nivel para encontrar db.js
+const pool = require('../db');
 const Producto = require('../models/productos');
 const Categoria = require('../models/categorias');
 const Tipo = require('../models/tipos');
 const Inventario = require('../models/inventarios');
 
-// Productos
-router.get('/productos', async (req, res) => {
-  try {
-    const data = await Producto.getAll();
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al obtener productos' });
-  }
-});
-
-router.post('/productos', async (req, res) => {
-  try {
-    const producto = await Producto.create(req.body);
-    res.status(201).json(producto);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al crear producto', detalle: err.message });
-  }
-});
-
-// Filtros productos
+// PRODUCTOS POR CATEGORÍA DE NIVEL
 router.get('/productos/categorias', async (req, res) => {
   try {
     const resultado = await pool.query(`
@@ -38,11 +20,20 @@ router.get('/productos/categorias', async (req, res) => {
   }
 });
 
+// PRODUCTOS POR CATEGORÍA DE PROMOCIONES
 router.get('/productos/promociones', async (req, res) => {
   try {
     const resultado = await pool.query(`
-      SELECT * FROM productos WHERE categoria_id = 4
+      SELECT * 
+      FROM productos
+      WHERE categoria_id = (
+        SELECT c.id 
+        FROM categorias c
+        WHERE UPPER(c.nombre) = 'PROMOCIONES'
+        LIMIT 1
+      )
     `);
+
     res.json(resultado.rows);
   } catch (err) {
     console.error('Error al obtener productos promocionales:', err);
@@ -50,7 +41,7 @@ router.get('/productos/promociones', async (req, res) => {
   }
 });
 
-// Categorías
+// CATEGORIAS
 router.get('/categorias', async (req, res) => {
   try {
     const data = await Categoria.getAll();
@@ -60,16 +51,7 @@ router.get('/categorias', async (req, res) => {
   }
 });
 
-router.post('/categorias', async (req, res) => {
-  try {
-    const categoria = await Categoria.create(req.body);
-    res.status(201).json(categoria);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al crear categoría' });
-  }
-});
-
-// Tipos
+// TIPOS
 router.get('/tipos', async (req, res) => {
   try {
     const data = await Tipo.getAll();
@@ -79,16 +61,7 @@ router.get('/tipos', async (req, res) => {
   }
 });
 
-router.post('/tipos', async (req, res) => {
-  try {
-    const tipo = await Tipo.create(req.body);
-    res.status(201).json(tipo);
-  } catch (err) {
-    res.status(500).json({ error: 'Error al crear tipo' });
-  }
-});
-
-// Inventarios
+// INVENTARIOS
 router.get('/inventarios', async (req, res) => {
   try {
     const data = await Inventario.getAll();
@@ -98,12 +71,23 @@ router.get('/inventarios', async (req, res) => {
   }
 });
 
-router.post('/inventarios', async (req, res) => {
+// PRODUCTOS
+router.get('/productos', async (req, res) => {
   try {
-    const inventario = await Inventario.create(req.body);
-    res.status(201).json(inventario);
+    const data = await Producto.getAll();
+    res.json(data);
   } catch (err) {
-    res.status(500).json({ error: 'Error al crear inventario' });
+    res.status(500).json({ error: 'Error al obtener productos' });
+  }
+});
+
+// CREAR PRODUCTO
+router.post('/productos', async (req, res) => {
+  try {
+    const producto = await Producto.create(req.body);
+    res.status(201).json(producto);
+  } catch (err) {
+    res.status(500).json({ error: 'Error al crear producto', detalle: err.message });
   }
 });
 

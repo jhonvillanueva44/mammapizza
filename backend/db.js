@@ -1,4 +1,4 @@
-// db.js
+// CONEXION A LA BASE DE DATOS
 const { Pool } = require('pg');
 
 const pool = new Pool({

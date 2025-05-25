@@ -2,7 +2,7 @@ const pool = require('../db');
 
 const Categoria = {
   getAll: async () => {
-    const res = await pool.query('SELECT * FROM categorias');
+    const res = await pool.query('SELECT * FROM categorias ORDER BY id ASC');
     return res.rows;
   },
 

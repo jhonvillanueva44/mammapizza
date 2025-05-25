@@ -2,7 +2,7 @@ const pool = require('../db');
 
 const Tipo = {
   getAll: async () => {
-    const res = await pool.query('SELECT * FROM tipos');
+    const res = await pool.query('SELECT * FROM tipos ORDER BY id ASC');
     return res.rows;
   },
   getById: async (id) => {

@@ -6,7 +6,7 @@ import Carousel from "@/components/CarruselBebidas";
 import Footer from "@/components/Footer";
 import CategoryCard from "@/components/CategoryCard/CategoryCard";
 import Hero from "@/components/Hero";
-import ProductoCard from "@/components/ProductoCard";
+import ProductoCard, { ProductoCardProps } from "@/components/ProductoCard";
 import BannerCard from "@/components/BannerCard/BannerCard";
 
 export default function Home() {
@@ -21,41 +21,43 @@ export default function Home() {
   ];
 
   // INFORMACION PARA PRODUCTOS
-const [productosPromocion, setProductosPromocion] = useState([]);
+  const [productosPromocion, setProductosPromocion] = useState<ProductoCardProps[]>([]);
+  const promoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchProductos = async () => {
+    const fetchPromociones = async () => {
       try {
         const response = await fetch("http://localhost:4000/api/productos/promociones");
         const data = await response.json();
 
-        const productosFiltrados = data
-          .map((producto: any) => {
+        const productosMapeados = data.map((producto: any) => {
+        const precioActual = Number(producto.precio) || 0;
+        const descuento = producto.descuento ?? 0;
+        const precioAntiguo = descuento
+          ? +(precioActual / (1 - descuento / 100)).toFixed(2)
+          : undefined;
 
-        const impuesto = (producto.impuesto) || 0;
-        const precio = parseFloat(producto.precio) || 0;
-        const descuento = parseFloat(producto.impuesto) || 0;
-        const precioAntiguo = descuento > 0 ? parseFloat((precio / (1 - descuento / 100)).toFixed(2)) : undefined;
+        const imagenValida = producto.imagen && producto.imagen.trim() !== "" 
+          ? producto.imagen 
+          : "images/card-pizza.jpg";
 
+        return {
+          titulo: producto.nombre,
+          descripcion: producto.descripcion,
+          precio: precioActual,
+          imagen: imagenValida,
+          precioAntiguo,
+          descuento,
+        };
+      });
 
-       return {
-         titulo: producto.nombre || "Producto sin nombre",
-        descripcion: producto.descripcion || "",
-        precio: precio,
-        precioAntiguo: precioAntiguo,
-        descuento: descuento,
-        imagen: typeof producto.imagen === "string" ? producto.imagen : "",
-       };
-     });
-
-
-        setProductosPromocion(productosFiltrados);
+        setProductosPromocion(productosMapeados);
       } catch (error) {
-        console.error("Error al obtener productos:", error);
+        console.error("Error al cargar promociones:", error);
       }
     };
 
-    fetchProductos();
+    fetchPromociones();
   }, []);
 
   // INFORMACION PARA CALZONE
@@ -77,7 +79,7 @@ const [productosPromocion, setProductosPromocion] = useState([]);
   }));
 
   // SCROLL PARA EL CARRUSEL DE CARDS
-  const promoRef = useRef<HTMLDivElement>(null);
+  //const promoRef = useRef<HTMLDivElement>(null);
   const calzoneRef = useRef<HTMLDivElement>(null);
   const pastasRef = useRef<HTMLDivElement>(null);
 
@@ -162,7 +164,7 @@ const [productosPromocion, setProductosPromocion] = useState([]);
             >
               {productosPromocion.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  {/* <ProductoCard {...producto} /> */}
+                  <ProductoCard {...producto} />
                 </div>
               ))}
             </div>
