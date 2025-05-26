@@ -31,10 +31,9 @@ export default function Hero() {
     }, []);
 
     return (
-        <section className="relative w-full h-[50vh] sm:h-[60vh] md:h-[70vh] lg:h-[90vh] bg-gradient-to-b from-[#0C1011] to-[#1A1F20]">
+        <section className="relative w-full h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[100vh] bg-gradient-to-b from-[#0C1011] to-[#1A1F20]">
             <div className="max-w-7xl mx-auto h-full px-6 sm:px-12 flex flex-col md:flex-row items-center md:items-start justify-between gap-10">
-                {/* Texto */}
-                <div className="flex-1 text-white flex flex-col justify-center h-full">
+                <div className="flex-1 text-white flex flex-col justify-center h-full mt-15">
                     <h1
                         className="text-left text-4xl sm:text-5xl lg:text-7xl font-bold mb-3 sm:mb-5"
                         style={{ fontFamily: '"Dancing Script", cursive' }}
@@ -69,7 +68,7 @@ export default function Hero() {
                     </div>
                 </div>
 
-                <div className="hidden md:flex flex-1 justify-end items-center h-full">
+                <div className="hidden md:flex flex-1 justify-end items-center h-full hover:scale-110 transition-transform duration-300">
                     <img
                         src="/images/pizza-hero.png"
                         alt="Pizza deliciosa"

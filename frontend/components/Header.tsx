@@ -14,10 +14,8 @@ export default function Header() {
       const currentScrollY = window.scrollY
 
       if (currentScrollY > lastScrollY && currentScrollY > 60) {
-        // Bajando: ocultar header
         setShowHeader(false)
       } else {
-        // Subiendo: mostrar header
         setShowHeader(true)
       }
 
@@ -90,7 +88,7 @@ export default function Header() {
             <ul className="flex gap-4 text-sm sm:text-base">
               <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
               <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
-              <li><Link href="/menu" className="hover:text-red-500">Menu</Link></li>
+              <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
               <li><Link href="/desayunos" className="hover:text-red-500">Desayunos</Link></li>
               <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
             </ul>
@@ -116,7 +114,7 @@ export default function Header() {
             <ul className="flex flex-col gap-2 text-sm">
               <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
               <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
-              <li><Link href="/menu" className="hover:text-red-500">Menu</Link></li>
+              <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
               <li><Link href="/desayunos" className="hover:text-red-500">Desayunos</Link></li>
               <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
             </ul>

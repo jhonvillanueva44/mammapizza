@@ -7,7 +7,6 @@ import ProductoCard from "@/components/ProductoCard";
 export default function MenuPromosPage() {
   const handleFilterChange = (value: { filter: 'todos' | 'personas'; selected?: string }) => {
     console.log('Filtro aplicado:', value)
-    // Aquí puedes aplicar lógica para mostrar resultados según el filtro
   }
   return (
     <div className="min-h-screen p-6 sm:p-10 font-[var(--font-geist-sans)]">
