@@ -19,7 +19,7 @@ export default function Footer() {
           <div className="mt-4">
             <h4 className="font-bold mb-2">Escanea nuestro QR:</h4>
             <Image
-              src="/images/qr.png"
+              src="/images/qr.png" //imagen
               alt="QR para promociones"
               width={100}
               height={100}
