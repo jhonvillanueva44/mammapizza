@@ -1,4 +1,4 @@
-import { findAllProductosService, createProductoService } from '../services/productos.service.js';
+import { findAllProductosService, createProductoService, findAllProductosByCategoriaService } from '../services/productos.service.js';
 
 export const getProductos = async (req, res) => {
     try {
@@ -29,6 +29,42 @@ export const createProducto = async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+    }
+}
+
+export const getProductosByPromociones = async (req, res) => {
+    const categoriaId = 1;
+
+    try {
+        const productos = await findAllProductosByCategoriaService(categoriaId);
+        res.json(productos);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+    }
+};
+
+export const getProductosByCalzones = async (req, res) => {
+    const categoriaId = 8;
+
+    try {
+        const productos = await findAllProductosByCategoriaService(categoriaId);
+        res.json(productos);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+    }
+}
+
+export const getProductosByPastas = async (req, res) => {
+    const categoriaId = 9;
+
+    try {
+        const productos = await findAllProductosByCategoriaService(categoriaId);
+        res.json(productos);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
     }
 }
 

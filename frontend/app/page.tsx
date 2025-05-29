@@ -32,25 +32,25 @@ export default function Home() {
         const data = await response.json();
 
         const productosMapeados = data.map((producto: any) => {
-        const precioActual = Number(producto.precio) || 0;
-        const descuento = producto.descuento ?? 0;
-        const precioAntiguo = descuento
-          ? +(precioActual / (1 - descuento / 100)).toFixed(2)
-          : undefined;
+          const precioActual = Number(producto.precio) || 0;
+          const descuento = producto.descuento ?? 0;
+          const precioAntiguo = descuento
+            ? +(precioActual / (1 - descuento / 100)).toFixed(2)
+            : undefined;
 
-        const imagenValida = producto.imagen && producto.imagen.trim() !== "" 
-          ? producto.imagen 
-          : "images/card-pizza.jpg";
+          const imagenValida = producto.imagen && producto.imagen.trim() !== ""
+            ? producto.imagen
+            : "images/card-pizza.jpg";
 
-        return {
-          titulo: producto.nombre,
-          descripcion: producto.descripcion,
-          precio: precioActual,
-          imagen: imagenValida,
-          precioAntiguo,
-          descuento,
-        };
-      });
+          return {
+            titulo: producto.nombre,
+            descripcion: producto.descripcion,
+            precio: precioActual,
+            imagen: imagenValida,
+            precioAntiguo,
+            descuento,
+          };
+        });
 
         setProductosPromocion(productosMapeados);
       } catch (error) {
@@ -62,27 +62,77 @@ export default function Home() {
   }, []);
 
   // INFORMACION PARA CALZONE
-  const productosCalzone = Array.from({ length: 10 }).map((_, i) => ({
-    titulo: `Calzone Especial ${i + 1}`,
-    descripcion: "Calzone relleno con ingredientes frescos.",
-    precio: 75.99,
-    precioAntiguo: 85.99,
-    descuento: 12,
-    imagen: "images/card-calzone.jpg",
-  }));
+  const [productosCalzone, setProductosCalzone] = useState<ProductoCardProps[]>([]);
+  const calzoneRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchCalzones = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/productos/calzones");
+        const data = await response.json();
+
+        const productosMapeados = data.map((producto: any) => {
+          const precioActual = Number(producto.precio) || 0;
+
+          const imagenValida = producto.imagen && producto.imagen.trim() !== ""
+            ? producto.imagen
+            : "images/card-calzone.jpg";
+
+          return {
+            titulo: producto.nombre,
+            descripcion: producto.descripcion,
+            precio: precioActual,
+            imagen: imagenValida
+          };
+        });
+
+        setProductosCalzone(productosMapeados);
+      } catch (error) {
+        console.error("Error al cargar calzones:", error);
+      }
+    };
+
+    fetchCalzones();
+  }, []);
 
   // INFORMACION PARA PASTAS
-  const productosPastas = Array.from({ length: 8 }).map((_, i) => ({
-    titulo: `Pasta Especial ${i + 1}`,
-    descripcion: "Pasta casera con salsa tradicional.",
-    precio: 65.99,
-    imagen: "images/card-pasta.jpeg",
-  }));
+  const [productosPastas, setProductosPastas] = useState<ProductoCardProps[]>([]);
+  const pastasRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fetchPastas = async () => {
+      try {
+        const response = await fetch("http://localhost:4000/api/productos/pastas");
+        const data = await response.json();
+
+        const productosMapeados = data.map((producto: any) => {
+          const precioActual = Number(producto.precio) || 0;
+
+          const imagenValida = producto.imagen && producto.imagen.trim() !== ""
+            ? producto.imagen
+            : "images/card-pasta.jpeg";
+
+          return {
+            titulo: producto.nombre,
+            descripcion: producto.descripcion,
+            precio: precioActual,
+            imagen: imagenValida
+          };
+        });
+
+        setProductosPastas(productosMapeados);
+      } catch (error) {
+        console.error("Error al cargar pastas:", error);
+      }
+    };
+
+    fetchPastas();
+  }, []);
 
   // SCROLL PARA EL CARRUSEL DE CARDS
   //const promoRef = useRef<HTMLDivElement>(null);
-  const calzoneRef = useRef<HTMLDivElement>(null);
-  const pastasRef = useRef<HTMLDivElement>(null);
+  //const calzoneRef = useRef<HTMLDivElement>(null);
+  //const pastasRef = useRef<HTMLDivElement>(null);
 
   const scrollPizzas = (direction: "left" | "right") => {
     if (promoRef.current) {
@@ -211,7 +261,7 @@ export default function Home() {
             >
               {productosCalzone.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  <ProductoCard id={""} {...producto} />
+                  <ProductoCard {...producto} />
                 </div>
               ))}
             </div>
@@ -257,7 +307,7 @@ export default function Home() {
             >
               {productosPastas.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  <ProductoCard id={""} {...producto} />
+                  <ProductoCard {...producto} />
                 </div>
               ))}
             </div>

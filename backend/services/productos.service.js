@@ -1,4 +1,4 @@
-import { findAllProductos, findOneProducto, createOneProducto, reactivateOneProducto } from '../repositories/productos.repository.js';
+import { findAllProductos, findOneProducto, createOneProducto, reactivateOneProducto, findAllProductosByCategoria } from '../repositories/productos.repository.js';
 
 export const findAllProductosService = async () => {
     return await findAllProductos();
@@ -26,5 +26,19 @@ export const createProductoService = async (data) => {
     const newProducto = await createOneProducto({ ...data, estado: true });
 
     return { created: true, producto: newProducto };
+};
+
+export const findAllProductosByCategoriaService = async (categoriaId) => {
+    if (!categoriaId) {
+        throw { status: 400, message: 'El campo "categoria_id" es obligatorio.' };
+    }
+
+    const productos = await findAllProductosByCategoria(categoriaId);
+
+    if (productos.length === 0) {
+        throw { status: 404, message: 'No se encontraron productos para la categoría especificada.' };
+    }
+
+    return productos;
 };
 

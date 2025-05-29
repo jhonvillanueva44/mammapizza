@@ -25,3 +25,14 @@ export const reactivateOneProducto = async (producto) => {
     producto.estado = true;
     return await producto.save();
 };
+
+export const findAllProductosByCategoria = async (categoriaId) => {
+    return await Producto.findAll({
+        where: {
+            categoria_id: categoriaId,
+            estado: true
+        },
+        order: [['id', 'ASC']]
+    });
+};
+
