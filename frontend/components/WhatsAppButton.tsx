@@ -1,20 +1,26 @@
-'use client'; // Esto es necesario porque usaremos hooks y estado
+'use client';
 
-import { useState } from 'react';
+import { useState, ChangeEvent, FormEvent } from 'react';
 import { FaWhatsapp, FaTimes } from 'react-icons/fa';
 
+interface FormData {
+  name: string;
+  email: string;
+  message: string;
+}
+
 export default function WhatsAppButton() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
+  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
   });
 
-  const phoneNumber = '+51929302775'; // Reemplaza con tu número
-  const welcomeMessage = '¡Hola! ¿En qué podemos ayudarte hoy?';
+  const phoneNumber: string = '+51929302775'; // Reemplaza con tu número
+  const welcomeMessage: string = '¡Hola! ¿En qué podemos ayudarte hoy?';
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>): void => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -22,11 +28,11 @@ export default function WhatsAppButton() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     
-    const message = `Nombre: ${formData.name}%0AEmail: ${formData.email}%0AMensaje: ${formData.message}`;
-    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${message}`;
+    const message: string = `Nombre: ${formData.name}%0AEmail: ${formData.email}%0AMensaje: ${formData.message}`;
+    const whatsappUrl: string = `https://wa.me/${phoneNumber}?text=${message}`;
     
     window.open(whatsappUrl, '_blank');
     
@@ -48,6 +54,7 @@ export default function WhatsAppButton() {
             <button 
               onClick={() => setIsOpen(false)}
               className="text-gray-500 hover:text-gray-700"
+              aria-label="Cerrar formulario"
             >
               <FaTimes />
             </button>
@@ -84,7 +91,7 @@ export default function WhatsAppButton() {
                 value={formData.message}
                 onChange={handleChange}
                 className="w-full p-2 border rounded text-sm"
-                rows="3"
+                rows={3}
                 required
               />
             </div>

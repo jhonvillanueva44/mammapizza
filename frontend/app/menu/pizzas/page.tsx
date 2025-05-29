@@ -1,6 +1,6 @@
 'use client'
 
-import FilterButtons from '@/components/btn-ctnd-pers'
+import FilterButtons from '@/components/Btn-ctnd-pers'
 
 export default function MenuPizzasPage() {
   const handleFilterChange = (value: { filter: 'todos' | 'personas'; selected?: string }) => {

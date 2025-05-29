@@ -211,7 +211,7 @@ export default function Home() {
             >
               {productosCalzone.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  <ProductoCard {...producto} />
+                  <ProductoCard id={""} {...producto} />
                 </div>
               ))}
             </div>
@@ -257,7 +257,7 @@ export default function Home() {
             >
               {productosPastas.map((producto, index) => (
                 <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
-                  <ProductoCard {...producto} />
+                  <ProductoCard id={""} {...producto} />
                 </div>
               ))}
             </div>
