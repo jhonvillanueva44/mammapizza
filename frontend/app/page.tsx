@@ -8,6 +8,7 @@ import CategoryCard from "@/components/CategoryCard/CategoryCard";
 import Hero from "@/components/Hero";
 import ProductoCard, { ProductoCardProps } from "@/components/ProductoCard";
 import BannerCard from "@/components/BannerCard/BannerCard";
+import WhatsAppButton from "@/components/WhatsAppButton";
 
 export default function Home() {
 
@@ -299,6 +300,7 @@ export default function Home() {
           linkRight="/jugos/detox/info"
         />
       </section>
+      <WhatsAppButton />
 
       {/* CARRUSEL DE BEBIDAS 
       <div className="mt-10">
