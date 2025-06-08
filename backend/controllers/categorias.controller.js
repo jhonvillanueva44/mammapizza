@@ -1,4 +1,3 @@
-
 import { createCategoriaService, findAllCategoriasService, updateCategoriaService, deleteCategoriaService } from '../services/categorias.service.js';
 
 export const getCategorias = async (req, res) => {
