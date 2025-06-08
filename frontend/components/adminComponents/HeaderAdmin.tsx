@@ -7,7 +7,7 @@ const menuItems = [
   { label: 'Gestión de Stock', path: '/admin/stock' },
   { label: 'Pedidos', path: '/admin/orders' },
   { label: 'Reportes', path: '/admin/reports' },
-  { label: 'Crud Tamaño', path: '/admin/crudTamano' },
+  { label: 'Crud Tamaños', path: '/admin/crudTamano' },
   { label: 'Crud Sabores', path: '/admin/crudSabores' },
   { label: 'Crud Categorias', path: '/admin/crudCategorias' },
 

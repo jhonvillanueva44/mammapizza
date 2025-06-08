@@ -8,17 +8,19 @@ type Tamano = {
   id: number;
   nombre: string;
   descripcion: string;
+  tipo: 'Pizza' | 'Calzone' | 'Pasta';
 };
 
 export default function CrudTamanoPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([
-    { id: 1, nombre: 'Pequeña', descripcion: 'ohana es familia' },
-    { id: 2, nombre: 'Mediana', descripcion: 'ohana es familia' },
-    { id: 3, nombre: 'Familiar', descripcion: 'ohana es familia' },
+    { id: 1, nombre: 'Pequeña', descripcion: 'ohana es familia', tipo: 'Pizza' },
+    { id: 2, nombre: 'Mediana', descripcion: 'ohana es familia', tipo: 'Calzone' },
+    { id: 3, nombre: 'Familiar', descripcion: 'ohana es familia', tipo: 'Pasta' },
   ]);
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [tipo, setTipo] = useState<'Pizza' | 'Calzone' | 'Pasta'>('Pizza');
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState<number | null>(null);
 
@@ -29,6 +31,7 @@ export default function CrudTamanoPage() {
       id: modoEdicion && idEditando !== null ? idEditando : Date.now(),
       nombre: nombre.trim(),
       descripcion: descripcion.trim(),
+      tipo,
     };
 
     if (modoEdicion) {
@@ -41,6 +44,7 @@ export default function CrudTamanoPage() {
 
     setNombre('');
     setDescripcion('');
+    setTipo('Pizza');
   };
 
   const handleEditar = (tamano: Tamano) => {
@@ -48,6 +52,7 @@ export default function CrudTamanoPage() {
     setIdEditando(tamano.id);
     setNombre(tamano.nombre);
     setDescripcion(tamano.descripcion);
+    setTipo(tamano.tipo);
   };
 
   const handleEliminar = (id: number) => {
@@ -67,7 +72,7 @@ export default function CrudTamanoPage() {
               {modoEdicion ? 'Editar Tamaño' : 'Agregar Tamaño'}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <input
                 type="text"
                 placeholder="Nombre del tamaño"
@@ -82,6 +87,15 @@ export default function CrudTamanoPage() {
                 onChange={(e) => setDescripcion(e.target.value)}
                 className="border border-gray-300 rounded px-4 py-2"
               />
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value as 'Pizza' | 'Calzone' | 'Pasta')}
+                className="border border-gray-300 rounded px-4 py-2"
+              >
+                <option value="Pizza">Pizza</option>
+                <option value="Calzone">Calzone</option>
+                <option value="Pasta">Pasta</option>
+              </select>
             </div>
 
             <div className="mt-4 flex justify-end space-x-3">
@@ -92,6 +106,7 @@ export default function CrudTamanoPage() {
                     setIdEditando(null);
                     setNombre('');
                     setDescripcion('');
+                    setTipo('Pizza');
                   }}
                   className="text-gray-600 hover:text-gray-900"
                 >
@@ -115,6 +130,7 @@ export default function CrudTamanoPage() {
                 <tr className="bg-gray-100">
                   <th className="text-left px-4 py-2">Nombre</th>
                   <th className="text-left px-4 py-2">Descripción</th>
+                  <th className="text-left px-4 py-2">Tipo</th>
                   <th className="text-left px-4 py-2">Acciones</th>
                 </tr>
               </thead>
@@ -123,6 +139,7 @@ export default function CrudTamanoPage() {
                   <tr key={tamano.id} className="border-t">
                     <td className="px-4 py-2">{tamano.nombre}</td>
                     <td className="px-4 py-2">{tamano.descripcion}</td>
+                    <td className="px-4 py-2">{tamano.tipo}</td>
                     <td className="px-4 py-2 space-x-3">
                       <button
                         onClick={() => handleEditar(tamano)}
@@ -141,7 +158,7 @@ export default function CrudTamanoPage() {
                 ))}
                 {tamanos.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-4 py-4 text-center text-gray-500">
+                    <td colSpan={4} className="px-4 py-4 text-center text-gray-500">
                       No hay tamaños registrados.
                     </td>
                   </tr>

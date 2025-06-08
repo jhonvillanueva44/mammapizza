@@ -4,54 +4,59 @@ import { useState } from 'react';
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 
-type Tamano = {
+type Sabor = {
   id: number;
   nombre: string;
   descripcion: string;
+  tipo: 'Pizza' | 'Calzone' | 'Pasta';
 };
 
-export default function CrudTamanoPage() {
-  const [tamanos, setTamanos] = useState<Tamano[]>([
-    { id: 1, nombre: 'Pequeña', descripcion: 'ohana es familia' },
-    { id: 2, nombre: 'Mediana', descripcion: 'ohana es familia' },
-    { id: 3, nombre: 'Familiar', descripcion: 'ohana es familia' },
+export default function CrudSaborPage() {
+  const [sabores, setSabores] = useState<Sabor[]>([
+    { id: 1, nombre: 'Jamón y Queso', descripcion: 'ohana es familia', tipo: 'Pizza' },
+    { id: 2, nombre: 'Napolitana', descripcion: 'ohana es familia', tipo: 'Calzone' },
+    { id: 3, nombre: 'Carbonara', descripcion: 'ohana es familia', tipo: 'Pasta' },
   ]);
 
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
+  const [tipo, setTipo] = useState<'Pizza' | 'Calzone' | 'Pasta'>('Pizza');
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState<number | null>(null);
 
   const handleGuardar = () => {
     if (!nombre.trim()) return;
 
-    const nuevo: Tamano = {
+    const nuevo: Sabor = {
       id: modoEdicion && idEditando !== null ? idEditando : Date.now(),
       nombre: nombre.trim(),
       descripcion: descripcion.trim(),
+      tipo,
     };
 
     if (modoEdicion) {
-      setTamanos(tamanos.map(t => t.id === idEditando ? nuevo : t));
+      setSabores(sabores.map(s => s.id === idEditando ? nuevo : s));
       setModoEdicion(false);
       setIdEditando(null);
     } else {
-      setTamanos([...tamanos, nuevo]);
+      setSabores([...sabores, nuevo]);
     }
 
     setNombre('');
     setDescripcion('');
+    setTipo('Pizza');
   };
 
-  const handleEditar = (tamano: Tamano) => {
+  const handleEditar = (sabor: Sabor) => {
     setModoEdicion(true);
-    setIdEditando(tamano.id);
-    setNombre(tamano.nombre);
-    setDescripcion(tamano.descripcion);
+    setIdEditando(sabor.id);
+    setNombre(sabor.nombre);
+    setDescripcion(sabor.descripcion);
+    setTipo(sabor.tipo);
   };
 
   const handleEliminar = (id: number) => {
-    setTamanos(tamanos.filter(t => t.id !== id));
+    setSabores(sabores.filter(s => s.id !== id));
   };
 
   return (
@@ -67,7 +72,7 @@ export default function CrudTamanoPage() {
               {modoEdicion ? 'Editar Sabor' : 'Agregar Sabor'}
             </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <input
                 type="text"
                 placeholder="Nombre del nuevo Sabor"
@@ -82,6 +87,15 @@ export default function CrudTamanoPage() {
                 onChange={(e) => setDescripcion(e.target.value)}
                 className="border border-gray-300 rounded px-4 py-2"
               />
+              <select
+                value={tipo}
+                onChange={(e) => setTipo(e.target.value as 'Pizza' | 'Calzone' | 'Pasta')}
+                className="border border-gray-300 rounded px-4 py-2"
+              >
+                <option value="Pizza">Pizza</option>
+                <option value="Calzone">Calzone</option>
+                <option value="Pasta">Pasta</option>
+              </select>
             </div>
 
             <div className="mt-4 flex justify-end space-x-3">
@@ -92,6 +106,7 @@ export default function CrudTamanoPage() {
                     setIdEditando(null);
                     setNombre('');
                     setDescripcion('');
+                    setTipo('Pizza');
                   }}
                   className="text-gray-600 hover:text-gray-900"
                 >
@@ -115,23 +130,25 @@ export default function CrudTamanoPage() {
                 <tr className="bg-gray-100">
                   <th className="text-left px-4 py-2">Nombre</th>
                   <th className="text-left px-4 py-2">Descripción</th>
+                  <th className="text-left px-4 py-2">Tipo</th>
                   <th className="text-left px-4 py-2">Acciones</th>
                 </tr>
               </thead>
               <tbody>
-                {tamanos.map((tamano) => (
-                  <tr key={tamano.id} className="border-t">
-                    <td className="px-4 py-2">{tamano.nombre}</td>
-                    <td className="px-4 py-2">{tamano.descripcion}</td>
+                {sabores.map((sabor) => (
+                  <tr key={sabor.id} className="border-t">
+                    <td className="px-4 py-2">{sabor.nombre}</td>
+                    <td className="px-4 py-2">{sabor.descripcion}</td>
+                    <td className="px-4 py-2">{sabor.tipo}</td>
                     <td className="px-4 py-2 space-x-3">
                       <button
-                        onClick={() => handleEditar(tamano)}
+                        onClick={() => handleEditar(sabor)}
                         className="text-blue-600 hover:underline"
                       >
                         Editar
                       </button>
                       <button
-                        onClick={() => handleEliminar(tamano.id)}
+                        onClick={() => handleEliminar(sabor.id)}
                         className="text-red-600 hover:underline"
                       >
                         Eliminar
@@ -139,9 +156,9 @@ export default function CrudTamanoPage() {
                     </td>
                   </tr>
                 ))}
-                {tamanos.length === 0 && (
+                {sabores.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="px-4 py-4 text-center text-gray-500">
+                    <td colSpan={4} className="px-4 py-4 text-center text-gray-500">
                       No hay sabores registrados.
                     </td>
                   </tr>
