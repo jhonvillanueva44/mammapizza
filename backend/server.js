@@ -2,14 +2,10 @@
 import app from "./app.js";
 import config from "./config/config.js";
 import { sequelize } from "./database/database.js";
-// import './models/Categoria.js';
-// import './models/Inventario.js';
-// import './models/Producto.js';
-// import './models/Tipo.js';
 
 async function main() {
   try {
-    await sequelize.sync(); 
+    await sequelize.sync();
     app.listen(config.PORT);
     console.log(`Servidor corriendo en http://localhost:${config.PORT}`);
   } catch (error) {

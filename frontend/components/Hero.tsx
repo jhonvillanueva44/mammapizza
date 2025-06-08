@@ -50,10 +50,11 @@ export default function Hero() {
                         {texts[index].description}
                     </p>
                     <button
-                        className="min-w-[120px] max-w-[200px] bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 rounded-2xl text-sm sm:text-base"
+                        className="min-w-[120px] max-w-[200px] bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 rounded-2xl text-sm sm:text-base cursor-pointer"
                     >
                         Llámanos
                     </button>
+
 
                     <div className="mt-4 flex gap-2">
                         {texts.map((_, i) => (

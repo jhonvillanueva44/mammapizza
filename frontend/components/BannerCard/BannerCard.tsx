@@ -32,12 +32,12 @@ export default function BannerCard({
           onMouseLeave={() => setHovered(null)}
           className={`
             w-full md:w-[65%] 
-            bg-red-700 
+            bg-[#0C1011] 
             overflow-hidden 
             relative 
             transition-transform duration-300 ease-in-out 
             ${hovered === 'left' ? 'scale-[1.03] z-20 shadow-lg' : 'z-10'}
-            border-l-4 md:border-l-4 md:rounded-l-xl border-gray-700
+            border-l-4 md:border-l-4 md:rounded-l-xl border-red-400
             md:rounded-tr-none rounded-t-xl
           `}
         >
@@ -61,17 +61,17 @@ export default function BannerCard({
           onMouseLeave={() => setHovered(null)}
           className={`
             w-full md:w-[35%] 
-            bg-orange-100 
+            bg-gray-50 
             flex items-center 
             transition-transform duration-300 ease-in-out 
             ${hovered === 'right' ? 'scale-[1.03] z-20 shadow-lg' : 'z-10'}
-            border-r-4 md:border-r-4 border-orange-400
+            border-r-4 md:border-r-4 border-gray-700
             md:rounded-r-xl rounded-b-xl md:rounded-tl-none
           `}
         >
           <div className="px-6 py-4 flex flex-col gap-2 text-center md:text-left">
-            <h2 className="text-2xl font-bold text-orange-700">{title}</h2>
-            <h4 className="text-lg font-semibold text-orange-600">{subtitle}</h4>
+            <h2 className="text-2xl font-bold text-red-700">{title}</h2>
+            <h4 className="text-lg font-semibold text-red-600">{subtitle}</h4>
             <p className="text-sm text-gray-700">{description}</p>
           </div>
         </a>

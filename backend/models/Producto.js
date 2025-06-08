@@ -1,6 +1,9 @@
-// Aqui se crea el modelo de la tabla productos
-import { DataTypes } from 'sequelize';
+// Aqui se crea el modelo de la tabla producto
 import { sequelize } from '../database/database.js';
+import { DataTypes } from 'sequelize';
+import { Combinacion } from './Combinacion.js';
+import { Unico } from './Unico.js';
+import { DetallePromocion } from './DetallePromocion.js';
 
 export const Producto = sequelize.define('productos', {
   id: {
@@ -24,18 +27,6 @@ export const Producto = sequelize.define('productos', {
     type: DataTypes.TEXT,
     allowNull: true
   },
-  codigo_barras: {
-    type: DataTypes.STRING(50),
-    allowNull: true
-  },
-  unidad_medida: {
-    type: DataTypes.STRING(20),
-    allowNull: true
-  },
-  moneda: {
-    type: DataTypes.STRING(10),
-    allowNull: true
-  },
   descripcion: {
     type: DataTypes.TEXT,
     allowNull: true
@@ -50,22 +41,55 @@ export const Producto = sequelize.define('productos', {
   },
   destacado: {
     type: DataTypes.BOOLEAN,
-    allowNull: false,
     defaultValue: false
   },
-  codigo_unspsc: {
-    type: DataTypes.STRING(50),
-    allowNull: true
+  habilitado: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: true
   },
-  codigo_producto: {
-    type: DataTypes.STRING(50),
-    allowNull: true
+  unico_sabor: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: true
   },
   estado: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: true
   }
 }, {
-  timestamps: true,        
-  freezeTableName: true    
+  freezeTableName: true,
+  timestamps: true
+});
+
+Producto.hasMany(Combinacion, {
+  foreignKey: 'producto_id',
+  sourceKey: 'id'
+});
+
+Combinacion.belongsTo(Producto, {
+  foreignKey: 'producto_id',
+  targetKey: 'id'
+});
+
+
+Producto.hasMany(Unico, {
+  foreignKey: 'producto_id',
+  sourceKey: 'id'
+});
+
+Unico.belongsTo(Producto, {
+  foreignKey: 'producto_id',
+  targetKey: 'id',
+  as: 'producto'
+});
+
+Producto.hasMany(DetallePromocion, {
+  foreignKey: 'producto_id',
+  sourceKey: 'id'
+});
+
+DetallePromocion.belongsTo(Producto, {
+  foreignKey: 'producto_id',
+  targetKey: 'id'
 });

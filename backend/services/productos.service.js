@@ -1,11 +1,11 @@
-import { findAllProductos, findOneProducto, createOneProducto, reactivateOneProducto, findAllProductosByCategoria } from '../repositories/productos.repository.js';
+import { findAllProductos, findOneProducto, createOneProducto, reactivateOneProducto, findAllProductosByCategoria, findAllProductosUniquesNested } from '../repositories/productos.repository.js';
 
 export const findAllProductosService = async () => {
     return await findAllProductos();
 }
 
 export const createProductoService = async (data) => {
-    const requiredFields = ['nombre', 'categoria_id', 'tipo_id', 'inventario_id'];
+    const requiredFields = ['nombre', 'categoria_id'];
     for (const field of requiredFields) {
         if (data[field] === undefined || data[field] === null) {
             throw { status: 400, message: `El campo '${field}' es obligatorio.` };
@@ -42,3 +42,16 @@ export const findAllProductosByCategoriaService = async (categoriaId) => {
     return productos;
 };
 
+export const findAllProductosUniquesNestedService = async (categoriaId) => {
+    if (!categoriaId) {
+        throw { status: 400, message: 'El campo "categoria_id" es obligatorio.' };
+    }
+
+    const productos = await findAllProductosUniquesNested(categoriaId);
+
+    if (!productos || productos.length === 0) {
+        throw { status: 404, message: 'No se encontraron productos con relaciones anidadas para la categoría especificada.' };
+    }
+
+    return productos;
+};

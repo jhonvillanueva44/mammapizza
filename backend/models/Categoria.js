@@ -2,6 +2,7 @@
 import { sequelize } from '../database/database.js';
 import { DataTypes } from 'sequelize';
 import { Producto } from './Producto.js';
+import { Promocion } from './Promocion.js';
 
 export const Categoria = sequelize.define('categorias', {
   id: {
@@ -10,15 +11,7 @@ export const Categoria = sequelize.define('categorias', {
     autoIncrement: true
   },
   nombre: {
-    type: DataTypes.STRING(250),
-    allowNull: false
-  },
-  abreviatura: {
-    type: DataTypes.STRING(10),
-    allowNull: false
-  },
-  nivel: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING(50),
     allowNull: false
   },
   descripcion: {
@@ -27,20 +20,31 @@ export const Categoria = sequelize.define('categorias', {
   },
   estado: {
     type: DataTypes.BOOLEAN,
-    allowNull: false
+    allowNull: false,
+    defaultValue: true
   }
 }, {
-  timestamps: true,           
-  freezeTableName: true       
+  freezeTableName: true,
+  timestamps: true 
 });
 
 Categoria.hasMany(Producto, {
-    foreignKey: 'categoria_id',
-    sourceKey: 'id'
-})
+  foreignKey: 'categoria_id',
+  sourceKey: 'id'
+});
 
 Producto.belongsTo(Categoria, {
   foreignKey: 'categoria_id',
-  targetId: 'id'
+  targetKey: 'id'
+});
+
+Categoria.hasMany(Promocion, {
+  foreignKey: 'categoria_id',
+  sourceKey: 'id'
+});
+
+Promocion.belongsTo(Categoria, {
+  foreignKey: 'categoria_id',
+  targetKey: 'id'
 });
 

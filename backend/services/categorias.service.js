@@ -5,7 +5,7 @@ export const findAllCategoriasService = async () => {
 };
 
 export const createCategoriaService = async (data) => {
-    const requiredFields = ['nombre', 'abreviatura', 'nivel'];
+    const requiredFields = ['nombre'];
     for (const field of requiredFields) {
         if (data[field] === undefined || data[field] === null) {
             throw { status: 400, message: `El campo '${field}' es obligatorio.` };

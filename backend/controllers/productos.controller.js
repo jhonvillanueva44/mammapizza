@@ -1,18 +1,51 @@
-import { findAllProductosService, createProductoService, findAllProductosByCategoriaService } from '../services/productos.service.js';
+import { findAllProductosService, createProductoService, findAllProductosByCategoriaService, findAllProductosUniquesNestedService } from '../services/productos.service.js';
 
 export const getProductos = async (req, res) => {
     try {
         const productos = await findAllProductosService();
-        res.json(productos);
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Error al obtener los productos' });
     }
-}
+};
 
 export const createProducto = async (req, res) => {
     try {
-        const result = await createProductoService(req.body);
+        const data = req.body;
+
+        const sanitize = (value) => {
+            if (value === '' || value === undefined || value === null) return null;
+            return isNaN(value) ? value : Number(value);
+        };
+
+        let imagePath = req.file ? `/uploads/${req.file.filename}` : '/uploads/default.jpeg';
+
+        const productoData = {
+            nombre: data.nombre,
+            precio: sanitize(data.precio),
+            stock: sanitize(data.stock),
+            categoria_id: sanitize(data.categoria_id),
+            descripcion: data.descripcion || null,
+            impuesto: sanitize(data.impuesto),
+            descuento: sanitize(data.descuento),
+            destacado: data.destacado === 'true',
+            habilitado: data.habilitado === 'true',
+            unico_sabor: data.unico_sabor === 'true',
+            imagen: imagePath
+        };
+
+        const result = await createProductoService(productoData);
 
         if (result.reactivated) {
             return res.status(200).json({
@@ -25,13 +58,57 @@ export const createProducto = async (req, res) => {
             message: 'Producto creado.',
             producto: result.producto
         });
-        
+
     } catch (error) {
         console.error(error);
         res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
     }
-}
+};
 
+export const getProductosByPizzas = async (req, res) => {
+    const categoriaId = 1;
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+    }
+};
+
+export const getProductosByCalzones = async (req, res) => {
+    const categoriaId = 2;
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+    }
+};
+
+
+/*
 export const getProductosByPromociones = async (req, res) => {
     const categoriaId = 1;
 
@@ -67,4 +144,4 @@ export const getProductosByPastas = async (req, res) => {
         res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
     }
 }
-
+*/
