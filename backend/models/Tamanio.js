@@ -18,7 +18,7 @@ export const Tamanio = sequelize.define('tamanios', {
     allowNull: true
   },
   tipo: {
-    type: DataTypes.ENUM('Pizza', 'Calzone', 'Pasta'),
+    type: DataTypes.ENUM('Pizza', 'Calzone', 'Pasta', 'Agregado'),
     allowNull: false
   },
   estado: {

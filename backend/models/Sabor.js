@@ -23,7 +23,7 @@ export const Sabor = sequelize.define('sabores', {
     defaultValue: false
   },
   tipo: {
-    type: DataTypes.ENUM('Pizza', 'Calzone', 'Pasta'),
+    type: DataTypes.ENUM('Pizza', 'Calzone', 'Pasta', 'Agregado'),
     allowNull: false
   },
   estado: {
