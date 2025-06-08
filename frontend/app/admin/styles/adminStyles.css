@@ -1,0 +1,48 @@
+/* Animaciones y efectos */
+.sidebar-link {
+  position: relative;
+  overflow: hidden;
+}
+
+.sidebar-link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 3px;
+  background-color: #f59e0b;
+  transition: width 0.3s ease;
+}
+
+.sidebar-link:hover::after {
+  width: 100%;
+}
+
+/* Transiciones suaves */
+.card-hover {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Personalización del scroll */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #dc2626;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #b91c1c;
+}

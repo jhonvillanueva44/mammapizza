@@ -2,9 +2,18 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 
 export default function Header() {
+
+
+
+const pathname = usePathname()
+if (pathname.startsWith('/admin')) {
+  return null
+}
+
+
   // ESTAS CONSTANTES SON PARA EL SEARCH
   const [isOpen, setIsOpen] = useState(false)
   const [isSearchFocused, setIsSearchFocused] = useState(false)
