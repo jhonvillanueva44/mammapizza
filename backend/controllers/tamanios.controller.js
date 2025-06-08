@@ -1,34 +1,58 @@
-
-import { createTamanioService, findAllTamaniosService } from '../services/tamanios.service.js';
+import {
+  createTamanioService,
+  findAllTamaniosService,
+  updateTamanioService,
+  deleteTamanioService
+} from '../services/tamanios.service.js';
 
 export const getTamanios = async (req, res) => {
-    try {
-        const tamanios = await findAllTamaniosService();
-        res.json(tamanios);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Error al obtener los tamaños.' });
-    }
-}
+  try {
+    const tamanios = await findAllTamaniosService();
+    res.json(tamanios);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener los tamaños.' });
+  }
+};
 
 export const createTamanio = async (req, res) => {
-    try {
-        const result = await createTamanioService(req.body);
+  try {
+    const result = await createTamanioService(req.body);
 
-        if (result.reactivated) {
-            return res.status(200).json({
-                message: 'Tamaño reactivada.',
-                tamanio: result.tamanio
-            });
-        }
-
-        res.status(201).json({
-            message: 'Tamaño creado.',
-            tamanio: result.tamanio
-        });
-        
-    } catch (error) {
-        console.error(error);
-        res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+    if (result.reactivated) {
+      return res.status(200).json({
+        message: 'Tamaño reactivado.',
+        tamanio: result.tamanio
+      });
     }
-}
+
+    res.status(201).json({
+      message: 'Tamaño creado.',
+      tamanio: result.tamanio
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
+
+export const updateTamanio = async (req, res) => {
+  try {
+    const updated = await updateTamanioService(req.params.id, req.body);
+    res.json({ message: 'Tamaño actualizado.', tamanio: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
+
+export const deleteTamanio = async (req, res) => {
+  try {
+    const deleted = await deleteTamanioService(req.params.id);
+    res.json({ message: 'Tamaño desactivado.', tamanio: deleted });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
