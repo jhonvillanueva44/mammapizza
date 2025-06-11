@@ -3,6 +3,8 @@ import { Unico } from '../models/Unico.js';
 import { TamanioSabor } from '../models/TamanioSabor.js';
 import { Sabor } from '../models/Sabor.js';
 import { Tamanio } from '../models/Tamanio.js';
+import { Combinacion } from '../models/Combinacion.js';
+
 
 export const findAllProductos = async () => {
     return await Producto.findAll({

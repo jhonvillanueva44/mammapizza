@@ -1,5 +1,12 @@
 import { findAllProductosService, createProductoService, findAllProductosByCategoriaService, findAllProductosUniquesNestedService, updateProductoService, deleteProductoService } from '../services/productos.service.js';
 
+const parseUnicoSabor = (value) => {
+    if (value === 'true') return true;
+    if (value === 'false') return false;
+    if (value === 'null' || value === null || value === undefined || value === '') return null;
+    return null;
+};
+
 export const getProductos = async (req, res) => {
     try {
         const productos = await findAllProductosService();
@@ -42,7 +49,7 @@ export const createProducto = async (req, res) => {
             descuento: sanitize(data.descuento),
             destacado: data.destacado === 'true',
             habilitado: data.habilitado === 'true',
-            unico_sabor: data.unico_sabor === 'true',
+            unico_sabor: parseUnicoSabor(data.unico_sabor),
             imagen: imagePath,
             tamanio_sabor_ids: data.tamanio_sabor_ids // Se pasa como string JSON
         };
@@ -90,7 +97,7 @@ export const updateProducto = async (req, res) => {
             descuento: sanitize(data.descuento),
             destacado: data.destacado === 'true',
             habilitado: data.habilitado === 'true',
-            unico_sabor: data.unico_sabor === 'true',
+            unico_sabor: parseUnicoSabor(data.unico_sabor),
             tamanio_sabor_ids: data.tamanio_sabor_ids
         };
 
@@ -164,8 +171,6 @@ export const deleteProducto = async (req, res) => {
         res.status(error.status || 500).json({ error: error.message || 'Error al desactivar el producto.' });
     }
 };
-
-
 
 /*
 export const getProductosByPromociones = async (req, res) => {
