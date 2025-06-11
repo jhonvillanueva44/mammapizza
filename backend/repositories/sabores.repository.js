@@ -47,3 +47,31 @@ export const deactivateOneSabor = async (id) => {
   sabor.estado = false;
   return await sabor.save();
 };
+
+export const findSaboresPizza = async () => {
+  return await Sabor.findAll({
+    where: { estado: true, tipo: 'Pizza' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findSaboresCalzone = async () => {
+  return await Sabor.findAll({
+    where: { estado: true, tipo: 'Calzone' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findSaboresPasta = async () => {
+  return await Sabor.findAll({
+    where: { estado: true, tipo: 'Pasta' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findSaboresAgregado = async () => {
+  return await Sabor.findAll({
+    where: { estado: true, tipo: 'Agregado' },
+    order: [['id', 'ASC']]
+  });
+};

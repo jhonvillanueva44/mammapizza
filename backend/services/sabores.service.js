@@ -4,7 +4,11 @@ import {
   createOneSabor,
   reactivateOneSabor,
   updateOneSabor,
-  deactivateOneSabor
+  deactivateOneSabor,
+  findSaboresPizza,
+  findSaboresCalzone,
+  findSaboresPasta,
+  findSaboresAgregado
 } from '../repositories/sabores.repository.js';
 
 export const findAllSaboresService = async () => {
@@ -50,4 +54,20 @@ export const deleteSaborService = async (id) => {
   if (!deleted) throw { status: 404, message: 'Sabor no encontrado o ya está inactivo.' };
 
   return deleted;
+};
+
+export const findSaboresPizzaService = async () => {
+  return await findSaboresPizza();
+};
+
+export const findSaboresCalzoneService = async () => {
+  return await findSaboresCalzone();
+};
+
+export const findSaboresPastaService = async () => {
+  return await findSaboresPasta();
+};
+
+export const findSaboresAgregadoService = async () => {
+  return await findSaboresAgregado();
 };

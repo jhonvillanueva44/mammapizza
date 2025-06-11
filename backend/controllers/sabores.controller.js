@@ -2,7 +2,11 @@ import {
   createSaborService,
   findAllSaboresService,
   updateSaborService,
-  deleteSaborService
+  deleteSaborService,
+  findSaboresPizzaService,
+  findSaboresCalzoneService,
+  findSaboresPastaService,
+  findSaboresAgregadoService
 } from '../services/sabores.service.js';
 
 export const getSabores = async (req, res) => {
@@ -54,5 +58,45 @@ export const deleteSabor = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
+
+export const getSaboresPizza = async (req, res) => {
+  try {
+    const sabores = await findSaboresPizzaService();
+    res.json(sabores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener sabores tipo Pizza.' });
+  }
+};
+
+export const getSaboresCalzone = async (req, res) => {
+  try {
+    const sabores = await findSaboresCalzoneService();
+    res.json(sabores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener sabores tipo Calzone.' });
+  }
+};
+
+export const getSaboresPasta = async (req, res) => {
+  try {
+    const sabores = await findSaboresPastaService();
+    res.json(sabores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener sabores tipo Pasta.' });
+  }
+};
+
+export const getSaboresAgregado = async (req, res) => {
+  try {
+    const sabores = await findSaboresAgregadoService();
+    res.json(sabores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener sabores tipo Agregado.' });
   }
 };
