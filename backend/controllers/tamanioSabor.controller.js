@@ -1,4 +1,9 @@
-import { createTamanioSaborService, findAllTamaniosSaboresService } from '../services/tamanioSabor.service.js';
+import {
+  createTamanioSaborService,
+  findAllTamaniosSaboresService,
+  updateTamanioSaborService,
+  deleteTamanioSaborService
+} from '../services/tamanioSabor.service.js';
 
 export const getTamaniosSabores = async (req, res) => {
   try {
@@ -25,6 +30,26 @@ export const createTamanioSabor = async (req, res) => {
       message: 'Tamaño-sabor creado.',
       tamanioSabor: result.tamanioSabor
     });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
+
+export const updateTamanioSabor = async (req, res) => {
+  try {
+    const updated = await updateTamanioSaborService(req.params.id, req.body);
+    res.json({ message: 'Tamaño-sabor actualizado.', tamanioSabor: updated });
+  } catch (error) {
+    console.error(error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });
+  }
+};
+
+export const deleteTamanioSabor = async (req, res) => {
+  try {
+    const deleted = await deleteTamanioSaborService(req.params.id);
+    res.json({ message: 'Tamaño-sabor desactivado.', tamanioSabor: deleted });
   } catch (error) {
     console.error(error);
     res.status(error.status || 500).json({ error: error.message || 'Error interno del servidor' });

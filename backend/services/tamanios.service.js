@@ -4,7 +4,11 @@ import {
   createOneTamanio,
   reactivateOneTamanio,
   updateOneTamanio,
-  deactivateOneTamanio
+  deactivateOneTamanio,
+  findTamaniosPizza,
+  findTamaniosCalzone,
+  findTamaniosPasta,
+  findTamaniosAgregado
 } from '../repositories/tamanios.repository.js';
 
 export const findAllTamaniosService = async () => {
@@ -50,4 +54,20 @@ export const deleteTamanioService = async (id) => {
   if (!deleted) throw { status: 404, message: 'Tamaño no encontrado o ya está inactivo.' };
 
   return deleted;
+};
+
+export const findTamaniosPizzaService = async () => {
+  return await findTamaniosPizza();
+};
+
+export const findTamaniosCalzoneService = async () => {
+  return await findTamaniosCalzone();
+};
+
+export const findTamaniosPastaService = async () => {
+  return await findTamaniosPasta();
+};
+
+export const findTamaniosAgregadoService = async () => {
+  return await findTamaniosAgregado();
 };

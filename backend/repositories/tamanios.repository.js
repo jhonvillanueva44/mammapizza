@@ -47,3 +47,33 @@ export const deactivateOneTamanio = async (id) => {
   tamanio.estado = false;
   return await tamanio.save();
 };
+
+export const findTamaniosPizza = async () => {
+  return await Tamanio.findAll({
+    where: { estado: true, tipo: 'Pizza' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findTamaniosCalzone = async () => {
+  return await Tamanio.findAll({
+    where: { estado: true, tipo: 'Calzone' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findTamaniosPasta = async () => {
+  return await Tamanio.findAll({
+    where: { estado: true, tipo: 'Pasta' },
+    order: [['id', 'ASC']]
+  });
+};
+
+export const findTamaniosAgregado = async () => {
+  return await Tamanio.findAll({
+    where: { estado: true, tipo: 'Agregado' },
+    order: [['id', 'ASC']]
+  });
+};
+
+
