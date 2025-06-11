@@ -19,7 +19,7 @@ export default function CrudSaborPage() {
   const [sabores, setSabores] = useState<Sabor[]>([]);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [tipo, setTipo] = useState<'Pizza' | 'Calzone' | 'Pasta'>('Pizza');
+  const [tipo, setTipo] = useState<string>(''); // Cambiado a string vacío inicialmente
   const [especial, setEspecial] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState<number | null>(null);
@@ -50,16 +50,23 @@ export default function CrudSaborPage() {
   }, []);
 
   const handleGuardar = async () => {
-    if (!nombre.trim() || !descripcion.trim()) {
-      setError('Nombre y descripción son obligatorios.');
+    if (!nombre.trim() || !descripcion.trim() || !tipo) {
+      setError('Nombre, descripción y tipo son obligatorios.');
       return;
     }
 
+    // Validar que el tipo sea uno de los permitidos
+    if (tipo !== 'Pizza' && tipo !== 'Calzone' && tipo !== 'Pasta') {
+      setError('Por favor selecciona un tipo válido');
+      return;
+    }
+
+    // Si no es Pizza, forzamos especial a false
     const saborData = {
       nombre: nombre.trim(),
       descripcion: descripcion.trim(),
-      tipo,
-      especial,
+      tipo: tipo as 'Pizza' | 'Calzone' | 'Pasta',
+      especial: tipo === 'Pizza' ? especial : false,
     };
 
     try {
@@ -89,7 +96,7 @@ export default function CrudSaborPage() {
       await fetchSabores();
       setNombre('');
       setDescripcion('');
-      setTipo('Pizza');
+      setTipo('');
       setEspecial(false);
       setModoEdicion(false);
       setIdEditando(null);
@@ -183,27 +190,32 @@ export default function CrudSaborPage() {
               />
               <select
                 value={tipo}
-                onChange={(e) => setTipo(e.target.value as 'Pizza' | 'Calzone' | 'Pasta')}
+                onChange={(e) => setTipo(e.target.value)}
                 className="border border-gray-300 rounded px-4 py-2"
+                required
               >
+                <option value="">Seleccionar un tipo</option>
                 <option value="Pizza">Pizza</option>
                 <option value="Calzone">Calzone</option>
                 <option value="Pasta">Pasta</option>
               </select>
             </div>
 
-            <div className="mt-4 flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="especial"
-                checked={especial}
-                onChange={(e) => setEspecial(e.target.checked)}
-                className="w-5 h-5 text-red-600"
-              />
-              <label htmlFor="especial" className="text-gray-700 select-none">
-                ¿Es especial?
-              </label>
-            </div>
+            {/* Mostrar checkbox solo si el tipo es Pizza */}
+            {tipo === 'Pizza' && (
+              <div className="mt-4 flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="especial"
+                  checked={especial}
+                  onChange={(e) => setEspecial(e.target.checked)}
+                  className="w-5 h-5 text-red-600"
+                />
+                <label htmlFor="especial" className="text-gray-700 select-none">
+                  ¿Es especial?
+                </label>
+              </div>
+            )}
 
             <div className="mt-4 flex justify-end space-x-3">
               {modoEdicion && (
@@ -213,7 +225,7 @@ export default function CrudSaborPage() {
                     setIdEditando(null);
                     setNombre('');
                     setDescripcion('');
-                    setTipo('Pizza');
+                    setTipo('');
                     setEspecial(false);
                     setError(null);
                     setSuccess(null);
@@ -253,7 +265,9 @@ export default function CrudSaborPage() {
                     <td className="px-4 py-2">{sabor.nombre}</td>
                     <td className="px-4 py-2">{sabor.descripcion}</td>
                     <td className="px-4 py-2">{sabor.tipo}</td>
-                    <td className="px-4 py-2">{sabor.especial ? '✅' : '❌'}</td>
+                    <td className="px-4 py-2">
+                      {sabor.tipo === 'Pizza' ? (sabor.especial ? '✅' : '❌') : '➖'}
+                    </td>
                     <td className="px-4 py-2 space-x-3">
                       <button
                         onClick={() => handleEditar(sabor)}
