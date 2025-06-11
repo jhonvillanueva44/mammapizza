@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
@@ -18,21 +18,53 @@ type Producto = {
   descuento: number | null;
   destacado: boolean;
   habilitado: boolean;
-  unico_sabor: boolean;
+  unico_sabor: boolean | null;
+  categoria_id: number;
+  tamanio_sabores: { tamanio_id: number; sabor_id: number }[];
+};
+
+type Categoria = {
+  id: number;
+  nombre: string;
+};
+
+type Tamanio = {
+  id: number;
+  nombre: string;
+  categoria_id: number;
+};
+
+type TamanioSabor = {
+  id: number;
+  tamanio_id: number;
+  sabor_id: number;
+  sabor_nombre: string;
+  precio: number;
 };
 
 export default function CrudProductoPage() {
+  // Estados principales
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [tamanios, setTamanios] = useState<Tamanio[]>([]);
+  const [tamanioSabores, setTamanioSabores] = useState<TamanioSabor[]>([]);
+  
+  // Estados del formulario
+  const [categoriaId, setCategoriaId] = useState<number | null>(null);
   const [nombre, setNombre] = useState('');
+  const [tamanioId, setTamanioId] = useState<number | null>(null);
+  const [saboresSeleccionados, setSaboresSeleccionados] = useState<{tamanio_id: number, sabor_id: number}[]>([]);
   const [precio, setPrecio] = useState<number | null>(null);
   const [stock, setStock] = useState<number | null>(null);
-  const [imagen, setImagen] = useState('');
+  const [imagen, setImagen] = useState<File | null>(null);
+  const [imagenPreview, setImagenPreview] = useState<string | null>(null);
   const [descripcion, setDescripcion] = useState('');
   const [impuesto, setImpuesto] = useState<number | null>(null);
   const [descuento, setDescuento] = useState<number | null>(null);
   const [destacado, setDestacado] = useState(false);
   const [habilitado, setHabilitado] = useState(true);
-  const [unicoSabor, setUnicoSabor] = useState(true);
+  
+  // Estados de UI
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,16 +72,44 @@ export default function CrudProductoPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const API_BASE_URL = 'http://localhost:4000/api/productos';
+  const API_BASE_URL = 'http://localhost:4000/api';
+  const PRODUCTOS_URL = `${API_BASE_URL}/productos`;
+  const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
+  const TAMANIOS_URL = `${API_BASE_URL}/tamanios`;
+  const TAMANIO_SABORES_URL = `${API_BASE_URL}/tamanioSabor`;
 
-  const fetchProductos = async () => {
+  // Fetch data
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(API_BASE_URL);
-      if (!res.ok) throw new Error('Error al cargar productos');
-      const data = await res.json();
-      setProductos(data);
+      
+      // Fetch en paralelo
+      const [productosRes, categoriasRes, tamaniosRes, tamanioSaboresRes] = await Promise.all([
+        fetch(PRODUCTOS_URL),
+        fetch(CATEGORIAS_URL),
+        fetch(TAMANIOS_URL),
+        fetch(TAMANIO_SABORES_URL)
+      ]);
+
+      if (!productosRes.ok) throw new Error('Error al cargar productos');
+      if (!categoriasRes.ok) throw new Error('Error al cargar categorías');
+      if (!tamaniosRes.ok) throw new Error('Error al cargar tamaños');
+      if (!tamanioSaboresRes.ok) throw new Error('Error al cargar tamaños-sabores');
+
+      const [productosData, categoriasData, tamaniosData, tamanioSaboresData] = await Promise.all([
+        productosRes.json(),
+        categoriasRes.json(),
+        tamaniosRes.json(),
+        tamanioSaboresRes.json()
+      ]);
+
+      setProductos(productosData);
+      setCategorias(categoriasData);
+      setTamanios(tamaniosData);
+      setTamanioSabores(tamanioSaboresData);
       setError(null);
     } catch (e: any) {
       setError(e.message);
@@ -59,55 +119,152 @@ export default function CrudProductoPage() {
   };
 
   useEffect(() => {
-    fetchProductos();
+    fetchData();
   }, []);
 
+  // Cuando cambia la categoría, resetear tamaño y sabores
+  useEffect(() => {
+    if (categoriaId) {
+      setTamanioId(null); // Resetear tamaño seleccionado
+      setSaboresSeleccionados([]); // Resetear sabores seleccionados
+    } else {
+      setTamanioId(null);
+      setSaboresSeleccionados([]);
+    }
+  }, [categoriaId]);
+
+  // Cuando cambia el tamaño, resetear sabores y agregar el primer sabor disponible
+  useEffect(() => {
+    if (tamanioId) {
+      const saboresDisponibles = tamanioSabores.filter(ts => ts.tamanio_id === tamanioId);
+      if (saboresDisponibles.length > 0 && saboresSeleccionados.length === 0) {
+        setSaboresSeleccionados([{ tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
+      }
+    } else {
+      setSaboresSeleccionados([]);
+    }
+  }, [tamanioId, tamanioSabores]);
+
+  // Manejar imagen seleccionada
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setImagen(file);
+      
+      // Crear preview
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target) {
+          setImagenPreview(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Agregar otro sabor
+  const agregarSabor = () => {
+    if (tamanioId) {
+      const saboresDisponibles = tamanioSabores.filter(ts => ts.tamanio_id === tamanioId);
+      if (saboresDisponibles.length > 0) {
+        setSaboresSeleccionados([...saboresSeleccionados, { tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
+      }
+    }
+  };
+
+  // Eliminar sabor
+  const eliminarSabor = (index: number) => {
+    const nuevosSabores = [...saboresSeleccionados];
+    nuevosSabores.splice(index, 1);
+    setSaboresSeleccionados(nuevosSabores);
+  };
+
+  // Cambiar sabor seleccionado
+  const cambiarSabor = (index: number, sabor_id: number) => {
+    const nuevosSabores = [...saboresSeleccionados];
+    nuevosSabores[index].sabor_id = sabor_id;
+    setSaboresSeleccionados(nuevosSabores);
+  };
+
+  // Guardar producto
   const handleGuardar = async () => {
+    if (!categoriaId) {
+      setError('Debes seleccionar una categoría');
+      return;
+    }
+
     if (!nombre.trim()) {
       setError('El nombre es obligatorio');
       return;
     }
 
-    const productoPayload = {
-      nombre: nombre.trim(),
-      precio: precio,
-      stock: stock,
-      imagen: imagen.trim(),
-      descripcion: descripcion.trim(),
-      impuesto: impuesto,
-      descuento: descuento,
-      destacado: destacado,
-      habilitado: habilitado,
-      unico_sabor: unicoSabor
-    };
+    // Validaciones específicas por categoría
+    if (categoriaId === 1 || categoriaId === 2 || categoriaId === 3) { // Pizza, Calzone, Pasta
+      if (!tamanioId) {
+        setError('Debes seleccionar un tamaño');
+        return;
+      }
+      if (saboresSeleccionados.length === 0) {
+        setError('Debes seleccionar al menos un sabor');
+        return;
+      }
+    }
+
+    // Determinar si es único sabor (solo aplica para Pizza, Calzone y Pasta)
+    const unicoSabor = [1, 2, 3].includes(categoriaId) ? saboresSeleccionados.length === 1 : null;
+
+    // Calcular precio para Pizza (suma de precios de sabores)
+    if (categoriaId === 1 && tamanioId) {
+      const precioTotal = saboresSeleccionados.reduce((total, sabor) => {
+        const ts = tamanioSabores.find(ts => 
+          ts.tamanio_id === sabor.tamanio_id && ts.sabor_id === sabor.sabor_id
+        );
+        return total + (ts?.precio || 0);
+      }, 0);
+      setPrecio(precioTotal);
+    }
+
+    // Crear FormData para enviar imagen
+    const formData = new FormData();
+    formData.append('nombre', nombre.trim());
+    if (precio !== null) formData.append('precio', precio.toString());
+    if (stock !== null) formData.append('stock', stock.toString());
+    if (imagen) formData.append('imagen', imagen);
+    if (descripcion.trim()) formData.append('descripcion', descripcion.trim());
+    if (impuesto !== null) formData.append('impuesto', impuesto.toString());
+    if (descuento !== null) formData.append('descuento', descuento.toString());
+    formData.append('destacado', destacado.toString());
+    formData.append('habilitado', habilitado.toString());
+    formData.append('unico_sabor', unicoSabor !== null ? unicoSabor.toString() : 'null');
+    formData.append('categoria_id', categoriaId.toString());
+    saboresSeleccionados.forEach((sabor, index) => {
+      formData.append(`tamanio_sabores[${index}][tamanio_id]`, sabor.tamanio_id.toString());
+      formData.append(`tamanio_sabores[${index}][sabor_id]`, sabor.sabor_id.toString());
+    });
 
     try {
       setLoading(true);
+      let res: Response;
+
       if (modoEdicion && idEditando !== null) {
-        const res = await fetch(`${API_BASE_URL}/${idEditando}`, {
+        res = await fetch(`${PRODUCTOS_URL}/${idEditando}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productoPayload),
+          body: formData,
         });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al actualizar producto');
-        }
-        setSuccess('Producto actualizado correctamente');
       } else {
-        const res = await fetch(API_BASE_URL, {
+        res = await fetch(PRODUCTOS_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productoPayload),
+          body: formData,
         });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al crear producto');
-        }
-        setSuccess('Producto creado correctamente');
       }
 
-      await fetchProductos();
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Error al guardar producto');
+      }
+
+      setSuccess(modoEdicion ? 'Producto actualizado correctamente' : 'Producto creado correctamente');
+      await fetchData();
       setModoEdicion(false);
       setIdEditando(null);
       resetForm();
@@ -120,34 +277,49 @@ export default function CrudProductoPage() {
     }
   };
 
+  // Resetear formulario
   const resetForm = () => {
+    setCategoriaId(null);
     setNombre('');
+    setTamanioId(null);
+    setSaboresSeleccionados([]);
     setPrecio(null);
     setStock(null);
-    setImagen('');
+    setImagen(null);
+    setImagenPreview(null);
     setDescripcion('');
     setImpuesto(null);
     setDescuento(null);
     setDestacado(false);
     setHabilitado(true);
-    setUnicoSabor(true);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
+  // Editar producto
   const handleEditar = (producto: Producto) => {
     setModoEdicion(true);
     setIdEditando(producto.id);
+    setCategoriaId(producto.categoria_id);
     setNombre(producto.nombre);
     setPrecio(producto.precio);
     setStock(producto.stock);
-    setImagen(producto.imagen || '');
+    setImagenPreview(producto.imagen);
     setDescripcion(producto.descripcion || '');
     setImpuesto(producto.impuesto);
     setDescuento(producto.descuento);
     setDestacado(producto.destacado);
     setHabilitado(producto.habilitado);
-    setUnicoSabor(producto.unico_sabor);
+    setSaboresSeleccionados(producto.tamanio_sabores || []);
+    
+    // Si tiene sabores, establecer el primer tamaño
+    if (producto.tamanio_sabores && producto.tamanio_sabores.length > 0) {
+      setTamanioId(producto.tamanio_sabores[0].tamanio_id);
+    }
   };
 
+  // Eliminar producto
   const handleEliminarClick = (id: number) => {
     setItemToDelete(id);
     setShowDeleteModal(true);
@@ -158,7 +330,7 @@ export default function CrudProductoPage() {
 
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/${itemToDelete}`, { 
+      const res = await fetch(`${PRODUCTOS_URL}/${itemToDelete}`, { 
         method: 'DELETE' 
       });
       if (!res.ok) {
@@ -166,7 +338,7 @@ export default function CrudProductoPage() {
         throw new Error(err.error || 'Error al eliminar producto');
       }
       setSuccess('Producto eliminado correctamente');
-      await fetchProductos();
+      await fetchData();
       setError(null);
     } catch (e: any) {
       setError(e.message);
@@ -178,23 +350,36 @@ export default function CrudProductoPage() {
     }
   };
 
-  const formatPrice = (price: number | string | null): string => {
-  const num = typeof price === 'string' ? parseFloat(price) : price;
-  return num !== null && !isNaN(num) ? `$${num.toFixed(2)}` : '-';
+  // Formatear precio
+const formatPrice = (price: any): string => {
+  const parsed = Number(price);
+  return !isNaN(parsed) ? `$${parsed.toFixed(2)}` : '-';
 };
 
 
+
+  // Formatear número
   const formatNumber = (num: number | null): string => {
     return num !== null ? num.toString() : '-';
   };
 
-  // Función para manejar cambios en inputs numéricos
+  // Manejar cambios en inputs numéricos
   const handleNumberChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     setter: React.Dispatch<React.SetStateAction<number | null>>
   ) => {
     const value = e.target.value;
     setter(value === '' ? null : parseFloat(value));
+  };
+
+  // Obtener tamaños filtrados por categoría
+  const getTamaniosFiltrados = () => {
+    return categoriaId ? tamanios.filter(t => t.categoria_id === categoriaId) : [];
+  };
+
+  // Obtener sabores disponibles para el tamaño seleccionado
+  const getSaboresDisponibles = () => {
+    return tamanioId ? tamanioSabores.filter(ts => ts.tamanio_id === tamanioId) : [];
   };
 
   return (
@@ -206,19 +391,11 @@ export default function CrudProductoPage() {
         <main className="p-6 space-y-6">
           {/* Alertas */}
           {error && (
-            <Alert
-              type="error"
-              message={error}
-              onClose={() => setError(null)}
-            />
+            <Alert type="error" message={error} onClose={() => setError(null)} />
           )}
           
           {success && (
-            <Alert
-              type="success"
-              message={success}
-              onClose={() => setSuccess(null)}
-            />
+            <Alert type="success" message={success} onClose={() => setSuccess(null)} />
           )}
 
           {/* Modal de confirmación para eliminar */}
@@ -238,7 +415,29 @@ export default function CrudProductoPage() {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
+              {/* Select de Categoría */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Categoría *
+                </label>
+                <select
+                  value={categoriaId || ''}
+                  onChange={(e) => setCategoriaId(e.target.value ? parseInt(e.target.value) : null)}
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                  disabled={loading || modoEdicion}
+                  required
+                >
+                  <option value="">Seleccionar categoría</option>
+                  {categorias.map((categoria) => (
+                    <option key={categoria.id} value={categoria.id}>
+                      {categoria.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Nombre del Producto */}
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Nombre del Producto *
                 </label>
@@ -251,23 +450,100 @@ export default function CrudProductoPage() {
                   disabled={loading}
                 />
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio
-                </label>
-                <input
-                  type="number"
-                  placeholder="Precio del producto"
-                  value={precio ?? ''}
-                  onChange={(e) => handleNumberChange(e, setPrecio)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-              
+
+              {/* Campos específicos para Pizza, Calzone y Pasta */}
+              {(categoriaId === 1 || categoriaId === 2 || categoriaId === 3) && (
+                <>
+                  {/* Select de Tamaño */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Tamaño *
+                    </label>
+                    <select
+                      value={tamanioId || ''}
+                      onChange={(e) => setTamanioId(e.target.value ? parseInt(e.target.value) : null)}
+                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                      disabled={loading}
+                      required
+                    >
+                      <option value="">Seleccionar tamaño</option>
+                      {getTamaniosFiltrados().map((tamanio) => (
+                        <option key={tamanio.id} value={tamanio.id}>
+                          {tamanio.nombre}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Select de Sabores */}
+                  {tamanioId && (
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sabores *
+                      </label>
+                      {saboresSeleccionados.map((sabor, index) => (
+                        <div key={index} className="flex items-center space-x-2">
+                          <select
+                            value={sabor.sabor_id}
+                            onChange={(e) => cambiarSabor(index, parseInt(e.target.value))}
+                            className="flex-1 border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                            disabled={loading}
+                          >
+                            {getSaboresDisponibles().map((ts) => (
+                              <option key={ts.sabor_id} value={ts.sabor_id}>
+                                {ts.sabor_nombre} (${ts.precio.toFixed(2)})
+                              </option>
+                            ))}
+                          </select>
+                          {index > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => eliminarSabor(index)}
+                              className="text-red-600 hover:text-red-800 p-1"
+                              disabled={loading}
+                            >
+                              ×
+                            </button>
+                          )}
+                        </div>
+                      ))}
+
+                      {/* Solo mostrar botón para agregar más sabores si es Pizza */}
+                      {categoriaId === 1 && saboresSeleccionados.length < 2 && (
+                        <button
+                          type="button"
+                          onClick={agregarSabor}
+                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
+                          disabled={loading || !tamanioId}
+                        >
+                          + Agregar otro sabor
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Precio (solo para Bebidas y Agregados) */}
+              {(categoriaId === 4 || categoriaId === 5) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Precio
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Precio del producto"
+                    value={precio ?? ''}
+                    onChange={(e) => handleNumberChange(e, setPrecio)}
+                    className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                    disabled={loading}
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+              )}
+
+              {/* Stock */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Stock
@@ -282,21 +558,43 @@ export default function CrudProductoPage() {
                   min="0"
                 />
               </div>
-              
-              <div>
+
+              {/* Imagen */}
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  URL de la Imagen
+                  Imagen
                 </label>
-                <input
-                  type="text"
-                  placeholder="URL de la imagen del producto"
-                  value={imagen}
-                  onChange={(e) => setImagen(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
+                <div className="flex items-center space-x-4">
+                  <div>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleImageChange}
+                      accept="image/*"
+                      className="hidden"
+                      id="imagen-upload"
+                      disabled={loading}
+                    />
+                    <label
+                      htmlFor="imagen-upload"
+                      className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors"
+                    >
+                      Seleccionar imagen
+                    </label>
+                  </div>
+                  {imagenPreview && (
+                    <div className="w-16 h-16 border border-gray-300 rounded-md overflow-hidden">
+                      <img 
+                        src={imagenPreview} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
-              
+
+              {/* Descripción */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Descripción
@@ -310,7 +608,8 @@ export default function CrudProductoPage() {
                   rows={3}
                 />
               </div>
-              
+
+              {/* Impuesto */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Impuesto (%)
@@ -326,7 +625,8 @@ export default function CrudProductoPage() {
                   max="100"
                 />
               </div>
-              
+
+              {/* Descuento */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Descuento (%)
@@ -342,7 +642,8 @@ export default function CrudProductoPage() {
                   max="100"
                 />
               </div>
-              
+
+              {/* Checkboxes */}
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -356,7 +657,7 @@ export default function CrudProductoPage() {
                   Producto destacado
                 </label>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -368,20 +669,6 @@ export default function CrudProductoPage() {
                 />
                 <label htmlFor="habilitado" className="text-sm font-medium text-gray-700">
                   Producto habilitado
-                </label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="unicoSabor"
-                  checked={unicoSabor}
-                  onChange={(e) => setUnicoSabor(e.target.checked)}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                  disabled={loading}
-                />
-                <label htmlFor="unicoSabor" className="text-sm font-medium text-gray-700">
-                  Único sabor
                 </label>
               </div>
             </div>
@@ -431,6 +718,7 @@ export default function CrudProductoPage() {
                   <thead>
                     <tr className="bg-gray-100 text-left">
                       <th className="px-4 py-3 font-semibold text-gray-700">Nombre</th>
+                      <th className="px-4 py-3 font-semibold text-gray-700">Categoría</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">Precio</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">Stock</th>
                       <th className="px-4 py-3 font-semibold text-gray-700">Destacado</th>
@@ -442,6 +730,9 @@ export default function CrudProductoPage() {
                     {productos.map((producto) => (
                       <tr key={producto.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3">{producto.nombre}</td>
+                        <td className="px-4 py-3">
+                          {categorias.find(c => c.id === producto.categoria_id)?.nombre || '-'}
+                        </td>
                         <td className="px-4 py-3">{formatPrice(producto.precio)}</td>
                         <td className="px-4 py-3">{formatNumber(producto.stock)}</td>
                         <td className="px-4 py-3">
@@ -488,7 +779,7 @@ export default function CrudProductoPage() {
                     ))}
                     {productos.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                        <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
                           No hay productos registrados.
                         </td>
                       </tr>
