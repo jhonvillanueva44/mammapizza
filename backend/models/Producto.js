@@ -49,7 +49,7 @@ export const Producto = sequelize.define('productos', {
   },
   unico_sabor: {
     type: DataTypes.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
     defaultValue: true
   },
   estado: {

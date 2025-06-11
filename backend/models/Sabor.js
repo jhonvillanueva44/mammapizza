@@ -19,7 +19,7 @@ export const Sabor = sequelize.define('sabores', {
   },
   especial: {
     type: DataTypes.BOOLEAN,
-    allowNull: false,
+    allowNull: true,
     defaultValue: false
   },
   tipo: {
