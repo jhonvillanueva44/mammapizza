@@ -23,6 +23,11 @@ export const createSaborService = async (data) => {
     }
   }
 
+  // 🔽 Normalizar "especial"
+  if (!('especial' in data)) {
+    data.especial = null;
+  }
+
   const existing = await findOneSabor(data);
 
   if (existing) {
@@ -41,6 +46,11 @@ export const createSaborService = async (data) => {
 export const updateSaborService = async (id, data) => {
   if (!data.nombre && !data.descripcion && data.especial === undefined && !data.tipo) {
     throw { status: 400, message: 'Se requiere al menos un campo para actualizar.' };
+  }
+
+  // 🔽 Normalizar "especial"
+  if (!('especial' in data)) {
+    data.especial = null;
   }
 
   const updated = await updateOneSabor(id, data);
