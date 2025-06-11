@@ -178,6 +178,25 @@ export default function CrudProductoPage() {
     }
   };
 
+  const formatPrice = (price: number | string | null): string => {
+  const num = typeof price === 'string' ? parseFloat(price) : price;
+  return num !== null && !isNaN(num) ? `$${num.toFixed(2)}` : '-';
+};
+
+
+  const formatNumber = (num: number | null): string => {
+    return num !== null ? num.toString() : '-';
+  };
+
+  // Función para manejar cambios en inputs numéricos
+  const handleNumberChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setter: React.Dispatch<React.SetStateAction<number | null>>
+  ) => {
+    const value = e.target.value;
+    setter(value === '' ? null : parseFloat(value));
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <HeaderAdmin />
@@ -240,8 +259,8 @@ export default function CrudProductoPage() {
                 <input
                   type="number"
                   placeholder="Precio del producto"
-                  value={precio || ''}
-                  onChange={(e) => setPrecio(e.target.value ? parseFloat(e.target.value) : null)}
+                  value={precio ?? ''}
+                  onChange={(e) => handleNumberChange(e, setPrecio)}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
                   disabled={loading}
                   step="0.01"
@@ -256,8 +275,8 @@ export default function CrudProductoPage() {
                 <input
                   type="number"
                   placeholder="Cantidad en stock"
-                  value={stock || ''}
-                  onChange={(e) => setStock(e.target.value ? parseInt(e.target.value) : null)}
+                  value={stock ?? ''}
+                  onChange={(e) => handleNumberChange(e, setStock)}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
                   disabled={loading}
                   min="0"
@@ -299,8 +318,8 @@ export default function CrudProductoPage() {
                 <input
                   type="number"
                   placeholder="Porcentaje de impuesto"
-                  value={impuesto || ''}
-                  onChange={(e) => setImpuesto(e.target.value ? parseInt(e.target.value) : null)}
+                  value={impuesto ?? ''}
+                  onChange={(e) => handleNumberChange(e, setImpuesto)}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
                   disabled={loading}
                   min="0"
@@ -315,8 +334,8 @@ export default function CrudProductoPage() {
                 <input
                   type="number"
                   placeholder="Porcentaje de descuento"
-                  value={descuento || ''}
-                  onChange={(e) => setDescuento(e.target.value ? parseInt(e.target.value) : null)}
+                  value={descuento ?? ''}
+                  onChange={(e) => handleNumberChange(e, setDescuento)}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
                   disabled={loading}
                   min="0"
@@ -423,8 +442,8 @@ export default function CrudProductoPage() {
                     {productos.map((producto) => (
                       <tr key={producto.id} className="hover:bg-gray-50">
                         <td className="px-4 py-3">{producto.nombre}</td>
-                        <td className="px-4 py-3">${producto.precio?.toFixed(2) || '0.00'}</td>
-                        <td className="px-4 py-3">{producto.stock || '0'}</td>
+                        <td className="px-4 py-3">{formatPrice(producto.precio)}</td>
+                        <td className="px-4 py-3">{formatNumber(producto.stock)}</td>
                         <td className="px-4 py-3">
                           {producto.destacado ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

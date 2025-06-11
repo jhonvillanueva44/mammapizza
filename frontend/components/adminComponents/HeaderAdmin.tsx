@@ -11,6 +11,7 @@ const menuItems = [
   { label: 'Crud Sabores', path: '/admin/crudSabores' },
   { label: 'Crud Categorias', path: '/admin/crudCategorias' },
   { label: 'Crud Productos', path: '/admin/crudProductos' },
+  { label: 'Crud Tamaño Sabor', path: '/admin/crudTamanioSabor' },
 
 ];
 
