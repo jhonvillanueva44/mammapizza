@@ -35,6 +35,7 @@ type Tamanio = {
 };
 
 type TamanioSabor = {
+  tamanio_nombre: string;
   id: number;
   tamanio_id: number;
   sabor_id: number;
@@ -63,6 +64,7 @@ export default function CrudProductoPage() {
   const [descuento, setDescuento] = useState<number | null>(null);
   const [destacado, setDestacado] = useState(false);
   const [habilitado, setHabilitado] = useState(true);
+  const [tamanioSaborId, setTamanioSaborId] = useState<number | null>(null);
   
   // Estados de UI
   const [modoEdicion, setModoEdicion] = useState(false);
@@ -124,26 +126,27 @@ export default function CrudProductoPage() {
 
   // Cuando cambia la categoría, resetear tamaño y sabores
   useEffect(() => {
-    if (categoriaId) {
-      setTamanioId(null); // Resetear tamaño seleccionado
-      setSaboresSeleccionados([]); // Resetear sabores seleccionados
-    } else {
-      setTamanioId(null);
-      setSaboresSeleccionados([]);
-    }
+    setTamanioId(null);
+    setSaboresSeleccionados([]);
+    setPrecio(null);
   }, [categoriaId]);
 
   // Cuando cambia el tamaño, resetear sabores y agregar el primer sabor disponible
   useEffect(() => {
-    if (tamanioId) {
-      const saboresDisponibles = tamanioSabores.filter(ts => ts.tamanio_id === tamanioId);
-      if (saboresDisponibles.length > 0 && saboresSeleccionados.length === 0) {
-        setSaboresSeleccionados([{ tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
+    if (tamanioId && (categoriaId === 1 || categoriaId === 2 || categoriaId === 3)) {
+      const saboresDisponibles = getSaboresDisponibles();
+      if (saboresDisponibles.length > 0) {
+        // Para pizza, permitir agregar hasta 2 sabores
+        if (categoriaId === 1 && saboresSeleccionados.length === 0) {
+          setSaboresSeleccionados([{ tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
+        }
+        // Para calzone y pasta, solo un sabor
+        else if ((categoriaId === 2 || categoriaId === 3) && saboresSeleccionados.length === 0) {
+          setSaboresSeleccionados([{ tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
+        }
       }
-    } else {
-      setSaboresSeleccionados([]);
     }
-  }, [tamanioId, tamanioSabores]);
+  }, [tamanioId, categoriaId]);
 
   // Manejar imagen seleccionada
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -162,10 +165,10 @@ export default function CrudProductoPage() {
     }
   };
 
-  // Agregar otro sabor
+  // Agregar otro sabor (solo para pizza)
   const agregarSabor = () => {
-    if (tamanioId) {
-      const saboresDisponibles = tamanioSabores.filter(ts => ts.tamanio_id === tamanioId);
+    if (tamanioId && categoriaId === 1 && saboresSeleccionados.length < 2) {
+      const saboresDisponibles = getSaboresDisponibles();
       if (saboresDisponibles.length > 0) {
         setSaboresSeleccionados([...saboresSeleccionados, { tamanio_id: tamanioId, sabor_id: saboresDisponibles[0].sabor_id }]);
       }
@@ -351,12 +354,10 @@ export default function CrudProductoPage() {
   };
 
   // Formatear precio
-const formatPrice = (price: any): string => {
-  const parsed = Number(price);
-  return !isNaN(parsed) ? `$${parsed.toFixed(2)}` : '-';
-};
-
-
+  const formatPrice = (price: any): string => {
+    const parsed = Number(price);
+    return !isNaN(parsed) ? `$${parsed.toFixed(2)}` : '-';
+  };
 
   // Formatear número
   const formatNumber = (num: number | null): string => {
@@ -380,6 +381,21 @@ const formatPrice = (price: any): string => {
   // Obtener sabores disponibles para el tamaño seleccionado
   const getSaboresDisponibles = () => {
     return tamanioId ? tamanioSabores.filter(ts => ts.tamanio_id === tamanioId) : [];
+  };
+
+  // Determinar si la categoría necesita tamaños y sabores (Pizza, Calzone, Pasta)
+  const necesitaTamaniosSabores = () => {
+    return categoriaId === 1 || categoriaId === 2 || categoriaId === 3;
+  };
+
+  // Determinar si la categoría necesita precio directo (Bebidas, Agregados)
+  const necesitaPrecioDirecto = () => {
+    return categoriaId === 4 || categoriaId === 5;
+  };
+
+  // Determinar si es pizza (puede tener hasta 2 sabores)
+  const esPizza = () => {
+    return categoriaId === 1;
   };
 
   return (
@@ -436,241 +452,231 @@ const formatPrice = (price: any): string => {
                 </select>
               </div>
 
-              {/* Nombre del Producto */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre del Producto *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Pizza Margarita, Hamburguesa, etc."
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Campos específicos para Pizza, Calzone y Pasta */}
-              {(categoriaId === 1 || categoriaId === 2 || categoriaId === 3) && (
+              {/* Solo mostrar el resto del formulario si se ha seleccionado una categoría */}
+              {categoriaId && (
                 <>
-                  {/* Select de Tamaño */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Tamaño *
-                    </label>
-                    <select
-                      value={tamanioId || ''}
-                      onChange={(e) => setTamanioId(e.target.value ? parseInt(e.target.value) : null)}
-                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                      disabled={loading}
-                      required
-                    >
-                      <option value="">Seleccionar tamaño</option>
-                      {getTamaniosFiltrados().map((tamanio) => (
-                        <option key={tamanio.id} value={tamanio.id}>
-                          {tamanio.nombre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                {/* Campo para el nombre del producto */}
+<div className="md:col-span-2">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Nombre del Producto *
+  </label>
+  <input
+    type="text"
+    placeholder="Nombre del producto"
+    value={nombre}
+    onChange={(e) => setNombre(e.target.value)}
+    className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+    disabled={loading}
+    required
+  />
+</div>
+                  
 
-                  {/* Select de Sabores */}
-                  {tamanioId && (
-                    <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Sabores *
-                      </label>
-                      {saboresSeleccionados.map((sabor, index) => (
-                        <div key={index} className="flex items-center space-x-2">
-                          <select
-                            value={sabor.sabor_id}
-                            onChange={(e) => cambiarSabor(index, parseInt(e.target.value))}
-                            className="flex-1 border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                            disabled={loading}
-                          >
-                            {getSaboresDisponibles().map((ts) => (
-                              <option key={ts.sabor_id} value={ts.sabor_id}>
-                                {ts.sabor_nombre} (${ts.precio.toFixed(2)})
-                              </option>
-                            ))}
-                          </select>
-                          {index > 0 && (
-                            <button
-                              type="button"
-                              onClick={() => eliminarSabor(index)}
-                              className="text-red-600 hover:text-red-800 p-1"
-                              disabled={loading}
-                            >
-                              ×
-                            </button>
-                          )}
-                        </div>
-                      ))}
-
-                      {/* Solo mostrar botón para agregar más sabores si es Pizza */}
-                      {categoriaId === 1 && saboresSeleccionados.length < 2 && (
-                        <button
-                          type="button"
-                          onClick={agregarSabor}
-                          className="text-blue-600 hover:text-blue-800 text-sm flex items-center"
-                          disabled={loading || !tamanioId}
-                        >
-                          + Agregar otro sabor
-                        </button>
-                      )}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Precio (solo para Bebidas y Agregados) */}
-              {(categoriaId === 4 || categoriaId === 5) && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Precio
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Precio del producto"
-                    value={precio ?? ''}
-                    onChange={(e) => handleNumberChange(e, setPrecio)}
-                    className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                    disabled={loading}
-                    step="0.01"
-                    min="0"
-                  />
-                </div>
-              )}
-
-              {/* Stock */}
-              <div>
+                  {/* Campos para categorías que necesitan tamaños y sabores (Pizza, Calzone, Pasta) */}
+                  {necesitaTamaniosSabores() && (
+                    <>
+                      {/* Select de Tamaño */}
+                      
+                <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Stock
+                  Tamaño *
                 </label>
-                <input
-                  type="number"
-                  placeholder="Cantidad en stock"
-                  value={stock ?? ''}
-                  onChange={(e) => handleNumberChange(e, setStock)}
+                <select
+                  value={tamanioId || ''}
+                  onChange={(e) => setTamanioId(e.target.value ? parseInt(e.target.value) : null)}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  min="0"
-                />
-              </div>
+                  disabled={loading || modoEdicion}
+                  required
+                >
+                  <option value="">Seleccionar Tamaño</option>
+                  {tamanios.map((tamanio) => (
+                    <option key={tamanio.id} value={tamanio.id}>
+                      {tamanio.nombre}
+                    </option>
+                  ))}
+                </select>
+              </div>    
+{/* Select de TamanioSabor */}
+<div className="md:col-span-2">
+  <label className="block text-sm font-medium text-gray-700 mb-1">
+    Combinación Tamaño-Sabor *
+  </label>
+  <select
+    value={tamanioSaborId || ''}
+    onChange={(e) => setTamanioSaborId(e.target.value ? parseInt(e.target.value) : null)}
+    className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+    disabled={loading}
+    required
+  >
+    <option value="">Seleccionar combinación</option>
+    {tamanioSabores.map((ts) => {
+      // Buscar el tamaño correspondiente
+      const tamanio = tamanios.find(t => t.id === ts.tamanio_id);
+      // Buscar el sabor correspondiente (asumiendo que tienes acceso a los sabores)
+      const sabor = sabores.find(s => s.id === ts.sabor_id);
+      
+      return (
+        <option key={ts.id} value={ts.id}>
+          {tamanio?.nombre || `Tamaño ID:${ts.tamanio_id}`} - 
+          {sabor?.nombre || `Sabor ID:${ts.sabor_id}`} - 
+          ${ts.precio.toFixed(2)}
+        </option>
+      );
+    })}
+  </select>
+</div>
+                    </>
+                  )}
 
-              {/* Imagen */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Imagen
-                </label>
-                <div className="flex items-center space-x-4">
-                  <div>
-                    <input
-                      type="file"
-                      ref={fileInputRef}
-                      onChange={handleImageChange}
-                      accept="image/*"
-                      className="hidden"
-                      id="imagen-upload"
-                      disabled={loading}
-                    />
-                    <label
-                      htmlFor="imagen-upload"
-                      className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors"
-                    >
-                      Seleccionar imagen
-                    </label>
-                  </div>
-                  {imagenPreview && (
-                    <div className="w-16 h-16 border border-gray-300 rounded-md overflow-hidden">
-                      <img 
-                        src={imagenPreview} 
-                        alt="Preview" 
-                        className="w-full h-full object-cover"
+                  {/* Campos para categorías que necesitan precio directo (Bebidas, Agregados) */}
+                  {necesitaPrecioDirecto() && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Precio
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Precio del producto"
+                        value={precio ?? ''}
+                        onChange={(e) => handleNumberChange(e, setPrecio)}
+                        className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                        disabled={loading}
+                        step="0.01"
+                        min="0"
                       />
                     </div>
                   )}
-                </div>
-              </div>
 
-              {/* Descripción */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <textarea
-                  placeholder="Descripción del producto"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  rows={3}
-                />
-              </div>
+                  {/* Stock */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Stock
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Cantidad en stock"
+                      value={stock ?? ''}
+                      onChange={(e) => handleNumberChange(e, setStock)}
+                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                      disabled={loading}
+                      min="0"
+                    />
+                  </div>
 
-              {/* Impuesto */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Impuesto (%)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Porcentaje de impuesto"
-                  value={impuesto ?? ''}
-                  onChange={(e) => handleNumberChange(e, setImpuesto)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
+                  {/* Imagen */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Imagen
+                    </label>
+                    <div className="flex items-center space-x-4">
+                      <div>
+                        <input
+                          type="file"
+                          ref={fileInputRef}
+                          onChange={handleImageChange}
+                          accept="image/*"
+                          className="hidden"
+                          id="imagen-upload"
+                          disabled={loading}
+                        />
+                        <label
+                          htmlFor="imagen-upload"
+                          className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md transition-colors"
+                        >
+                          Seleccionar imagen
+                        </label>
+                      </div>
+                      {imagenPreview && (
+                        <div className="w-16 h-16 border border-gray-300 rounded-md overflow-hidden">
+                          <img 
+                            src={imagenPreview} 
+                            alt="Preview" 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-              {/* Descuento */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descuento (%)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Porcentaje de descuento"
-                  value={descuento ?? ''}
-                  onChange={(e) => handleNumberChange(e, setDescuento)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
+                  {/* Descripción */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Descripción
+                    </label>
+                    <textarea
+                      placeholder="Descripción del producto"
+                      value={descripcion}
+                      onChange={(e) => setDescripcion(e.target.value)}
+                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                      disabled={loading}
+                      rows={3}
+                    />
+                  </div>
 
-              {/* Checkboxes */}
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="destacado"
-                  checked={destacado}
-                  onChange={(e) => setDestacado(e.target.checked)}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                  disabled={loading}
-                />
-                <label htmlFor="destacado" className="text-sm font-medium text-gray-700">
-                  Producto destacado
-                </label>
-              </div>
+                  {/* Impuesto */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Impuesto (%)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Porcentaje de impuesto"
+                      value={impuesto ?? ''}
+                      onChange={(e) => handleNumberChange(e, setImpuesto)}
+                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                      disabled={loading}
+                      min="0"
+                      max="100"
+                    />
+                  </div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="habilitado"
-                  checked={habilitado}
-                  onChange={(e) => setHabilitado(e.target.checked)}
-                  className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
-                  disabled={loading}
-                />
-                <label htmlFor="habilitado" className="text-sm font-medium text-gray-700">
-                  Producto habilitado
-                </label>
-              </div>
+                  {/* Descuento */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Descuento (%)
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Porcentaje de descuento"
+                      value={descuento ?? ''}
+                      onChange={(e) => handleNumberChange(e, setDescuento)}
+                      className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
+                      disabled={loading}
+                      min="0"
+                      max="100"
+                    />
+                  </div>
+
+                  {/* Checkboxes */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="destacado"
+                      checked={destacado}
+                      onChange={(e) => setDestacado(e.target.checked)}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      disabled={loading}
+                    />
+                    <label htmlFor="destacado" className="text-sm font-medium text-gray-700">
+                      Producto destacado
+                    </label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="habilitado"
+                      checked={habilitado}
+                      onChange={(e) => setHabilitado(e.target.checked)}
+                      className="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                      disabled={loading}
+                    />
+                    <label htmlFor="habilitado" className="text-sm font-medium text-gray-700">
+                      Producto habilitado
+                    </label>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="mt-6 flex justify-end space-x-3">
@@ -688,19 +694,21 @@ const formatPrice = (price: any): string => {
                   Cancelar
                 </button>
               )}
-              <button
-                onClick={handleGuardar}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors flex items-center justify-center min-w-[100px]"
-                disabled={loading}
-              >
-                {loading ? (
-                  <LoadingSpinner size={6} />
-                ) : modoEdicion ? (
-                  'Actualizar'
-                ) : (
-                  'Guardar'
-                )}
-              </button>
+              {categoriaId && (
+                <button
+                  onClick={handleGuardar}
+                  className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors flex items-center justify-center min-w-[100px]"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <LoadingSpinner size={6} />
+                  ) : modoEdicion ? (
+                    'Actualizar'
+                  ) : (
+                    'Guardar'
+                  )}
+                </button>
+              )}
             </div>
           </div>
 

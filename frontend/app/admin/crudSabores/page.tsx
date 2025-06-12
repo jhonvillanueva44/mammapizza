@@ -66,7 +66,7 @@ export default function CrudSaborPage() {
       nombre: nombre.trim(),
       descripcion: descripcion.trim(),
       tipo: tipo as 'Pizza' | 'Calzone' | 'Pasta',
-      especial: tipo === 'Pizza' ? especial : false,
+      especial: tipo === 'Pizza' ? especial : null,
     };
 
     try {
