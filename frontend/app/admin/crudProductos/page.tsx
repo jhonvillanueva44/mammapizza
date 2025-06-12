@@ -113,8 +113,7 @@ export default function CrudProductoPage() {
     resetForm: resetPizzaForm,
     loadProductData,
     handleGuardar,
-    unicoSabor,
-    saboresSeleccionados
+
   } = usePizzaForm({
     categoriaId,
     categorias,

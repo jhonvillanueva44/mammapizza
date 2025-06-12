@@ -429,80 +429,78 @@ export function usePizzaForm({
   };
 
 const handleGuardar = async (e?: React.FormEvent) => {
-  e?.preventDefault(); // Make event optional with ?. operator
+  e?.preventDefault();
   setLoading(true);
 
-    try {
-      // Validaciones básicas
-      if (!nombre || !categoriaId) {
-        throw new Error('Nombre y categoría son obligatorios');
-      }
-
-      // Validar que todas las combinaciones estén completas
-      const combinacionesIncompletas = combinaciones.some(c => !c.tamanio_id || !c.sabor_id);
-      if (combinacionesIncompletas) {
-        throw new Error('Ambas combinaciones tamaño-sabor deben estar completas');
-      }
-
-      // Obtener los IDs de las relaciones tamaño-sabor
-      const tamanioSaborIds = combinaciones.map(c => {
-        const relacion = tamanioSabores.find(
-          ts => ts.tamanio_id === c.tamanio_id && ts.sabor_id === c.sabor_id
-        );
-        if (!relacion) {
-          throw new Error(`No se encontró la combinación tamaño-sabor seleccionada`);
-        }
-        return relacion.id;
-      });
-
-      const formData = new FormData();
-      formData.append('nombre', nombre);
-      formData.append('precio', 'null'); // Precio manejado por la API
-      formData.append('stock', stock?.toString() || '0');
-      formData.append('categoria_id', categoriaId.toString());
-      formData.append('descripcion', descripcion);
-      formData.append('impuesto', impuesto?.toString() || '0');
-      formData.append('descuento', descuento?.toString() || '0');
-      formData.append('destacado', destacado.toString());
-      formData.append('habilitado', habilitado.toString());
-      formData.append('unico_sabor', (tamanioSaborIds.length === 1).toString());
-      formData.append('tamanio_sabor_ids', JSON.stringify(tamanioSaborIds));
-
-      // Agregar la imagen si hay un archivo seleccionado
-      if (fileInputRef.current?.files?.[0]) {
-        formData.append('imagen', fileInputRef.current.files[0]);
-      }
-
-      let response;
-      if (modoEdicion && productoEditando?.id) {
-        // Modo edición
-        response = await fetch(`${PRODUCTOS_URL}/${productoEditando.id}`, {
-          method: 'PUT',
-          body: formData,
-        });
-      } else {
-        // Modo creación
-        response = await fetch(PRODUCTOS_URL, {
-          method: 'POST',
-          body: formData,
-        });
-      }
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al guardar el producto');
-      }
-
-      const data = await response.json();
-      onSuccess(modoEdicion ? 'Producto actualizado correctamente' : 'Producto creado correctamente', data.producto);
-      refreshProductos();
-      
-    } catch (error: any) {
-      onError(error.message || 'Error al guardar el producto');
-    } finally {
-      setLoading(false);
+  try {
+    if (!nombre || !categoriaId) {
+      throw new Error('Nombre y categoría son obligatorios');
     }
-  };
+
+    const combinacionesValidas = combinaciones.filter(c => c.tamanio_id && c.sabor_id);
+    if (combinacionesValidas.length === 0) {
+      throw new Error('Debe completar al menos una combinación tamaño-sabor');
+    }
+
+    const tamanioSaborIds = combinacionesValidas.map(c => {
+      const relacion = tamanioSabores.find(
+        ts => ts.tamanio_id === c.tamanio_id && ts.sabor_id === c.sabor_id
+      );
+      if (!relacion) {
+        throw new Error(`No se encontró la combinación tamaño-sabor seleccionada`);
+      }
+      return relacion.id;
+    });
+
+    const formData = new FormData();
+    const unicoSabor = tamanioSaborIds.length === 1;
+
+    formData.append('nombre', nombre);
+    formData.append('stock', stock?.toString() || '0');
+    formData.append('categoria_id', categoriaId.toString());
+    formData.append('descripcion', descripcion);
+    formData.append('impuesto', impuesto?.toString() || '0');
+    formData.append('descuento', descuento?.toString() || '0');
+    formData.append('destacado', destacado.toString());
+    formData.append('habilitado', habilitado.toString());
+    formData.append('unico_sabor', unicoSabor.toString());
+    formData.append('tamanio_sabor_ids', JSON.stringify(tamanioSaborIds));
+
+    // 👇 NO añadir `precio` en ningún caso
+    // if (precio !== null) formData.append('precio', precio.toString());
+
+    if (fileInputRef.current?.files?.[0]) {
+      formData.append('imagen', fileInputRef.current.files[0]);
+    }
+
+    const response = await fetch(
+      modoEdicion && productoEditando?.id
+        ? `${PRODUCTOS_URL}/${productoEditando.id}`
+        : PRODUCTOS_URL,
+      {
+        method: modoEdicion ? 'PUT' : 'POST',
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al guardar el producto');
+    }
+
+    const data = await response.json();
+    onSuccess(
+      modoEdicion ? 'Producto actualizado correctamente' : 'Producto creado correctamente',
+      data.producto
+    );
+    refreshProductos();
+
+  } catch (error: any) {
+    onError(error.message || 'Error al guardar el producto');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const loadProductData = (producto: Producto) => {
     setNombre(producto.nombre);
