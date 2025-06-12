@@ -3,7 +3,7 @@ import { useState, useEffect, RefObject } from 'react';
 // Types
 type Categoria = { id: number; nombre: string };
 type Tamanio = { id: number; nombre: string; tipo: string };
-type TamanioSabor = { id: number; tamanio_id: number; sabor_id: number; precio: number };
+type TamanioSabor = { id: number; tamanio_id: number; sabor_id: number };
 type Sabor = { id: number; nombre: string };
 type Producto = {
   id?: number;
@@ -19,6 +19,12 @@ type Producto = {
   unico_sabor: boolean | null;
   tamanio_sabor_ids?: number[];
   imagen?: string;
+};
+
+type Combinacion = {
+  id?: number;
+  tamanio_id: number | null;
+  sabor_id: number | null;
 };
 
 type Props = {
@@ -87,10 +93,8 @@ export function usePizzaForm({
   const [tamanios, setTamanios] = useState<Tamanio[]>([]);
   const [tamanioSabores, setTamanioSabores] = useState<TamanioSabor[]>([]);
   const [sabores, setSabores] = useState<Sabor[]>([]);
-  const [tamanioSeleccionado, setTamanioSeleccionado] = useState<number | null>(null);
-  const [saborSeleccionado, setSaborSeleccionado] = useState<number | null>(null);
-  const [precioCalculado, setPrecioCalculado] = useState<number | null>(null);
-  const [combinaciones, setCombinaciones] = useState<{tamanio: Tamanio, sabor: Sabor, precio: number}[]>([]);
+  const [combinaciones, setCombinaciones] = useState<Combinacion[]>([]);
+  const [combinacionesExistentes, setCombinacionesExistentes] = useState<{tamanio: Tamanio, sabor: Sabor, id: number}[]>([]);
 
   const TAMANIOS_URL = 'http://localhost:4000/api/tamanios';
   const TAMANIO_SABORES_URL = 'http://localhost:4000/api/tamanioSabor';
@@ -119,19 +123,18 @@ export function usePizzaForm({
         setTamanioSabores(tsData);
         setSabores(sData);
 
-        // Crear combinaciones de tamaño-sabor
+        // Crear combinaciones de tamaño-sabor existentes
         const comb = tsData.map((ts: TamanioSabor) => {
           const tamanio = tData.find((t: Tamanio) => t.id === ts.tamanio_id);
           const sabor = sData.find((s: Sabor) => s.id === ts.sabor_id);
           return {
             tamanio,
             sabor,
-            precio: ts.precio,
             id: ts.id
           };
         }).filter((c: any) => c.tamanio && c.sabor);
 
-        setCombinaciones(comb);
+        setCombinacionesExistentes(comb);
       } catch (err: any) {
         onError(err.message || 'Error al cargar los datos de Pizza');
       } finally {
@@ -143,45 +146,107 @@ export function usePizzaForm({
   }, [categoriaId]);
 
   useEffect(() => {
+    // Inicializar con una combinación vacía si no hay ninguna
+    if (combinaciones.length === 0) {
+      setCombinaciones([{ tamanio_id: null, sabor_id: null }]);
+    }
+  }, []);
+
+  useEffect(() => {
     if (modoEdicion && productoEditando) {
       // Cargar datos del producto en edición
       if (productoEditando.tamanio_sabor_ids && productoEditando.tamanio_sabor_ids.length > 0) {
-        const relacion = tamanioSabores.find(ts => ts.id === productoEditando.tamanio_sabor_ids?.[0]);
-        if (relacion) {
-          setTamanioSeleccionado(relacion.tamanio_id);
-          setSaborSeleccionado(relacion.sabor_id);
-          setPrecioCalculado(relacion.precio || null);
-          setPrecio(relacion.precio || null);
-        }
+        const comb = productoEditando.tamanio_sabor_ids.map(id => {
+          const ts = tamanioSabores.find(ts => ts.id === id);
+          return ts ? { 
+            id: ts.id,
+            tamanio_id: ts.tamanio_id, 
+            sabor_id: ts.sabor_id 
+          } : null;
+        }).filter(Boolean) as Combinacion[];
+        
+        setCombinaciones(comb.length > 0 ? comb : [{ tamanio_id: null, sabor_id: null }]);
       }
     }
   }, [modoEdicion, productoEditando, tamanioSabores]);
 
-  useEffect(() => {
-    if (tamanioSeleccionado && saborSeleccionado) {
-      const relacion = tamanioSabores.find(
-        ts => ts.tamanio_id === tamanioSeleccionado && ts.sabor_id === saborSeleccionado
-      );
-      if (relacion) {
-        setPrecioCalculado(relacion.precio);
-        setPrecio(relacion.precio);
-      }
+  const agregarCombinacion = () => {
+    if (combinaciones.length < 2) {
+      setCombinaciones([...combinaciones, { tamanio_id: null, sabor_id: null }]);
     } else {
-      setPrecioCalculado(null);
+      onError('Solo se permiten 2 combinaciones como máximo');
     }
-  }, [tamanioSeleccionado, saborSeleccionado, tamanioSabores]);
+  };
 
-  const renderFormularioPizza = () => {
+  const eliminarCombinacion = (index: number) => {
+    const nuevasCombinaciones = [...combinaciones];
+    nuevasCombinaciones.splice(index, 1);
+    setCombinaciones(nuevasCombinaciones.length > 0 ? nuevasCombinaciones : [{ tamanio_id: null, sabor_id: null }]);
+  };
+
+  const actualizarCombinacion = (index: number, campo: 'tamanio_id' | 'sabor_id', valor: number | null) => {
+    const nuevasCombinaciones = [...combinaciones];
+    nuevasCombinaciones[index] = { ...nuevasCombinaciones[index], [campo]: valor };
+    
+    // Si se cambia el tamaño, resetear el sabor
+    if (campo === 'tamanio_id') {
+      nuevasCombinaciones[index].sabor_id = null;
+    }
+    
+    setCombinaciones(nuevasCombinaciones);
+  };
+
+  const renderSelectTamanio = (index: number) => {
     const categoriaNombre = categorias.find(c => c.id === categoriaId)?.nombre?.toLowerCase().replace(/s$/, '').trim() || '';
     const tamaniosFiltrados = tamanios.filter(t => t.tipo?.toLowerCase().trim() === categoriaNombre);
     
+    return (
+      <select
+        value={combinaciones[index].tamanio_id || ''}
+        onChange={(e) => actualizarCombinacion(index, 'tamanio_id', e.target.value ? parseInt(e.target.value) : null)}
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+        disabled={loading}
+        required
+      >
+        <option value="">Seleccione un tamaño</option>
+        {tamaniosFiltrados.map((tamanio) => (
+          <option key={tamanio.id} value={tamanio.id}>
+            {tamanio.nombre}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
+  const renderSelectSabor = (index: number) => {
+    const tamanioId = combinaciones[index].tamanio_id;
+    
     // Obtener sabores disponibles para el tamaño seleccionado
-    const saboresDisponibles = tamanioSeleccionado 
-      ? combinaciones
-          .filter(c => c.tamanio.id === tamanioSeleccionado)
+    const saboresDisponibles = tamanioId 
+      ? combinacionesExistentes
+          .filter(c => c.tamanio.id === tamanioId)
           .map(c => c.sabor)
       : [];
 
+    return (
+      <select
+        value={combinaciones[index].sabor_id || ''}
+        onChange={(e) => actualizarCombinacion(index, 'sabor_id', e.target.value ? parseInt(e.target.value) : null)}
+        className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
+        disabled={loading || !tamanioId}
+        required
+      >
+        <option value="">Seleccione un sabor</option>
+        {saboresDisponibles.map((sabor) => (
+          <option key={sabor.id} value={sabor.id}>
+            {sabor.nombre}
+          </option>
+        ))}
+      </select>
+    );
+  };
+
+  const renderFormularioPizza = () => {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Primera columna */}
@@ -199,65 +264,55 @@ export function usePizzaForm({
             />
           </div>
 
-          {/* Tamaño */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tamaño *</label>
-            <select
-              value={tamanioSeleccionado || ''}
-              onChange={(e) => {
-                const value = e.target.value ? parseInt(e.target.value) : null;
-                setTamanioSeleccionado(value);
-                setSaborSeleccionado(null); // Resetear sabor al cambiar tamaño
-              }}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-              disabled={loading}
-              required
-            >
-              <option value="">Seleccione un tamaño</option>
-              {tamaniosFiltrados.map((tamanio) => (
-                <option key={tamanio.id} value={tamanio.id}>
-                  {tamanio.nombre}
-                </option>
-              ))}
-            </select>
-          </div>
+          {/* Combinaciones Tamaño-Sabor */}
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Combinaciones Tamaño-Sabor *</label>
+            
+            {combinaciones.map((combinacion, index) => (
+              <div key={index} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Tamaño</div>
+                    {renderSelectTamanio(index)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Sabor</div>
+                    {renderSelectSabor(index)}
+                  </div>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => eliminarCombinacion(index)}
+                      className="text-red-500 hover:text-red-700 mt-5"
+                      disabled={loading}
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
 
-          {/* Sabor */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sabor *</label>
-            <select
-              value={saborSeleccionado || ''}
-              onChange={(e) => {
-                const value = e.target.value ? parseInt(e.target.value) : null;
-                setSaborSeleccionado(value);
-              }}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm"
-              disabled={loading || !tamanioSeleccionado}
-              required
-            >
-              <option value="">Seleccione un sabor</option>
-              {saboresDisponibles.map((sabor) => (
-                <option key={sabor.id} value={sabor.id}>
-                  {sabor.nombre}
-                </option>
-              ))}
-            </select>
+            {combinaciones.length < 2 && (
+              <button
+                type="button"
+                onClick={agregarCombinacion}
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                disabled={loading}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Agregar otra combinación
+              </button>
+            )}
           </div>
         </div>
 
         {/* Segunda columna */}
         <div className="space-y-4">
-          {/* Precio */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
-            <input
-              type="text"
-              value={precioCalculado !== null ? `$${precioCalculado.toFixed(2)}` : 'Seleccione tamaño y sabor'}
-              className="w-full border border-gray-300 rounded px-3 py-2 text-sm bg-gray-100"
-              readOnly
-            />
-          </div>
-
           {/* Stock */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
@@ -299,7 +354,7 @@ export function usePizzaForm({
           </div>
         </div>
 
-        {/* Tercera columna (se mantiene igual) */}
+        {/* Tercera columna */}
         <div className="space-y-4">
           {/* Imagen */}
           <div>
@@ -383,22 +438,26 @@ export function usePizzaForm({
         throw new Error('Nombre y categoría son obligatorios');
       }
 
-      if (!tamanioSeleccionado || !saborSeleccionado) {
-        throw new Error('Debe seleccionar un tamaño y un sabor');
+      // Validar que todas las combinaciones estén completas
+      const combinacionesIncompletas = combinaciones.some(c => !c.tamanio_id || !c.sabor_id);
+      if (combinacionesIncompletas) {
+        throw new Error('Ambas combinaciones tamaño-sabor deben estar completas');
       }
 
-      // Buscar la relación tamaño-sabor para obtener el precio y el ID de la relación
-      const relacion = tamanioSabores.find(
-        ts => ts.tamanio_id === tamanioSeleccionado && ts.sabor_id === saborSeleccionado
-      );
-
-      if (!relacion) {
-        throw new Error('No se encontró la combinación de tamaño y sabor seleccionada');
-      }
+      // Obtener los IDs de las relaciones tamaño-sabor
+      const tamanioSaborIds = combinaciones.map(c => {
+        const relacion = tamanioSabores.find(
+          ts => ts.tamanio_id === c.tamanio_id && ts.sabor_id === c.sabor_id
+        );
+        if (!relacion) {
+          throw new Error(`No se encontró la combinación tamaño-sabor seleccionada`);
+        }
+        return relacion.id;
+      });
 
       const formData = new FormData();
       formData.append('nombre', nombre);
-      formData.append('precio', relacion.precio.toString());
+      formData.append('precio', 'null'); // Precio manejado por la API
       formData.append('stock', stock?.toString() || '0');
       formData.append('categoria_id', categoriaId.toString());
       formData.append('descripcion', descripcion);
@@ -406,8 +465,8 @@ export function usePizzaForm({
       formData.append('descuento', descuento?.toString() || '0');
       formData.append('destacado', destacado.toString());
       formData.append('habilitado', habilitado.toString());
-      formData.append('unico_sabor', 'true');
-      formData.append('tamanio_sabor_ids', JSON.stringify([relacion.id]));
+      formData.append('unico_sabor', (tamanioSaborIds.length === 1).toString());
+      formData.append('tamanio_sabor_ids', JSON.stringify(tamanioSaborIds));
 
       // Agregar la imagen si hay un archivo seleccionado
       if (fileInputRef.current?.files?.[0]) {
@@ -456,12 +515,16 @@ export function usePizzaForm({
     setHabilitado(producto.habilitado);
     
     if (producto.tamanio_sabor_ids && producto.tamanio_sabor_ids.length > 0) {
-      const relacion = tamanioSabores.find(ts => ts.id === producto.tamanio_sabor_ids?.[0]);
-      if (relacion) {
-        setTamanioSeleccionado(relacion.tamanio_id);
-        setSaborSeleccionado(relacion.sabor_id);
-        setPrecioCalculado(relacion.precio);
-      }
+      const comb = producto.tamanio_sabor_ids.map(id => {
+        const ts = tamanioSabores.find(ts => ts.id === id);
+        return ts ? { 
+          id: ts.id,
+          tamanio_id: ts.tamanio_id, 
+          sabor_id: ts.sabor_id 
+        } : null;
+      }).filter(Boolean) as Combinacion[];
+      
+      setCombinaciones(comb.length > 0 ? comb : [{ tamanio_id: null, sabor_id: null }]);
     }
   };
 
@@ -474,9 +537,7 @@ export function usePizzaForm({
     setDescuento(null);
     setDestacado(false);
     setHabilitado(true);
-    setTamanioSeleccionado(null);
-    setSaborSeleccionado(null);
-    setPrecioCalculado(null);
+    setCombinaciones([{ tamanio_id: null, sabor_id: null }]);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -487,8 +548,6 @@ export function usePizzaForm({
     resetForm,
     loadProductData,
     handleGuardar,
-    tamanioSeleccionado,
-    saborSeleccionado,
-    precioCalculado,
+    combinaciones,
   };
 }
