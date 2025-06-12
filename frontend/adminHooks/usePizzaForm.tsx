@@ -428,9 +428,9 @@ export function usePizzaForm({
     );
   };
 
-  const handleGuardar = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+const handleGuardar = async (e?: React.FormEvent) => {
+  e?.preventDefault(); // Make event optional with ?. operator
+  setLoading(true);
 
     try {
       // Validaciones básicas
