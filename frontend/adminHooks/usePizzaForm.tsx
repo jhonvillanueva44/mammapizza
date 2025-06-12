@@ -90,10 +90,6 @@ export function usePizzaForm({
           tRes.json(), tsRes.json(), sRes.json()
         ]);
 
-        console.log('Tamaños cargados:', tData);
-        console.log('TamanioSabores cargados:', tsData);
-        console.log('Sabores cargados:', sData);
-
         setTamanios(tData);
         setTamanioSabores(tsData);
         setSabores(sData);
@@ -111,9 +107,6 @@ export function usePizzaForm({
     const tamanioSaboresFiltrados = tamanioSabores.filter(ts =>
       tamaniosFiltrados.some(t => t.id === ts.tamanio_id)
     );
-
-    console.log('✔ Filtrando por tipo:', categoriaNombre);
-    console.log('✔ Tamaños filtrados:', tamaniosFiltrados);
 
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -166,6 +159,113 @@ export function usePizzaForm({
               );
             })}
           </select>
+        </div>
+
+        {/* Stock */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+          <input
+            type="number"
+            value={stock ?? ''}
+            onChange={(e) => handleNumberChange(e, setStock)}
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            disabled={loading}
+            min="0"
+          />
+        </div>
+
+        {/* Imagen */}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+          <div className="flex items-center space-x-4">
+            <div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                accept="image/*"
+                className="hidden"
+                id="imagen-upload"
+                disabled={loading}
+              />
+              <label
+                htmlFor="imagen-upload"
+                className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
+              >
+                Seleccionar imagen
+              </label>
+            </div>
+            {imagenPreview && (
+              <div className="w-16 h-16 border rounded overflow-hidden">
+                <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Descripción */}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+          <textarea
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            rows={3}
+            disabled={loading}
+          />
+        </div>
+
+        {/* Impuesto */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
+          <input
+            type="number"
+            value={impuesto ?? ''}
+            onChange={(e) => handleNumberChange(e, setImpuesto)}
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            disabled={loading}
+            min="0"
+            max="100"
+          />
+        </div>
+
+        {/* Descuento */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
+          <input
+            type="number"
+            value={descuento ?? ''}
+            onChange={(e) => handleNumberChange(e, setDescuento)}
+            className="w-full border border-gray-300 rounded px-4 py-2"
+            disabled={loading}
+            min="0"
+            max="100"
+          />
+        </div>
+
+        {/* Checkboxes */}
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="destacado"
+            checked={destacado}
+            onChange={(e) => setDestacado(e.target.checked)}
+            className="h-4 w-4 text-red-600 border-gray-300 rounded"
+            disabled={loading}
+          />
+          <label htmlFor="destacado" className="text-sm text-gray-700">Producto destacado</label>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            id="habilitado"
+            checked={habilitado}
+            onChange={(e) => setHabilitado(e.target.checked)}
+            className="h-4 w-4 text-red-600 border-gray-300 rounded"
+            disabled={loading}
+          />
+          <label htmlFor="habilitado" className="text-sm text-gray-700">Producto habilitado</label>
         </div>
       </div>
     );
