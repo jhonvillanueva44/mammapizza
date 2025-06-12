@@ -466,9 +466,6 @@ const handleGuardar = async (e?: React.FormEvent) => {
     formData.append('unico_sabor', unicoSabor.toString());
     formData.append('tamanio_sabor_ids', JSON.stringify(tamanioSaborIds));
 
-    // 👇 NO añadir `precio` en ningún caso
-    // if (precio !== null) formData.append('precio', precio.toString());
-
     if (fileInputRef.current?.files?.[0]) {
       formData.append('imagen', fileInputRef.current.files[0]);
     }

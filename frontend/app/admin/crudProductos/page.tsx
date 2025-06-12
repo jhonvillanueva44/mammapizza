@@ -7,6 +7,8 @@ import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import { usePizzaForm } from '@/adminHooks/usePizzaForm';
+import { useCalzoneForm } from '@/adminHooks/useCalzoneForm';
+import { useBebidasForm } from '@/adminHooks/useBebidasForm';
 
 // Types
 type Producto = {
@@ -111,10 +113,95 @@ export default function CrudProductoPage() {
   const {
     renderFormularioPizza,
     resetForm: resetPizzaForm,
-    loadProductData,
-    handleGuardar,
-
+    loadProductData: loadPizzaData,
+    handleGuardar: handleGuardarPizza,
   } = usePizzaForm({
+    categoriaId,
+    categorias,
+    nombre,
+    setNombre,
+    precio,
+    setPrecio,
+    stock,
+    setStock,
+    imagenPreview,
+    handleImageChange,
+    fileInputRef,
+    descripcion,
+    setDescripcion,
+    impuesto,
+    setImpuesto,
+    descuento,
+    setDescuento,
+    destacado,
+    setDestacado,
+    habilitado,
+    setHabilitado,
+    loading,
+    setLoading,
+    modoEdicion,
+    productoEditando: modoEdicion && idEditando 
+      ? productos.find(p => p.id === idEditando) || null 
+      : null,
+    onError: (msg: string) => setError(msg),
+    onSuccess: (msg: string, producto?: Producto) => {
+      setSuccess(msg);
+      fetchData();
+      resetForm();
+    },
+    handleNumberChange,
+    refreshProductos: fetchData
+  });
+
+  const {
+    renderFormularioCalzone,
+    resetForm: resetCalzoneForm,
+    loadProductData: loadCalzoneData,
+    handleGuardar: handleGuardarCalzone,
+  } = useCalzoneForm({
+    categoriaId,
+    categorias,
+    nombre,
+    setNombre,
+    precio,
+    setPrecio,
+    stock,
+    setStock,
+    imagenPreview,
+    handleImageChange,
+    fileInputRef,
+    descripcion,
+    setDescripcion,
+    impuesto,
+    setImpuesto,
+    descuento,
+    setDescuento,
+    destacado,
+    setDestacado,
+    habilitado,
+    setHabilitado,
+    loading,
+    setLoading,
+    modoEdicion,
+    productoEditando: modoEdicion && idEditando 
+      ? productos.find(p => p.id === idEditando) || null 
+      : null,
+    onError: (msg: string) => setError(msg),
+    onSuccess: (msg: string, producto?: Producto) => {
+      setSuccess(msg);
+      fetchData();
+      resetForm();
+    },
+    handleNumberChange,
+    refreshProductos: fetchData
+  });
+
+  const {
+    renderFormularioBebidas,
+    resetForm: resetBebidasForm,
+    loadProductData: loadBebidasData,
+    handleGuardar: handleGuardarBebidas,
+  } = useBebidasForm({
     categoriaId,
     categorias,
     nombre,
@@ -169,6 +256,8 @@ export default function CrudProductoPage() {
       fileInputRef.current.value = '';
     }
     resetPizzaForm();
+    resetCalzoneForm();
+    resetBebidasForm();
   };
 
   const handleEditar = (producto: Producto) => {
@@ -192,9 +281,13 @@ export default function CrudProductoPage() {
       setImagenPreview(imagePath);
     }
 
-    // Cargar datos específicos de pizza si es necesario
-    if (producto.categoria_id === 1) {
-      loadProductData(producto);
+    // Cargar datos específicos basados en categoría
+    if (producto.categoria_id === 1) { // Pizza
+      loadPizzaData(producto);
+    } else if (producto.categoria_id === 2) { // Calzone
+      loadCalzoneData(producto);
+    } else if (producto.categoria_id === 3) { // Bebidas
+      loadBebidasData(producto);
     }
   };
 
@@ -273,9 +366,11 @@ export default function CrudProductoPage() {
             </div>
 
             {categoriaId === 1 && renderFormularioPizza()}
+            {categoriaId === 2 && renderFormularioCalzone()}
+            {categoriaId === 3 && renderFormularioBebidas()}
 
             {/* Formulario genérico para otras categorías */}
-            {categoriaId && categoriaId !== 1 && (
+            {categoriaId && categoriaId !== 1 && categoriaId !== 2 && categoriaId !== 3 && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Primera columna */}
                 <div className="space-y-4">
@@ -394,7 +489,11 @@ export default function CrudProductoPage() {
                   type="button"
                   onClick={() => {
                     if (categoriaId === 1) {
-                      handleGuardar();
+                      handleGuardarPizza();
+                    } else if (categoriaId === 2) {
+                      handleGuardarCalzone();
+                    } else if (categoriaId === 3) {
+                      handleGuardarBebidas();
                     } else {
                       handleGuardarProductoGenerico();
                     }
