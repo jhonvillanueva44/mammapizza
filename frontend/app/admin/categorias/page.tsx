@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
@@ -14,110 +14,140 @@ type Categoria = {
   descripcion: string;
 };
 
-export default function CrudCategoriaPage() {
+export default function CrudCategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [nombre, setNombre] = useState('');
+  const [descripcion, setDescripcion] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
-  const [showFormModal, setShowFormModal] = useState(false);
+  const [mostrarModal, setMostrarModal] = useState(false);
   const [modoEdicion, setModoEdicion] = useState(false);
   const [idEditando, setIdEditando] = useState<number | null>(null);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [idAEliminar, setIdAEliminar] = useState<number | null>(null);
 
-  const API_BASE_URL = 'http://localhost:4000/api/categorias';
+  const API_URL = 'http://localhost:4000/api/categorias';
 
-  const fetchCategorias = async () => {
+  const obtenerCategorias = async () => {
     try {
       setLoading(true);
-      const res = await fetch(API_BASE_URL);
-      if (!res.ok) throw new Error('Error al cargar categorías');
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('Error al obtener categorías');
       const data = await res.json();
       setCategorias(data);
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (error: any) {
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchCategorias();
+    obtenerCategorias();
   }, []);
 
-  const handleEliminarClick = (id: number) => {
-    setItemToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
+  const handleGuardar = async () => {
+    if (!nombre.trim()) {
+      setError('El nombre es obligatorio');
+      return;
+    }
 
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/${itemToDelete}`, { 
-        method: 'DELETE' 
-      });
+      const nuevaCategoria = {
+        nombre: nombre.trim(),
+        descripcion: descripcion.trim(),
+      };
+
+      const res = await fetch(
+        modoEdicion ? `${API_URL}/${idEditando}` : API_URL,
+        {
+          method: modoEdicion ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevaCategoria),
+        }
+      );
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Error al eliminar categoría');
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error al guardar');
       }
-      setSuccess('Categoría eliminada correctamente');
-      await fetchCategorias();
+
+      await obtenerCategorias();
+      setMostrarModal(false);
+      setModoEdicion(false);
+      setNombre('');
+      setDescripcion('');
+      setSuccess(modoEdicion ? 'Categoría actualizada' : 'Categoría creada');
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (error: any) {
+      setError(error.message);
       setSuccess(null);
     } finally {
       setLoading(false);
-      setShowDeleteModal(false);
-      setItemToDelete(null);
     }
   };
 
   const handleEditarClick = (categoria: Categoria) => {
     setModoEdicion(true);
     setIdEditando(categoria.id);
-    setShowFormModal(true);
+    setNombre(categoria.nombre);
+    setDescripcion(categoria.descripcion);
+    setMostrarModal(true);
   };
 
-  const handleSuccess = (message: string) => {
-    setSuccess(message);
-    fetchCategorias();
-    setShowFormModal(false);
+  const handleEliminarClick = (id: number) => {
+    setIdAEliminar(id);
+    setMostrarConfirmacion(true);
+  };
+
+  const handleConfirmarEliminar = async () => {
+    try {
+      if (idAEliminar === null) return;
+      setLoading(true);
+      const res = await fetch(`${API_URL}/${idAEliminar}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
+      await obtenerCategorias();
+      setSuccess('Categoría eliminada correctamente');
+      setError(null);
+    } catch (error: any) {
+      setError(error.message);
+      setSuccess(null);
+    } finally {
+      setLoading(false);
+      setMostrarConfirmacion(false);
+      setIdAEliminar(null);
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex bg-gray-50">
       <HeaderAdmin />
-      <div className="flex-1 overflow-auto">
+
+      <div className="flex-1 overflow-auto min-w-0">
         <Topbar title="Gestión de Categorías" />
 
         <main className="p-6 space-y-6">
-          {error && (
-            <Alert type="error" message={error} onClose={() => setError(null)} />
-          )}
-          
-          {success && (
-            <Alert type="success" message={success} onClose={() => setSuccess(null)} />
-          )}
+          {error && <Alert message={error} onClose={() => setError(null)} type="error" />}
+          {success && <Alert message={success} onClose={() => setSuccess(null)} type="success" />}
 
           <ConfirmationModal
-            isOpen={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={handleConfirmDelete}
+            message="¿Estás seguro de eliminar esta categoría?"
+            isOpen={mostrarConfirmacion}
+            onClose={() => setMostrarConfirmacion(false)}
+            onConfirm={handleConfirmarEliminar}
             title="Confirmar eliminación"
-            message="¿Estás seguro de que deseas eliminar esta categoría? Esta acción no se puede deshacer."
-            confirmText="Eliminar"
           />
 
           <div className="flex justify-end mb-4">
             <button
               onClick={() => {
-                setShowFormModal(true);
+                setMostrarModal(true);
                 setModoEdicion(false);
-                setIdEditando(null);
+                setNombre('');
+                setDescripcion('');
               }}
               className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
             >
@@ -125,73 +155,72 @@ export default function CrudCategoriaPage() {
             </button>
           </div>
 
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Lista de Categorías</h2>
-
-            {loading ? (
+          <div className="bg-white rounded shadow p-4">
+            {loading && categorias.length === 0 ? (
               <div className="flex justify-center py-8">
                 <LoadingSpinner size={8} />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="px-4 py-3 font-semibold text-gray-700">Nombre</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Descripción</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Acciones</th>
+              <table className="w-full table-auto">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2 text-left">Nombre</th>
+                    <th className="px-4 py-2 text-left">Descripción</th>
+                    <th className="px-4 py-2 text-left">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {categorias.map((cat) => (
+                    <tr key={cat.id} className="border-t">
+                      <td className="px-4 py-2">{cat.nombre}</td>
+                      <td className="px-4 py-2">{cat.descripcion || '-'}</td>
+                      <td className="px-4 py-2 space-x-2">
+                        <button
+                          onClick={() => handleEditarClick(cat)}
+                          className="text-blue-600 hover:text-blue-800"
+                          disabled={loading}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          onClick={() => handleEliminarClick(cat.id)}
+                          className="text-red-600 hover:text-red-800"
+                          disabled={loading}
+                        >
+                          Eliminar
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {categorias.map((categoria) => (
-                      <tr key={categoria.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">{categoria.nombre}</td>
-                        <td className="px-4 py-3 text-gray-600">{categoria.descripcion || '-'}</td>
-                        <td className="px-4 py-3">
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => handleEditarClick(categoria)}
-                              className="text-blue-600 hover:text-blue-800 transition-colors font-medium"
-                              disabled={loading}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleEliminarClick(categoria.id)}
-                              className="text-red-600 hover:text-red-800 transition-colors font-medium"
-                              disabled={loading}
-                            >
-                              Eliminar
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                    {categorias.length === 0 && (
-                      <tr>
-                        <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
-                          No hay categorías registradas.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                  {categorias.length === 0 && !loading && (
+                    <tr>
+                      <td colSpan={3} className="text-center py-4 text-gray-500">
+                        No hay categorías registradas.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             )}
           </div>
         </main>
       </div>
 
       <ModalFormularioCategoria
-        isOpen={showFormModal}
+        isOpen={mostrarModal}
         onClose={() => {
-          setShowFormModal(false);
+          setMostrarModal(false);
           setModoEdicion(false);
-          setIdEditando(null);
+          setNombre('');
+          setDescripcion('');
         }}
-        onSuccess={handleSuccess}
+        onSave={handleGuardar}
+        loading={loading}
         modoEdicion={modoEdicion}
-        idEditando={idEditando}
+        nombre={nombre}
+        setNombre={setNombre}
+        descripcion={descripcion}
+        setDescripcion={setDescripcion}
       />
     </div>
   );

@@ -21,7 +21,7 @@ type Props = {
 
 };
 
-const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta'];
+const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado'];
 
 export default function ModalFormularioSabor({
   isOpen,
