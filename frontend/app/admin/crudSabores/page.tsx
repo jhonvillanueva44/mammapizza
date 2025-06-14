@@ -6,6 +6,7 @@ import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
+import ModalFormularioSabor from '@/adminModals/ModalFormularioSabor';
 
 type Sabor = {
   id: number;
@@ -17,17 +18,18 @@ type Sabor = {
 
 export default function CrudSaborPage() {
   const [sabores, setSabores] = useState<Sabor[]>([]);
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [tipo, setTipo] = useState<string>(''); // Cambiado a string vacío inicialmente
-  const [especial, setEspecial] = useState(false);
-  const [modoEdicion, setModoEdicion] = useState(false);
-  const [idEditando, setIdEditando] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idEditando, setIdEditando] = useState<number | null>(null);
+
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 15;
 
   const API_URL = 'http://localhost:4000/api/sabores';
 
@@ -48,75 +50,6 @@ export default function CrudSaborPage() {
   useEffect(() => {
     fetchSabores();
   }, []);
-
-  const handleGuardar = async () => {
-    if (!nombre.trim() || !descripcion.trim() || !tipo) {
-      setError('Nombre, descripción y tipo son obligatorios.');
-      return;
-    }
-
-    // Validar que el tipo sea uno de los permitidos
-    if (tipo !== 'Pizza' && tipo !== 'Calzone' && tipo !== 'Pasta') {
-      setError('Por favor selecciona un tipo válido');
-      return;
-    }
-
-    // Si no es Pizza, forzamos especial a false
-    const saborData = {
-      nombre: nombre.trim(),
-      descripcion: descripcion.trim(),
-      tipo: tipo as 'Pizza' | 'Calzone' | 'Pasta',
-      especial: tipo === 'Pizza' ? especial : null,
-    };
-
-    try {
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
-      let res: Response;
-
-      if (modoEdicion && idEditando !== null) {
-        res = await fetch(`${API_URL}/${idEditando}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(saborData),
-        });
-        if (!res.ok) throw new Error('Error al actualizar el sabor');
-        setSuccess('Sabor actualizado con éxito.');
-      } else {
-        res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(saborData),
-        });
-        if (!res.ok) throw new Error('Error al crear el sabor');
-        setSuccess('Sabor guardado con éxito.');
-      }
-
-      await fetchSabores();
-      setNombre('');
-      setDescripcion('');
-      setTipo('');
-      setEspecial(false);
-      setModoEdicion(false);
-      setIdEditando(null);
-    } catch (err: any) {
-      setError(err.message || 'Error al guardar el sabor.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditar = (sabor: Sabor) => {
-    setModoEdicion(true);
-    setIdEditando(sabor.id);
-    setNombre(sabor.nombre);
-    setDescripcion(sabor.descripcion);
-    setTipo(sabor.tipo);
-    setEspecial(sabor.especial);
-    setError(null);
-    setSuccess(null);
-  };
 
   const handleEliminarClick = (id: number) => {
     setItemToDelete(id);
@@ -140,6 +73,32 @@ export default function CrudSaborPage() {
       setShowDeleteModal(false);
       setItemToDelete(null);
     }
+  };
+
+  const handleEditarClick = (sabor: Sabor) => {
+    setModoEdicion(true);
+    setIdEditando(sabor.id);
+    setShowFormModal(true);
+  };
+
+  const handleSuccess = (message: string) => {
+    setSuccess(message);
+    fetchSabores();
+    setShowFormModal(false);
+  };
+
+  const filteredSabores = sabores.filter((sabor) =>
+    sabor.nombre.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalPages = Math.ceil(filteredSabores.length / itemsPerPage);
+  const currentSabores = filteredSabores.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
   return (
@@ -167,85 +126,30 @@ export default function CrudSaborPage() {
             confirmText="Eliminar"
           />
 
-          {/* Formulario */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">
-              {modoEdicion ? 'Editar Sabor' : 'Agregar Sabor'}
-            </h2>
+          <div className="flex justify-between mb-4">
+            <input
+              type="text"
+              placeholder="Buscar sabor por nombre..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="border border-gray-300 rounded px-3 py-2 w-64 focus:ring-2 focus:ring-red-500 focus:outline-none"
+            />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <input
-                type="text"
-                placeholder="Nombre del sabor"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                className="border border-gray-300 rounded px-4 py-2"
-              />
-              <input
-                type="text"
-                placeholder="Descripción"
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                className="border border-gray-300 rounded px-4 py-2"
-              />
-              <select
-                value={tipo}
-                onChange={(e) => setTipo(e.target.value)}
-                className="border border-gray-300 rounded px-4 py-2"
-                required
-              >
-                <option value="">Seleccionar un tipo</option>
-                <option value="Pizza">Pizza</option>
-                <option value="Calzone">Calzone</option>
-                <option value="Pasta">Pasta</option>
-              </select>
-            </div>
-
-            {/* Mostrar checkbox solo si el tipo es Pizza */}
-            {tipo === 'Pizza' && (
-              <div className="mt-4 flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="especial"
-                  checked={especial}
-                  onChange={(e) => setEspecial(e.target.checked)}
-                  className="w-5 h-5 text-red-600"
-                />
-                <label htmlFor="especial" className="text-gray-700 select-none">
-                  ¿Es especial?
-                </label>
-              </div>
-            )}
-
-            <div className="mt-4 flex justify-end space-x-3">
-              {modoEdicion && (
-                <button
-                  onClick={() => {
-                    setModoEdicion(false);
-                    setIdEditando(null);
-                    setNombre('');
-                    setDescripcion('');
-                    setTipo('');
-                    setEspecial(false);
-                    setError(null);
-                    setSuccess(null);
-                  }}
-                  className="text-gray-600 hover:text-gray-900"
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                onClick={handleGuardar}
-                disabled={loading}
-                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
-              >
-                {modoEdicion ? 'Actualizar' : 'Guardar'}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setShowFormModal(true);
+                setModoEdicion(false);
+                setIdEditando(null);
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Agregar Sabor
+            </button>
           </div>
 
-          {/* Tabla */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-bold mb-4">Lista de Sabores</h2>
 
@@ -260,7 +164,7 @@ export default function CrudSaborPage() {
                 </tr>
               </thead>
               <tbody>
-                {sabores.map((sabor) => (
+                {currentSabores.map((sabor) => (
                   <tr key={sabor.id} className="border-t">
                     <td className="px-4 py-2">{sabor.nombre}</td>
                     <td className="px-4 py-2">{sabor.descripcion}</td>
@@ -270,7 +174,7 @@ export default function CrudSaborPage() {
                     </td>
                     <td className="px-4 py-2 space-x-3">
                       <button
-                        onClick={() => handleEditar(sabor)}
+                        onClick={() => handleEditarClick(sabor)}
                         className="text-blue-600 hover:underline"
                       >
                         Editar
@@ -284,7 +188,7 @@ export default function CrudSaborPage() {
                     </td>
                   </tr>
                 ))}
-                {sabores.length === 0 && (
+                {currentSabores.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-4 py-4 text-center text-gray-500">
                       No hay sabores registrados.
@@ -293,9 +197,53 @@ export default function CrudSaborPage() {
                 )}
               </tbody>
             </table>
+
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center mt-4 space-x-2">
+                <button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                  disabled={currentPage === 1}
+                >
+                  Anterior
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <button
+                    key={i + 1}
+                    onClick={() => handlePageChange(i + 1)}
+                    className={`px-3 py-1 border rounded ${
+                      currentPage === i + 1
+                        ? 'bg-red-600 text-white'
+                        : 'bg-white text-gray-700'
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+                <button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  className="px-3 py-1 border rounded disabled:opacity-50"
+                  disabled={currentPage === totalPages}
+                >
+                  Siguiente
+                </button>
+              </div>
+            )}
           </div>
         </main>
       </div>
+
+      <ModalFormularioSabor
+        isOpen={showFormModal}
+        onClose={() => {
+          setShowFormModal(false);
+          setModoEdicion(false);
+          setIdEditando(null);
+        }}
+        onSuccess={handleSuccess}
+        modoEdicion={modoEdicion}
+        idEditando={idEditando}
+      />
     </div>
   );
 }

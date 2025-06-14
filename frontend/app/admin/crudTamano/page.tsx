@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
+import ModalFormularioTamano from '@/adminModals/ModalFormularioTamano';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 
 type Tamano = {
@@ -16,293 +17,271 @@ type Tamano = {
 
 const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado'];
 
-export default function CrudTamanoPage() {
+export default function CrudTamaniosPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([]);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
   const [tipo, setTipo] = useState('');
-  const [modoEdicion, setModoEdicion] = useState(false);
-  const [idEditando, setIdEditando] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [mostrarModal, setMostrarModal] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idEditando, setIdEditando] = useState<number | null>(null);
+  const [mostrarConfirmacion, setMostrarConfirmacion] = useState(false);
+  const [idAEliminar, setIdAEliminar] = useState<number | null>(null);
 
-  const API_BASE_URL = 'http://localhost:4000/api/tamanios';
+  const [paginaActual, setPaginaActual] = useState(1);
+  const tamanosPorPagina = 15;
 
-  const fetchTamanos = async () => {
+  const API_URL = 'http://localhost:4000/api/tamanios';
+
+  const obtenerTamanos = async () => {
     try {
       setLoading(true);
-      const res = await fetch(API_BASE_URL);
-      if (!res.ok) throw new Error('Error al cargar tamaños');
+      const res = await fetch(API_URL);
+      if (!res.ok) throw new Error('Error al obtener tamaños');
       const data = await res.json();
       setTamanos(data);
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (error: any) {
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchTamanos();
+    obtenerTamanos();
   }, []);
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [tipo]);
+
+  const tamanosFiltrados = tipo
+    ? tamanos.filter((t) => t.tipo === tipo)
+    : tamanos;
+
+  const totalPaginas = Math.ceil(tamanosFiltrados.length / tamanosPorPagina);
+  const indexInicio = (paginaActual - 1) * tamanosPorPagina;
+  const indexFin = indexInicio + tamanosPorPagina;
+  const tamanosPagina = tamanosFiltrados.slice(indexInicio, indexFin);
 
   const handleGuardar = async () => {
     if (!nombre.trim() || !tipo.trim()) {
-      setError('Los campos nombre y tipo son obligatorios');
+      setError('Nombre y tipo son obligatorios');
       return;
     }
 
-    const payload = {
-      nombre: nombre.trim(),
-      descripcion: descripcion.trim(),
-      tipo: tipo.trim()
-    };
-
     try {
       setLoading(true);
-      if (modoEdicion && idEditando !== null) {
-        const res = await fetch(`${API_BASE_URL}/${idEditando}`, {
-          method: 'PUT',
+      const nuevoTamano = {
+        nombre: nombre.trim(),
+        descripcion: descripcion.trim(),
+        tipo: tipo.trim()
+      };
+
+      const res = await fetch(
+        modoEdicion ? `${API_URL}/${idEditando}` : API_URL,
+        {
+          method: modoEdicion ? 'PUT' : 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al actualizar tamaño');
+          body: JSON.stringify(nuevoTamano),
         }
-        setSuccess('Tamaño actualizado correctamente');
-      } else {
-        const res = await fetch(API_BASE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al crear tamaño');
-        }
-        setSuccess('Tamaño creado correctamente');
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error al guardar');
       }
 
-      await fetchTamanos();
+      await obtenerTamanos();
+      setMostrarModal(false);
       setModoEdicion(false);
-      setIdEditando(null);
       setNombre('');
       setDescripcion('');
       setTipo('');
+      setSuccess(modoEdicion ? 'Tamaño actualizado correctamente' : 'Tamaño creado correctamente');
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (error: any) {
+      setError(error.message);
       setSuccess(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEditar = (tamano: Tamano) => {
+  const handleEditarClick = (tamano: Tamano) => {
     setModoEdicion(true);
     setIdEditando(tamano.id);
     setNombre(tamano.nombre);
-    setDescripcion(tamano.descripcion || '');
+    setDescripcion(tamano.descripcion);
     setTipo(tamano.tipo);
+    setMostrarModal(true);
   };
 
   const handleEliminarClick = (id: number) => {
-    setItemToDelete(id);
-    setShowDeleteModal(true);
+    setIdAEliminar(id);
+    setMostrarConfirmacion(true);
   };
 
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-
+  const handleConfirmarEliminar = async () => {
     try {
+      if (idAEliminar === null) return;
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/${itemToDelete}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Error al eliminar tamaño');
-      }
+      const res = await fetch(`${API_URL}/${idAEliminar}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
+      await obtenerTamanos();
       setSuccess('Tamaño eliminado correctamente');
-      await fetchTamanos();
       setError(null);
-    } catch (e: any) {
-      setError(e.message);
+    } catch (error: any) {
+      setError(error.message);
       setSuccess(null);
     } finally {
       setLoading(false);
-      setShowDeleteModal(false);
-      setItemToDelete(null);
+      setMostrarConfirmacion(false);
+      setIdAEliminar(null);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex bg-gray-50">
       <HeaderAdmin />
-      <div className="flex-1 overflow-auto">
-        <Topbar title="Gestión de Tamaños de Pizza" />
+
+      <div className="flex-1 overflow-auto min-w-0">
+        <Topbar title="CRUD Tamaños" />
 
         <main className="p-6 space-y-6">
-          {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
-          {success && <Alert type="success" message={success} onClose={() => setSuccess(null)} />}
+          {error && <Alert message={error} onClose={() => setError(null)} type="error" />}
+          {success && <Alert message={success} onClose={() => setSuccess(null)} type="success" />}
 
           <ConfirmationModal
-            isOpen={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={handleConfirmDelete}
+            message="¿Estás seguro de eliminar este tamaño?"
+            isOpen={mostrarConfirmacion}
+            onClose={() => setMostrarConfirmacion(false)}
+            onConfirm={handleConfirmarEliminar}
             title="Confirmar eliminación"
-            message="¿Estás seguro de que deseas eliminar este tamaño? Esta acción no se puede deshacer."
-            confirmText="Eliminar"
           />
 
-          {/* Formulario */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">
-              {modoEdicion ? 'Editar Tamaño' : 'Agregar Tamaño'}
-            </h2>
+          <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+            <select
+              className="border border-gray-300 rounded px-3 py-2"
+              value={tipo}
+              onChange={(e) => setTipo(e.target.value)}
+            >
+              <option value="">Todos los tipos</option>
+              {tiposDisponibles.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre del Tamaño *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Personal, Mediana, Familiar"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tipo *
-                </label>
-                <select
-                  value={tipo}
-                  onChange={(e) => setTipo(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                >
-                  <option value="">Seleccione un tipo</option>
-                  {tiposDisponibles.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <input
-                  type="text"
-                  placeholder="Descripción opcional"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              {modoEdicion && (
-                <button
-                  onClick={() => {
-                    setModoEdicion(false);
-                    setIdEditando(null);
-                    setNombre('');
-                    setDescripcion('');
-                    setTipo('');
-                    setError(null);
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
-                  disabled={loading}
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                onClick={handleGuardar}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors flex items-center justify-center min-w-[100px]"
-                disabled={loading}
-              >
-                {loading ? <LoadingSpinner size={6} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
-              </button>
-            </div>
+            <button
+              onClick={() => {
+                setMostrarModal(true);
+                setModoEdicion(false);
+                setNombre('');
+                setDescripcion('');
+                setTipo('');
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Agregar Tamaño
+            </button>
           </div>
 
-          {/* Tabla */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Lista de Tamaños</h2>
-
-            {loading ? (
+          <div className="bg-white rounded shadow p-4">
+            {loading && tamanos.length === 0 ? (
               <div className="flex justify-center py-8">
                 <LoadingSpinner size={8} />
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <>
                 <table className="w-full table-auto">
                   <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="px-4 py-3 font-semibold text-gray-700">Nombre</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Tipo</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Descripción</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Acciones</th>
+                    <tr className="bg-gray-100">
+                      <th className="px-4 py-2 text-left">Nombre</th>
+                      <th className="px-4 py-2 text-left">Tipo</th>
+                      <th className="px-4 py-2 text-left">Descripción</th>
+                      <th className="px-4 py-2 text-left">Acciones</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {tamanos.map((tamano) => (
-                      <tr key={tamano.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">{tamano.nombre}</td>
-                        <td className="px-4 py-3">{tamano.tipo}</td>
-                        <td className="px-4 py-3 text-gray-600">
-                          {tamano.descripcion || '-'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex space-x-3">
-                            <button
-                              onClick={() => handleEditar(tamano)}
-                              className="text-blue-600 hover:text-blue-800 transition-colors font-medium"
-                              disabled={loading}
-                            >
-                              Editar
-                            </button>
-                            <button
-                              onClick={() => handleEliminarClick(tamano.id)}
-                              className="text-red-600 hover:text-red-800 transition-colors font-medium"
-                              disabled={loading}
-                            >
-                              Eliminar
-                            </button>
-                          </div>
+                  <tbody>
+                    {tamanosPagina.map((t) => (
+                      <tr key={t.id} className="border-t">
+                        <td className="px-4 py-2">{t.nombre}</td>
+                        <td className="px-4 py-2">{t.tipo}</td>
+                        <td className="px-4 py-2">{t.descripcion || '-'}</td>
+                        <td className="px-4 py-2 space-x-2">
+                          <button
+                            onClick={() => handleEditarClick(t)}
+                            className="text-blue-600 hover:text-blue-800"
+                            disabled={loading}
+                          >
+                            Editar
+                          </button>
+                          <button
+                            onClick={() => handleEliminarClick(t.id)}
+                            className="text-red-600 hover:text-red-800"
+                            disabled={loading}
+                          >
+                            Eliminar
+                          </button>
                         </td>
                       </tr>
                     ))}
-                    {tamanos.length === 0 && (
+                    {tamanosPagina.length === 0 && !loading && (
                       <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                        <td colSpan={4} className="text-center py-4 text-gray-500">
                           No hay tamaños registrados.
                         </td>
                       </tr>
                     )}
                   </tbody>
                 </table>
-              </div>
+
+                {totalPaginas > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <button
+                        key={i}
+                        className={`px-3 py-1 rounded border ${
+                          paginaActual === i + 1
+                            ? 'bg-red-600 text-white border-red-600'
+                            : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                        }`}
+                        onClick={() => setPaginaActual(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
       </div>
+
+      <ModalFormularioTamano
+        isOpen={mostrarModal}
+        onClose={() => {
+          setMostrarModal(false);
+          setModoEdicion(false);
+          setNombre('');
+          setDescripcion('');
+          setTipo('');
+        }}
+        onSave={handleGuardar}
+        loading={loading}
+        modoEdicion={modoEdicion}
+        nombre={nombre}
+        setNombre={setNombre}
+        descripcion={descripcion}
+        setDescripcion={setDescripcion}
+        tipo={tipo}
+        setTipo={setTipo}
+      />
     </div>
   );
 }
