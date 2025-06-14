@@ -134,39 +134,39 @@ export default function ModalFormularioSabor({
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre *
+              Nombre 
             </label>
             <input
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className={`w-full border ${nombre ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
               placeholder="Nombre del sabor"
             />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Descripción *
+              Descripción 
             </label>
             <input
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className={`w-full border ${descripcion ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
               placeholder="Descripción del sabor"
             />
           </div>
           
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Tipo *
+              Tipo 
             </label>
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value as 'Pizza' | 'Calzone' | 'Pasta')}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className={`w-full border ${tipo ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
             >
               <option value="">Seleccionar un tipo</option>
               <option value="Pizza">Pizza</option>

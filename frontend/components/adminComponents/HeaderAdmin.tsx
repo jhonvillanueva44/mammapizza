@@ -7,11 +7,11 @@ const menuItems = [
   { label: 'Gestión de Stock', path: '/admin/stock' },
   { label: 'Pedidos', path: '/admin/orders' },
   { label: 'Reportes', path: '/admin/reports' },
-  { label: 'Crud Tamaños', path: '/admin/crudTamano' },
-  { label: 'Crud Sabores', path: '/admin/crudSabores' },
-  { label: 'Crud Categorias', path: '/admin/crudCategorias' },
-  { label: 'Crud Productos', path: '/admin/crudProductos' },
-  { label: 'Crud Tamaño Sabor', path: '/admin/crudTamanioSabor' },
+  { label: 'Tamaños', path: '/admin/tamanio' },
+  { label: 'Sabores', path: '/admin/sabores' },
+  { label: 'Categorias', path: '/admin/categorias' },
+  { label: 'Productos', path: '/admin/productos' },
+  { label: 'Tamaño Sabor', path: '/admin/tamanioSabor' },
 
 ];
 

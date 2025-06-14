@@ -21,7 +21,8 @@ export default function CrudTamaniosPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([]);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [tipo, setTipo] = useState('');
+  const [tipo, setTipo] = useState(''); // Estado para el formulario
+  const [filtroTipo, setFiltroTipo] = useState(''); // Nuevo estado para el filtro
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -57,10 +58,10 @@ export default function CrudTamaniosPage() {
 
   useEffect(() => {
     setPaginaActual(1);
-  }, [tipo]);
+  }, [filtroTipo]); // Usar filtroTipo en lugar de tipo
 
-  const tamanosFiltrados = tipo
-    ? tamanos.filter((t) => t.tipo === tipo)
+  const tamanosFiltrados = filtroTipo
+    ? tamanos.filter((t) => t.tipo === filtroTipo)
     : tamanos;
 
   const totalPaginas = Math.ceil(tamanosFiltrados.length / tamanosPorPagina);
@@ -144,13 +145,13 @@ export default function CrudTamaniosPage() {
       setIdAEliminar(null);
     }
   };
-
-  return (
+  
+return (
     <div className="min-h-screen flex bg-gray-50">
       <HeaderAdmin />
 
       <div className="flex-1 overflow-auto min-w-0">
-        <Topbar title="CRUD Tamaños" />
+        <Topbar title="Gestión de Tamaños" />
 
         <main className="p-6 space-y-6">
           {error && <Alert message={error} onClose={() => setError(null)} type="error" />}
@@ -165,10 +166,11 @@ export default function CrudTamaniosPage() {
           />
 
           <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+            {/* Cambiar a filtroTipo */}
             <select
               className="border border-gray-300 rounded px-3 py-2"
-              value={tipo}
-              onChange={(e) => setTipo(e.target.value)}
+              value={filtroTipo}
+              onChange={(e) => setFiltroTipo(e.target.value)}
             >
               <option value="">Todos los tipos</option>
               {tiposDisponibles.map((t) => (

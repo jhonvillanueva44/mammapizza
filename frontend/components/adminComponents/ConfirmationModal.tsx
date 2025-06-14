@@ -1,4 +1,3 @@
-// components/ConfirmationModal.tsx
 'use client';
 
 import { X } from 'lucide-react';
@@ -30,12 +29,20 @@ export default function ConfirmationModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
+      {/* Fondo oscuro que cubre toda la pantalla */}
+      <div
+        className="fixed inset-0 z-40"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+        onClick={onClose}
+      />
+
+      {/* Contenido del modal */}
       <motion.div
         initial={{ scale: 0.95, y: 20 }}
         animate={{ scale: 1, y: 0 }}
-        className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
+        className="relative z-50 bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden"
       >
         <div className="flex justify-between items-center p-4 border-b">
           <h3 className="text-lg font-semibold text-gray-800">{title}</h3>

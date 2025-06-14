@@ -44,10 +44,10 @@ export default function ModalFormularioTamano({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div
-  className="absolute inset-0"
-  style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-  onClick={onClose}
-/>
+        className="absolute inset-0"
+        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
+        onClick={onClose}
+        />
 
       {/* Contenedor del modal con borde rojo */}
       <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4 border-2">
@@ -64,7 +64,7 @@ export default function ModalFormularioTamano({
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              className={`w-full border ${nombre ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
               placeholder="Ej: Familiar"
             />
           </div>
@@ -77,7 +77,7 @@ export default function ModalFormularioTamano({
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+  className={`w-full border ${tipo ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
             >
               <option value="">Seleccione un tipo</option>
               {tiposDisponibles.map((t) => (
@@ -94,7 +94,7 @@ export default function ModalFormularioTamano({
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500"
+  className={`w-full border ${descripcion ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500`}
               placeholder="Descripción opcional"
             />
           </div>
