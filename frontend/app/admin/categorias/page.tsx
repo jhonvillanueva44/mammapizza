@@ -6,24 +6,24 @@ import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
+import ModalFormularioCategoria from '@/adminModals/ModalFormularioCategoria';
 
-type Tamano = {
+type Categoria = {
   id: number;
   nombre: string;
   descripcion: string;
 };
 
-export default function CrudTamanoPage() {
-  const [tamanos, setTamanos] = useState<Tamano[]>([]);
-  const [nombre, setNombre] = useState('');
-  const [descripcion, setDescripcion] = useState('');
-  const [modoEdicion, setModoEdicion] = useState(false);
-  const [idEditando, setIdEditando] = useState<number | null>(null);
+export default function CrudCategoriaPage() {
+  const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
+  const [modoEdicion, setModoEdicion] = useState(false);
+  const [idEditando, setIdEditando] = useState<number | null>(null);
 
   const API_BASE_URL = 'http://localhost:4000/api/categorias';
 
@@ -33,7 +33,7 @@ export default function CrudTamanoPage() {
       const res = await fetch(API_BASE_URL);
       if (!res.ok) throw new Error('Error al cargar categorías');
       const data = await res.json();
-      setTamanos(data);
+      setCategorias(data);
       setError(null);
     } catch (e: any) {
       setError(e.message);
@@ -45,64 +45,6 @@ export default function CrudTamanoPage() {
   useEffect(() => {
     fetchCategorias();
   }, []);
-
-  const handleGuardar = async () => {
-    if (!nombre.trim()) {
-      setError('El nombre es obligatorio');
-      return;
-    }
-
-    const categoriaPayload = {
-      nombre: nombre.trim(),
-      descripcion: descripcion.trim(),
-    };
-
-    try {
-      setLoading(true);
-      if (modoEdicion && idEditando !== null) {
-        const res = await fetch(`${API_BASE_URL}/${idEditando}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(categoriaPayload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al actualizar categoría');
-        }
-        setSuccess('Categoría actualizada correctamente');
-      } else {
-        const res = await fetch(API_BASE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(categoriaPayload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al crear categoría');
-        }
-        setSuccess('Categoría creada correctamente');
-      }
-
-      await fetchCategorias();
-      setModoEdicion(false);
-      setIdEditando(null);
-      setNombre('');
-      setDescripcion('');
-      setError(null);
-    } catch (e: any) {
-      setError(e.message);
-      setSuccess(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleEditar = (tamano: Tamano) => {
-    setModoEdicion(true);
-    setIdEditando(tamano.id);
-    setNombre(tamano.nombre);
-    setDescripcion(tamano.descripcion);
-  };
 
   const handleEliminarClick = (id: number) => {
     setItemToDelete(id);
@@ -134,6 +76,18 @@ export default function CrudTamanoPage() {
     }
   };
 
+  const handleEditarClick = (categoria: Categoria) => {
+    setModoEdicion(true);
+    setIdEditando(categoria.id);
+    setShowFormModal(true);
+  };
+
+  const handleSuccess = (message: string) => {
+    setSuccess(message);
+    fetchCategorias();
+    setShowFormModal(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <HeaderAdmin />
@@ -141,24 +95,14 @@ export default function CrudTamanoPage() {
         <Topbar title="Gestión de Categorías" />
 
         <main className="p-6 space-y-6">
-          {/* Alertas */}
           {error && (
-            <Alert
-              type="error"
-              message={error}
-              onClose={() => setError(null)}
-            />
+            <Alert type="error" message={error} onClose={() => setError(null)} />
           )}
           
           {success && (
-            <Alert
-              type="success"
-              message={success}
-              onClose={() => setSuccess(null)}
-            />
+            <Alert type="success" message={success} onClose={() => setSuccess(null)} />
           )}
 
-          {/* Modal de confirmación para eliminar */}
           <ConfirmationModal
             isOpen={showDeleteModal}
             onClose={() => setShowDeleteModal(false)}
@@ -168,74 +112,19 @@ export default function CrudTamanoPage() {
             confirmText="Eliminar"
           />
 
-          {/* Formulario */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">
-              {modoEdicion ? 'Editar Categoría' : 'Agregar Categoría'}
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Nombre de la Categoría *
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ej: Bebidas, Postres, etc."
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Descripción
-                </label>
-                <input
-                  type="text"
-                  placeholder="Descripción opcional"
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              {modoEdicion && (
-                <button
-                  onClick={() => {
-                    setModoEdicion(false);
-                    setIdEditando(null);
-                    setNombre('');
-                    setDescripcion('');
-                    setError(null);
-                  }}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
-                  disabled={loading}
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                onClick={handleGuardar}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors flex items-center justify-center min-w-[100px]"
-                disabled={loading}
-              >
-                {loading ? (
-                  <LoadingSpinner size={6} />
-                ) : modoEdicion ? (
-                  'Actualizar'
-                ) : (
-                  'Guardar'
-                )}
-              </button>
-            </div>
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={() => {
+                setShowFormModal(true);
+                setModoEdicion(false);
+                setIdEditando(null);
+              }}
+              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+            >
+              Agregar Categoría
+            </button>
           </div>
 
-          {/* Tabla */}
           <div className="bg-white p-6 rounded-lg shadow">
             <h2 className="text-xl font-bold mb-4">Lista de Categorías</h2>
 
@@ -254,21 +143,21 @@ export default function CrudTamanoPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {tamanos.map((tamano) => (
-                      <tr key={tamano.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">{tamano.nombre}</td>
-                        <td className="px-4 py-3 text-gray-600">{tamano.descripcion || '-'}</td>
+                    {categorias.map((categoria) => (
+                      <tr key={categoria.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3">{categoria.nombre}</td>
+                        <td className="px-4 py-3 text-gray-600">{categoria.descripcion || '-'}</td>
                         <td className="px-4 py-3">
                           <div className="flex space-x-3">
                             <button
-                              onClick={() => handleEditar(tamano)}
+                              onClick={() => handleEditarClick(categoria)}
                               className="text-blue-600 hover:text-blue-800 transition-colors font-medium"
                               disabled={loading}
                             >
                               Editar
                             </button>
                             <button
-                              onClick={() => handleEliminarClick(tamano.id)}
+                              onClick={() => handleEliminarClick(categoria.id)}
                               className="text-red-600 hover:text-red-800 transition-colors font-medium"
                               disabled={loading}
                             >
@@ -278,7 +167,7 @@ export default function CrudTamanoPage() {
                         </td>
                       </tr>
                     ))}
-                    {tamanos.length === 0 && (
+                    {categorias.length === 0 && (
                       <tr>
                         <td colSpan={3} className="px-4 py-6 text-center text-gray-500">
                           No hay categorías registradas.
@@ -292,6 +181,18 @@ export default function CrudTamanoPage() {
           </div>
         </main>
       </div>
+
+      <ModalFormularioCategoria
+        isOpen={showFormModal}
+        onClose={() => {
+          setShowFormModal(false);
+          setModoEdicion(false);
+          setIdEditando(null);
+        }}
+        onSuccess={handleSuccess}
+        modoEdicion={modoEdicion}
+        idEditando={idEditando}
+      />
     </div>
   );
 }
