@@ -6,362 +6,246 @@ import Topbar from '@/components/adminComponents/Topbar';
 import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
+import TamanioSaborModal from '@/adminModals/ModalFormularioTamanioSabor';
 
-type TamanioSabor = {
+export type TamanioSabor = {
   id: number;
   precio: number;
   tamanio_id: number;
   sabor_id: number;
-  tamanio?: {
-    id: number;
-    nombre: string;
-  };
-  sabor?: {
-    id: number;
-    nombre: string;
-  };
+  tamanio?: { id: number; nombre: string };
+  sabor?: { id: number; nombre: string };
 };
 
-type Tamanio = {
-  id: number;
-  nombre: string;
-};
-
-type Sabor = {
-  id: number;
-  nombre: string;
-};
+export type Tamanio = { id: number; nombre: string };
+export type Sabor = { id: number; nombre: string };
 
 export default function CrudTamanioSaborPage() {
-  const [tamaniosSabores, setTamaniosSabores] = useState<TamanioSabor[]>([]);
+  const [data, setData] = useState<TamanioSabor[]>([]);
   const [tamanios, setTamanios] = useState<Tamanio[]>([]);
   const [sabores, setSabores] = useState<Sabor[]>([]);
-  const [precio, setPrecio] = useState('');
-  const [tamanioId, setTamanioId] = useState<number | null>(null);
-  const [saborId, setSaborId] = useState<number | null>(null);
-  const [modoEdicion, setModoEdicion] = useState(false);
-  const [idEditando, setIdEditando] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<number | null>(null);
+  const [editingItem, setEditingItem] = useState<TamanioSabor | null>(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [confirmarEliminar, setConfirmarEliminar] = useState(false);
+  const [idEliminar, setIdEliminar] = useState<number | null>(null);
+  const [filtroTamanio, setFiltroTamanio] = useState('');
+  const [busqueda, setBusqueda] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const ITEMS_POR_PAGINA = 15;
 
   const API_BASE_URL = 'http://localhost:4000/api/tamanioSabor';
-  const API_TAMANIOS_URL = 'http://localhost:4000/api/tamanios';
-  const API_SABORES_URL = 'http://localhost:4000/api/sabores';
 
-  const fetchTamaniosSabores = async () => {
+  const obtenerDatos = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_BASE_URL}?include=tamanio,sabor`);
-      if (!res.ok) throw new Error('Error al cargar tamaños-sabores');
-      const data = await res.json();
-      setTamaniosSabores(data);
-      setError(null);
+      const [resComb, resTam, resSab] = await Promise.all([
+        fetch(`${API_BASE_URL}?include=tamanio,sabor`),
+        fetch('http://localhost:4000/api/tamanios'),
+        fetch('http://localhost:4000/api/sabores')
+      ]);
+      const [combinaciones, tamaniosList, saboresList] = await Promise.all([
+        resComb.json(),
+        resTam.json(),
+        resSab.json()
+      ]);
+      setData(combinaciones);
+      setTamanios(tamaniosList);
+      setSabores(saboresList);
     } catch (e: any) {
       setError(e.message);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchTamanios = async () => {
-    try {
-      const res = await fetch(API_TAMANIOS_URL);
-      if (!res.ok) throw new Error('Error al cargar tamaños');
-      const data = await res.json();
-      setTamanios(data);
-    } catch (e: any) {
-      console.error('Error fetching tamaños:', e.message);
-    }
-  };
-
-  const fetchSabores = async () => {
-    try {
-      const res = await fetch(API_SABORES_URL);
-      if (!res.ok) throw new Error('Error al cargar sabores');
-      const data = await res.json();
-      setSabores(data);
-    } catch (e: any) {
-      console.error('Error fetching sabores:', e.message);
     }
   };
 
   useEffect(() => {
-    fetchTamaniosSabores();
-    fetchTamanios();
-    fetchSabores();
+    obtenerDatos();
   }, []);
 
-  const handleGuardar = async () => {
-    if (!precio || isNaN(Number(precio))) {
-      setError('El precio debe ser un número válido');
-      return;
-    }
+  useEffect(() => {
+    setPagina(1);
+  }, [filtroTamanio, busqueda]);
 
-    if (!tamanioId || !saborId) {
-      setError('Debes seleccionar un tamaño y un sabor');
-      return;
-    }
+  const datosFiltrados = data.filter(item => {
+    const coincideTamanio = filtroTamanio ? item.tamanio?.id === Number(filtroTamanio) : true;
+    const texto = busqueda.toLowerCase();
+    const coincideBusqueda = item.sabor?.nombre.toLowerCase().includes(texto) || item.precio.toString().includes(texto);
+    return coincideTamanio && coincideBusqueda;
+  });
 
-    const payload = {
-      precio: parseFloat(precio),
-      tamanio_id: tamanioId,
-      sabor_id: saborId
-    };
+  const totalPaginas = Math.ceil(datosFiltrados.length / ITEMS_POR_PAGINA);
+  const datosPagina = datosFiltrados.slice((pagina - 1) * ITEMS_POR_PAGINA, pagina * ITEMS_POR_PAGINA);
 
+  const handleGuardarExito = (msg: string) => {
+    setSuccess(msg);
+    setModalAbierto(false);
+    obtenerDatos();
+  };
+
+  const handleEditar = (item: TamanioSabor) => {
+    setEditingItem(item);
+    setModalAbierto(true);
+  };
+
+  const handleEliminar = (id: number) => {
+    setIdEliminar(id);
+    setConfirmarEliminar(true);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (!idEliminar) return;
     try {
       setLoading(true);
-      if (modoEdicion && idEditando !== null) {
-        const res = await fetch(`${API_BASE_URL}/${idEditando}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al actualizar tamaño-sabor');
-        }
-        setSuccess('Tamaño-sabor actualizado correctamente');
-      } else {
-        const res = await fetch(API_BASE_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error || 'Error al crear tamaño-sabor');
-        }
-        setSuccess('Tamaño-sabor creado correctamente');
-      }
-
-      await fetchTamaniosSabores();
-      resetForm();
-      setError(null);
+      const res = await fetch(`${API_BASE_URL}/${idEliminar}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Error al eliminar');
+      setSuccess('Combinación eliminada correctamente');
+      obtenerDatos();
     } catch (e: any) {
       setError(e.message);
-      setSuccess(null);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const resetForm = () => {
-    setModoEdicion(false);
-    setIdEditando(null);
-    setPrecio('');
-    setTamanioId(null);
-    setSaborId(null);
-  };
-
-  const handleEditar = (tamanioSabor: TamanioSabor) => {
-    setModoEdicion(true);
-    setIdEditando(tamanioSabor.id);
-    setPrecio(tamanioSabor.precio.toString());
-    setTamanioId(tamanioSabor.tamanio_id);
-    setSaborId(tamanioSabor.sabor_id);
-  };
-
-  const handleEliminarClick = (id: number) => {
-    setItemToDelete(id);
-    setShowDeleteModal(true);
-  };
-
-  const handleConfirmDelete = async () => {
-    if (!itemToDelete) return;
-
-    try {
-      setLoading(true);
-      const res = await fetch(`${API_BASE_URL}/${itemToDelete}`, {
-        method: 'DELETE',
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || 'Error al eliminar tamaño-sabor');
-      }
-      setSuccess('Tamaño-sabor eliminado correctamente');
-      await fetchTamaniosSabores();
-      setError(null);
-    } catch (e: any) {
-      setError(e.message);
-      setSuccess(null);
-    } finally {
-      setLoading(false);
-      setShowDeleteModal(false);
-      setItemToDelete(null);
+      setConfirmarEliminar(false);
+      setIdEliminar(null);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <HeaderAdmin />
+
       <div className="flex-1 overflow-auto">
         <Topbar title="Gestión de Combinaciones Tamaño-Sabor" />
 
         <main className="p-6 space-y-6">
-          {error && <Alert type="error" message={error} onClose={() => setError(null)} />}
-          {success && <Alert type="success" message={success} onClose={() => setSuccess(null)} />}
+          {error && <Alert message={error} onClose={() => setError(null)} type="error" />}
+          {success && <Alert message={success} onClose={() => setSuccess(null)} type="success" />}
 
           <ConfirmationModal
-            isOpen={showDeleteModal}
-            onClose={() => setShowDeleteModal(false)}
-            onConfirm={handleConfirmDelete}
+            isOpen={confirmarEliminar}
+            onClose={() => setConfirmarEliminar(false)}
+            onConfirm={confirmarEliminacion}
             title="Confirmar eliminación"
-            message="¿Estás seguro de que deseas eliminar esta combinación? Esta acción no se puede deshacer."
+            message="¿Estás seguro de que deseas eliminar esta combinación?"
             confirmText="Eliminar"
           />
 
-          {/* Formulario */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">
-              {modoEdicion ? 'Editar Combinación' : 'Crear Combinación'}
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tamaño *
-                </label>
-                <select
-                  value={tamanioId || ''}
-                  onChange={(e) => setTamanioId(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                >
-                  <option value="">Seleccione un tamaño</option>
-                  {tamanios.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sabor *
-                </label>
-                <select
-                  value={saborId || ''}
-                  onChange={(e) => setSaborId(Number(e.target.value))}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                >
-                  <option value="">Seleccione un sabor</option>
-                  {sabores.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nombre}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Precio *
-                </label>
-                <input
-                  type="number"
-                  placeholder="Ej: 10.99"
-                  value={precio}
-                  onChange={(e) => setPrecio(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none transition"
-                  disabled={loading}
-                  step="0.01"
-                  min="0"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 flex justify-end space-x-3">
-              {modoEdicion && (
-                <button
-                  onClick={resetForm}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
-                  disabled={loading}
-                >
-                  Cancelar
-                </button>
-              )}
-              <button
-                onClick={handleGuardar}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-md transition-colors flex items-center justify-center min-w-[100px]"
-                disabled={loading}
+          <div className="bg-white p-6 rounded shadow">
+            <div className="flex flex-wrap justify-between items-center gap-4 mb-4">
+              <select
+                className="border border-gray-300 rounded px-3 py-2"
+                value={filtroTamanio}
+                onChange={(e) => setFiltroTamanio(e.target.value)}
               >
-                {loading ? <LoadingSpinner size={6} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
+                <option value="">Todos los tamaños</option>
+                {tamanios.map((t) => (
+                  <option key={t.id} value={t.id}>{t.nombre}</option>
+                ))}
+              </select>
+
+              <input
+                type="text"
+                placeholder="Buscar por sabor o precio..."
+                className="border border-gray-300 rounded px-3 py-2 flex-1"
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+
+              <button
+                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                onClick={() => {
+                  setEditingItem(null);
+                  setModalAbierto(true);
+                }}
+              >
+                Agregar Combinación
               </button>
             </div>
-          </div>
-
-          {/* Tabla */}
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h2 className="text-xl font-bold mb-4">Lista de Combinaciones</h2>
 
             {loading ? (
               <div className="flex justify-center py-8">
                 <LoadingSpinner size={8} />
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full table-auto">
-                  <thead>
-                    <tr className="bg-gray-100 text-left">
-                      <th className="px-4 py-3 font-semibold text-gray-700">Tamaño</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Sabor</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Precio</th>
-                      <th className="px-4 py-3 font-semibold text-gray-700">Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {tamaniosSabores.map((tamanioSabor) => (
-                      <tr key={tamanioSabor.id} className="hover:bg-gray-50">
-                        <td className="px-4 py-3">
-                          {tamanioSabor.tamanio?.nombre || 'N/A'}
-                        </td>
-                        <td className="px-4 py-3">
-                          {tamanioSabor.sabor?.nombre || 'N/A'}
-                        </td>
-                        <td className="px-4 py-3">
-                          {typeof tamanioSabor.precio === 'number'
-                            ? `$${tamanioSabor.precio.toFixed(2)}`
-                            : `$${parseFloat(tamanioSabor.precio as any).toFixed(2)}`}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="flex space-x-3">
+              <>
+                <div className="overflow-x-auto">
+                  <table className="w-full table-fixed">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="px-4 py-2 text-left w-1/4">Tamaño</th>
+                    <th className="px-4 py-2 text-left w-1/4">Sabor</th>
+                    <th className="px-4 py-2 text-left w-1/4">Precio</th>
+                    <th className="px-4 py-2 text-left w-1/4">Acciones</th>
+                  </tr>
+                </thead>
+                    <tbody>
+                      {datosPagina.map((item) => (
+                        <tr key={item.id} className="border-t">
+                          <td className="px-4 py-2 truncate">{item.tamanio?.nombre}</td>
+                              <td className="px-4 py-2 truncate">{item.sabor?.nombre}</td>
+                              <td className="px-4 py-2">${Number(item.precio).toFixed(2)}</td>
+                              <td className="px-4 py-2 space-x-2">
                             <button
-                              onClick={() => handleEditar(tamanioSabor)}
-                              className="text-blue-600 hover:text-blue-800 transition-colors font-medium"
-                              disabled={loading}
+                              className="text-blue-600 hover:text-blue-800"
+                              onClick={() => handleEditar(item)}
                             >
                               Editar
                             </button>
                             <button
-                              onClick={() => handleEliminarClick(tamanioSabor.id)}
-                              className="text-red-600 hover:text-red-800 transition-colors font-medium"
-                              disabled={loading}
+                              className="text-red-600 hover:text-red-800"
+                              onClick={() => handleEliminar(item.id)}
                             >
                               Eliminar
                             </button>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                        </tr>
+                      ))}
+                      {datosPagina.length === 0 && (
+                        <tr>
+                          <td colSpan={4} className="text-center py-4 text-gray-500">
+                            No hay combinaciones registradas.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {totalPaginas > 1 && (
+                  <div className="flex justify-center mt-4 space-x-2">
+                    {Array.from({ length: totalPaginas }, (_, i) => (
+                      <button
+                        key={i}
+                        className={`px-3 py-1 rounded border ${
+                          pagina === i + 1
+                            ? 'bg-red-600 text-white border-red-600'
+                            : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+                        }`}
+                        onClick={() => setPagina(i + 1)}
+                      >
+                        {i + 1}
+                      </button>
                     ))}
-                    {tamaniosSabores.length === 0 && (
-                      <tr>
-                        <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
-                          No hay combinaciones registradas.
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </main>
       </div>
+
+      <TamanioSaborModal
+        isOpen={modalAbierto}
+        onClose={() => setModalAbierto(false)}
+        tamanios={tamanios}
+        sabores={sabores}
+        editingItem={editingItem}
+        onSubmitSuccess={handleGuardarExito}
+        onError={(msg) => setError(msg)}
+        setLoading={setLoading}
+      />
     </div>
   );
 }

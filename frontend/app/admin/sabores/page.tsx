@@ -171,21 +171,21 @@ export default function CrudSaborPage() {
               </div>
             ) : (
               <>
-                <table className="w-full table-auto">
+                <table className="w-full table-fixed">
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-4 py-2 text-left">Nombre</th>
-                      <th className="px-4 py-2 text-left">Descripción</th>
-                      <th className="px-4 py-2 text-left">Tipo</th>
-                      <th className="px-4 py-2 text-left">Especial</th>
-                      <th className="px-4 py-2 text-left">Acciones</th>
+                      <th className="px-4 py-2 text-left w-1/4">Nombre</th>
+                      <th className="px-4 py-2 text-left w-1/4">Descripción</th>
+                      <th className="px-4 py-2 text-left w-1/4">Tipo</th>
+                      <th className="px-4 py-2 text-left w-1/4">Especial</th>
+                      <th className="px-4 py-2 text-left w-1/4">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {saboresPagina.map((sabor) => (
                       <tr key={sabor.id} className="border-t">
-                        <td className="px-4 py-2">{sabor.nombre}</td>
-                        <td className="px-4 py-2">{sabor.descripcion}</td>
+                        <td className="px-4 py-2 ">{sabor.nombre}</td>
+                        <td className="px-4 py-2 ">{sabor.descripcion}</td>
                         <td className="px-4 py-2">{sabor.tipo}</td>
                         <td className="px-4 py-2">
                           {sabor.tipo === 'Pizza' ? (sabor.especial ? '✅' : '❌') : '➖'}

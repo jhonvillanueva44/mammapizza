@@ -22,8 +22,8 @@ export default function CrudTamaniosPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([]);
   const [nombre, setNombre] = useState('');
   const [descripcion, setDescripcion] = useState('');
-  const [tipo, setTipo] = useState(''); // Estado para el formulario
-  const [filtroTipo, setFiltroTipo] = useState(''); // Nuevo estado para el filtro
+  const [tipo, setTipo] = useState(''); 
+  const [filtroTipo, setFiltroTipo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export default function CrudTamaniosPage() {
 
   useEffect(() => {
     setPaginaActual(1);
-  }, [filtroTipo]); // Usar filtroTipo en lugar de tipo
+  }, [filtroTipo]);
 
   const tamanosFiltrados = filtroTipo
     ? tamanos.filter((t) => t.tipo === filtroTipo)
@@ -200,20 +200,20 @@ return (
               </div>
             ) : (
               <>
-                <table className="w-full table-auto">
+                <table className="w-full table-fixed">
                   <thead>
                     <tr className="bg-gray-100">
-                      <th className="px-4 py-2 text-left">Nombre</th>
-                      <th className="px-4 py-2 text-left">Tipo</th>
-                      <th className="px-4 py-2 text-left">Descripción</th>
-                      <th className="px-4 py-2 text-left">Acciones</th>
+                      <th className="px-4 py-2 text-left w-1/4">Nombre</th>
+                      <th className="px-4 py-2 text-left w-1/4">Tipo</th>
+                      <th className="px-4 py-2 text-left w-1/4">Descripción</th>
+                      <th className="px-4 py-2 text-left w-1/4">Acciones</th>
                     </tr>
                   </thead>
                   <tbody>
                     {tamanosPagina.map((t) => (
                       <tr key={t.id} className="border-t">
-                        <td className="px-4 py-2">{t.nombre}</td>
-                        <td className="px-4 py-2">{t.tipo}</td>
+                        <td className="px-4 py-2 truncate">{t.nombre}</td>
+                        <td className="px-4 py-2 truncate">{t.tipo}</td>
                         <td className="px-4 py-2">{t.descripcion || '-'}</td>
                         <td className="px-4 py-2 space-x-2">
                           <button

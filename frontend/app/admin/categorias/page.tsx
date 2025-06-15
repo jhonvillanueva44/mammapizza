@@ -141,7 +141,8 @@ export default function CrudCategoriasPage() {
             title="Confirmar eliminación"
           />
 
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800">Listado de Categorías</h2>
             <button
               onClick={() => {
                 setMostrarModal(true);
@@ -149,58 +150,87 @@ export default function CrudCategoriasPage() {
                 setNombre('');
                 setDescripcion('');
               }}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2"
             >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
               Agregar Categoría
             </button>
           </div>
 
-          <div className="bg-white rounded shadow p-4">
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {loading && categorias.length === 0 ? (
-              <div className="flex justify-center py-8">
-                <LoadingSpinner size={8} />
+              <div className="flex justify-center py-12">
+                <LoadingSpinner size={10} />
               </div>
             ) : (
-              <table className="w-full table-auto">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="px-4 py-2 text-left">Nombre</th>
-                    <th className="px-4 py-2 text-left">Descripción</th>
-                    <th className="px-4 py-2 text-left">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categorias.map((cat) => (
-                    <tr key={cat.id} className="border-t">
-                      <td className="px-4 py-2">{cat.nombre}</td>
-                      <td className="px-4 py-2">{cat.descripcion || '-'}</td>
-                      <td className="px-4 py-2 space-x-2">
-                        <button
-                          onClick={() => handleEditarClick(cat)}
-                          className="text-blue-600 hover:text-blue-800"
-                          disabled={loading}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          onClick={() => handleEliminarClick(cat.id)}
-                          className="text-red-600 hover:text-red-800"
-                          disabled={loading}
-                        >
-                          Eliminar
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                  {categorias.length === 0 && !loading && (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <td colSpan={3} className="text-center py-4 text-gray-500">
-                        No hay categorías registradas.
-                      </td>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Descripción
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Acciones
+                      </th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {categorias.map((cat) => (
+                      <tr key={cat.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{cat.nombre}</div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-500 max-w-xs line-clamp-2">
+                            {cat.descripcion || <span className="text-gray-400">Sin descripción</span>}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <div className="flex justify-end space-x-3">
+                            <button
+                              onClick={() => handleEditarClick(cat)}
+                              className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                              disabled={loading}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => handleEliminarClick(cat.id)}
+                              className="text-red-600 hover:text-red-900 transition-colors"
+                              disabled={loading}
+                            >
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {categorias.length === 0 && !loading && (
+                      <tr>
+                        <td colSpan={3} className="px-6 py-8 text-center">
+                          <div className="flex flex-col items-center justify-center text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 opacity-50 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                            <p className="text-lg font-medium">No hay categorías registradas</p>
+                            <p className="text-sm mt-1">Comienza agregando una nueva categoría</p>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </main>

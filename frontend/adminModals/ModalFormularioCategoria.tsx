@@ -65,14 +65,14 @@ export default function ModalFormularioCategoria({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Descripción
             </label>
-            <input
+            <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500 min-h-[100px] resize-y"
               placeholder="Opcional"
             />
-          </div>
+            </div>
         </div>
 
         <div className="mt-6 flex justify-end gap-3">
