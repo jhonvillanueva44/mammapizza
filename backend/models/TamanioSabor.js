@@ -32,7 +32,8 @@ TamanioSabor.hasMany(Combinacion, {
 
 Combinacion.belongsTo(TamanioSabor, {
   foreignKey: 'tamanio_sabor_id',
-  targetKey: 'id'
+  targetKey: 'id',
+  as: 'tamanio_sabor'
 });
 
 

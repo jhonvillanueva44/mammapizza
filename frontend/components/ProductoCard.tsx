@@ -1,5 +1,7 @@
 'use client'
 
+import Link from 'next/link';
+
 export type ProductoCardProps = {
   id: number
   titulo: string
@@ -60,19 +62,24 @@ const ProductoCard = ({
             className="w-full h-[140px] object-cover rounded-md transition-transform duration-300 group-hover:scale-110"
           />
 
-          {/* Si es promoción, mostrar badge de descuento */}
+          {/* Botón "Ver más" */}
+          <Link
+            href={`/menu/pizzas/${id}`}
+            className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded z-10 transition"
+          >
+            Personalizar
+          </Link>
+
           {esPromocion && (
             <span className="absolute top-2 left-2 text-white text-xs px-2 py-1 bg-red-600 rounded">
               -{descuento}%
             </span>
           )}
 
-          {/* Mostrar badge de Especial/Clásico solo si es Grid y NO es promoción */}
           {isGrid && !esPromocion && typeof especial === 'boolean' && (
             <span
-              className={`absolute top-2 right-2 text-xs px-2 py-1 rounded font-semibold ${
-                especial ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'
-              } select-none`}
+              className={`absolute top-2 right-2 text-xs px-2 py-1 rounded font-semibold ${especial ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'
+                } select-none`}
             >
               {especial ? 'Especial' : 'Clásico'}
             </span>

@@ -64,22 +64,24 @@ const transformarCalzones = (data: any[]): ProductoCardProps[] => {
 
 
 const transformarPastas = (data: any[]): ProductoCardProps[] => {
-  return data
-    .filter(producto => producto.categoria === "pasta")
-    .map(producto => {
-      const precioActual = Number(producto.precio) || 0;
-      const imagenValida = producto.imagen?.trim()
-        ? producto.imagen
-        : "/images/card-pasta.jpeg";
+  const filtrados = data.filter(producto => producto.destacado === true);
 
-      return {
-        id: producto.id,
-        titulo: producto.nombre,
-        descripcion: producto.descripcion,
-        precio: precioActual,
-        imagen: imagenValida,
-      };
-    });
+  return filtrados.map(producto => {
+    const precioActual = Number(producto.precio) || 0;
+    const imagenValida =
+      producto.imagen && producto.imagen.trim() !== ""
+        ? producto.imagen
+        : "/images/card-calzone.jpg";
+
+    return {
+      id: producto.id,
+      titulo: producto.nombre,
+      descripcion:
+        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
+      precio: precioActual,
+      imagen: imagenValida,
+    };
+  });
 };
 
 
@@ -88,16 +90,21 @@ const transformarPizzas = (data: any[]): ProductoCardProps[] => {
 
   return filtrados.map(producto => {
     const precioActual = Number(producto.precio) || 0;
+
     const imagenValida =
       producto.imagen && producto.imagen.trim() !== ""
         ? producto.imagen
         : "images/card-pizza.jpg";
 
+    const descripcion =
+      producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ??
+      producto.combinaciones?.[0]?.tamanio_sabor?.sabor?.descripcion ??
+      "";
+
     return {
       id: producto.id,
       titulo: producto.nombre,
-      descripcion:
-        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
+      descripcion,
       precio: precioActual,
       imagen: imagenValida,
     };
@@ -136,7 +143,7 @@ export default function Home() {
   );
 
   const { productos: productosPastas } = useFetchProductos(
-    "http://localhost:4000/api/productos/pizzas",
+    "http://localhost:4000/api/productos/pastas",
     transformarPastas
   );
 
@@ -306,8 +313,8 @@ export default function Home() {
       {/* SECCION DE BANNERS DE JUGOS */}
       <BannerSection banners={banners} />
 
-      {/* BOTON DE WHATSAPP */}
-      <WhatsAppButton />
+      {/* BOTON DE WHATSAPP 
+      <WhatsAppButton /> */}
 
       {/* CARRUSEL DE BEBIDAS */}
       <section className="mt-10 px-4">

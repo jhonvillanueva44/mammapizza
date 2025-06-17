@@ -41,7 +41,7 @@ export const createProducto = async (req, res) => {
 
         const productoData = {
             nombre: data.nombre,
-            precio: sanitize(data.precio), // Será reemplazado en el servicio
+            precio: sanitize(data.precio), 
             stock: sanitize(data.stock),
             categoria_id: sanitize(data.categoria_id),
             descripcion: data.descripcion || null,
@@ -51,7 +51,7 @@ export const createProducto = async (req, res) => {
             habilitado: data.habilitado === 'true',
             unico_sabor: parseUnicoSabor(data.unico_sabor),
             imagen: imagePath,
-            tamanio_sabor_ids: data.tamanio_sabor_ids // Se pasa como string JSON
+            tamanio_sabor_ids: data.tamanio_sabor_ids 
         };
 
         const result = await createProductoService(productoData);
@@ -89,7 +89,7 @@ export const updateProducto = async (req, res) => {
 
         const productoData = {
             nombre: data.nombre,
-            precio: sanitize(data.precio), // Será reemplazado en el servicio
+            precio: sanitize(data.precio), 
             stock: sanitize(data.stock),
             categoria_id: sanitize(data.categoria_id),
             descripcion: data.descripcion || null,
@@ -172,40 +172,110 @@ export const deleteProducto = async (req, res) => {
     }
 };
 
-/*
-export const getProductosByPromociones = async (req, res) => {
-    const categoriaId = 1;
+export const getPizzaById = async (req, res) => {
+    const id = parseInt(req.params.id);
+    const categoriaId = 1; 
 
     try {
-        const productos = await findAllProductosByCategoriaService(categoriaId);
-        res.json(productos);
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+
+        const producto = productos.find(p => p.id === id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Pizza no encontrada' });
+        }
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productoConImagen = {
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        };
+
+        res.json(productoConImagen);
     } catch (error) {
         console.error(error);
-        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener la pizza' });
     }
 };
 
-export const getProductosByCalzones = async (req, res) => {
-    const categoriaId = 8;
+// Obtener un calzone por ID
+export const getCalzoneById = async (req, res) => {
+    const id = parseInt(req.params.id);
+    const categoriaId = 2;
 
     try {
-        const productos = await findAllProductosByCategoriaService(categoriaId);
-        res.json(productos);
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const producto = productos.find(p => p.id === id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Calzone no encontrado' });
+        }
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productoConImagen = {
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        };
+
+        res.json(productoConImagen);
     } catch (error) {
         console.error(error);
-        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener el calzone' });
     }
-}
+};
 
+// Obtener todas las pastas
 export const getProductosByPastas = async (req, res) => {
-    const categoriaId = 9;
+    const categoriaId = 3;
 
     try {
-        const productos = await findAllProductosByCategoriaService(categoriaId);
-        res.json(productos);
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
     } catch (error) {
         console.error(error);
-        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los productos por categoría' });
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener las pastas' });
     }
-}
-*/
+};
+
+// Obtener una pasta por ID
+export const getPastaById = async (req, res) => {
+    const id = parseInt(req.params.id);
+    const categoriaId = 3;
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const producto = productos.find(p => p.id === id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Pasta no encontrada' });
+        }
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productoConImagen = {
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        };
+
+        res.json(productoConImagen);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener la pasta' });
+    }
+};
+
+

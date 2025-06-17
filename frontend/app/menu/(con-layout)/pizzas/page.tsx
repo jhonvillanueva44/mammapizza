@@ -34,6 +34,13 @@ interface Unico {
   tamanios_sabor: TamaniosSabor
 }
 
+interface Combinacion {
+  id: number
+  producto_id: number
+  tamanio_sabor_id: number
+  tamanio_sabor: TamaniosSabor
+}
+
 interface Pizza {
   id: number
   nombre: string
@@ -43,6 +50,7 @@ interface Pizza {
   habilitado?: boolean
   unico_sabor?: boolean
   unicos: Unico[]
+  combinaciones: Combinacion[]
   imagen?: string
   descuento?: number | null
 }
@@ -86,20 +94,41 @@ export default function MenuPizzasPage() {
   }, [])
 
   const pizzasFiltradas = pizzas.filter((pizza) => {
-    const filtroTamanio =
-      filter.tamanio === 'todos' ||
-      pizza.unicos.some((u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio)
+    // Si tiene combinaciones, aplicar filtros a las combinaciones
+    if (pizza.combinaciones.length > 0) {
+      const filtroTamanio =
+        filter.tamanio === 'todos' ||
+        pizza.combinaciones.some((c) => c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio)
 
-    const filtroEspecial =
-      filter.especial === 'todos' ||
-      pizza.unicos.some((u) => {
-        const esEspecial = u.tamanios_sabor.sabor.especial ?? false
-        if (filter.especial === 'especial') return esEspecial
-        if (filter.especial === 'clasico') return !esEspecial
-        return true
-      })
+      const filtroEspecial =
+        filter.especial === 'todos' ||
+        pizza.combinaciones.some((c) => {
+          const esEspecial = c.tamanio_sabor.sabor.especial ?? false
+          if (filter.especial === 'especial') return esEspecial
+          if (filter.especial === 'clasico') return !esEspecial
+          return true
+        })
 
-    return filtroTamanio && filtroEspecial
+      return filtroTamanio && filtroEspecial
+    }
+    // Si tiene unicos, aplicar filtros a los unicos (mantenemos la lógica original)
+    else if (pizza.unicos.length > 0) {
+      const filtroTamanio =
+        filter.tamanio === 'todos' ||
+        pizza.unicos.some((u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio)
+
+      const filtroEspecial =
+        filter.especial === 'todos' ||
+        pizza.unicos.some((u) => {
+          const esEspecial = u.tamanios_sabor.sabor.especial ?? false
+          if (filter.especial === 'especial') return esEspecial
+          if (filter.especial === 'clasico') return !esEspecial
+          return true
+        })
+
+      return filtroTamanio && filtroEspecial
+    }
+    return false
   })
 
   return (
@@ -175,7 +204,6 @@ export default function MenuPizzasPage() {
             </p>
           )}
         </div>
-
       </div>
 
       <div className="mt-6 grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
@@ -185,37 +213,107 @@ export default function MenuPizzasPage() {
           <p>No hay pizzas disponibles para ese filtro.</p>
         ) : (
           pizzasFiltradas.map((pizza) => {
-            const unicoEspecial = pizza.unicos.find((u) => {
-              const esEspecial = u.tamanios_sabor.sabor.especial ?? false
-              if (filter.especial === 'especial') return esEspecial
-              if (filter.especial === 'clasico') return !esEspecial
-              return true
-            })
+            // Lógica para productos con combinaciones
+            if (pizza.combinaciones.length > 0) {
+              // Primero verificamos si la pizza debería mostrarse según los filtros
+              const shouldShowPizza = () => {
+                const cumpleTamanio = 
+                  filter.tamanio === 'todos' || 
+                  pizza.combinaciones.some(c => c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio);
+                
+                if (filter.especial === 'todos') return cumpleTamanio;
+                if (filter.especial === 'especial') {
+                  return cumpleTamanio && pizza.combinaciones.some(c => c.tamanio_sabor.sabor.especial);
+                }
+                // 'clasico'
+                return cumpleTamanio && pizza.combinaciones.some(c => !c.tamanio_sabor.sabor.especial);
+              };
 
-            const unicoTamanio =
-              filter.tamanio === 'todos'
-                ? pizza.unicos[0]
-                : pizza.unicos.find(
-                  (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
-                ) || pizza.unicos[0]
+              if (!shouldShowPizza()) return null;
 
-            const unico = unicoEspecial || unicoTamanio || pizza.unicos[0]
+              // Seleccionamos la combinación a mostrar
+              let combinacionAMostrar = pizza.combinaciones[0]; // Valor por defecto
 
-            if (!unico) return null
+              if (filter.tamanio !== 'todos' || filter.especial !== 'todos') {
+                // Intentamos encontrar una combinación que coincida exactamente con los filtros
+                const exactMatch = pizza.combinaciones.find(c => {
+                  const cumpleTamanio = 
+                    filter.tamanio === 'todos' || 
+                    c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio;
+                  
+                  const cumpleEspecial =
+                    filter.especial === 'todos' ||
+                    (filter.especial === 'especial' 
+                      ? c.tamanio_sabor.sabor.especial 
+                      : !c.tamanio_sabor.sabor.especial);
+                  
+                  return cumpleTamanio && cumpleEspecial;
+                });
 
-            return (
-              <ProductoCard
-                key={pizza.id}
-                id={pizza.id}
-                titulo={pizza.nombre}
-                descripcion={pizza.descripcion || unico.tamanios_sabor.sabor.descripcion || ''}
-                precio={parseFloat(unico.tamanios_sabor.precio)}
-                imagen={pizza.imagen || ''}
-                descuento={pizza.descuento ?? undefined}
-                isGrid={true}
-                especial={unico.tamanios_sabor.sabor.especial ?? false}
-              />
-            )
+                if (exactMatch) {
+                  combinacionAMostrar = exactMatch;
+                } else {
+                  // Si no hay match exacto, priorizamos el filtro de tamaño
+                  const sizeMatch = pizza.combinaciones.find(c => 
+                    filter.tamanio === 'todos' || 
+                    c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
+                  );
+                  if (sizeMatch) {
+                    combinacionAMostrar = sizeMatch;
+                  }
+                  // Si no, se queda con la primera por defecto
+                }
+              }
+
+              return (
+                <ProductoCard
+                  key={pizza.id}
+                  id={pizza.id}
+                  titulo={pizza.nombre}
+                  descripcion={pizza.descripcion || combinacionAMostrar.tamanio_sabor.sabor.descripcion || ''}
+                  precio={parseFloat(combinacionAMostrar.tamanio_sabor.precio)}
+                  imagen={pizza.imagen || ''}
+                  descuento={pizza.descuento ?? undefined}
+                  isGrid={true}
+                  especial={combinacionAMostrar.tamanio_sabor.sabor.especial ?? false}
+                />
+              );
+            }
+            // Lógica original para productos con unicos
+            else if (pizza.unicos.length > 0) {
+              const unicoEspecial = pizza.unicos.find((u) => {
+                const esEspecial = u.tamanios_sabor.sabor.especial ?? false
+                if (filter.especial === 'especial') return esEspecial
+                if (filter.especial === 'clasico') return !esEspecial
+                return true
+              })
+
+              const unicoTamanio =
+                filter.tamanio === 'todos'
+                  ? pizza.unicos[0]
+                  : pizza.unicos.find(
+                    (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
+                  ) || pizza.unicos[0]
+
+              const unico = unicoEspecial || unicoTamanio || pizza.unicos[0]
+
+              if (!unico) return null
+
+              return (
+                <ProductoCard
+                  key={pizza.id}
+                  id={pizza.id}
+                  titulo={pizza.nombre}
+                  descripcion={pizza.descripcion || unico.tamanios_sabor.sabor.descripcion || ''}
+                  precio={parseFloat(unico.tamanios_sabor.precio)}
+                  imagen={pizza.imagen || ''}
+                  descuento={pizza.descuento ?? undefined}
+                  isGrid={true}
+                  especial={unico.tamanios_sabor.sabor.especial ?? false}
+                />
+              )
+            }
+            return null
           })
         )}
       </div>

@@ -82,10 +82,35 @@ export const findAllProductosUniquesNested = async (categoriaId) => {
             {
                 model: Unico,
                 as: 'unicos', 
+                separate: true,
+                order: [['id', 'ASC']],
                 include: [
                     {
                         model: TamanioSabor,
                         as: 'tamanios_sabor',
+                        include: [
+                            {
+                                model: Sabor,
+                                as: 'sabor',
+                                attributes: ['id', 'nombre', 'descripcion', 'especial']
+                            },
+                            {
+                                model: Tamanio,
+                                as: 'tamanio',
+                                attributes: ['id', 'nombre', 'descripcion']
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                model: Combinacion,
+                separate: true,
+                order: [['id', 'ASC']],
+                include: [
+                    {
+                        model: TamanioSabor,
+                        as: 'tamanio_sabor',
                         include: [
                             {
                                 model: Sabor,
