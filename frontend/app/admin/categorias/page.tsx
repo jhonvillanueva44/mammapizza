@@ -150,7 +150,7 @@ export default function CrudCategoriasPage() {
                 setNombre('');
                 setDescripcion('');
               }}
-              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2"
+              className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -195,7 +195,7 @@ export default function CrudCategoriasPage() {
                           <div className="flex justify-end space-x-3">
                             <button
                               onClick={() => handleEditarClick(cat)}
-                              className="text-indigo-600 hover:text-indigo-900 transition-colors"
+                              className="text-indigo-600 hover:text-indigo-900 transition-colors cursor-pointer"
                               disabled={loading}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -204,7 +204,7 @@ export default function CrudCategoriasPage() {
                             </button>
                             <button
                               onClick={() => handleEliminarClick(cat.id)}
-                              className="text-red-600 hover:text-red-900 transition-colors"
+                              className="text-red-600 hover:text-red-900 transition-colors cursor-pointer"
                               disabled={loading}
                             >
                               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
