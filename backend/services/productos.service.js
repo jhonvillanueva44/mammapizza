@@ -132,7 +132,7 @@ export const findAllProductosUniquesNestedService = async (categoriaId) => {
 };
 
 export const updateProductoService = async (id, data) => {
-    const requiredFields = ['nombre', 'categoria_id', 'unico_sabor'];
+    const requiredFields = ['nombre', 'categoria_id'];
     for (const field of requiredFields) {
         if (data[field] === undefined || data[field] === null) {
             throw { status: 400, message: `El campo '${field}' es obligatorio.` };

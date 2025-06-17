@@ -12,6 +12,7 @@ const menuItems = [
   { label: 'Categorias', path: '/admin/categorias' },
   { label: 'Productos', path: '/admin/productos' },
   { label: 'Tamaño Sabor', path: '/admin/tamanioSabor' },
+  { label: 'Promociones', path: '/admin/promociones' },
 
 ];
 
