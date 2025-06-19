@@ -104,26 +104,22 @@ const handleSubmit = async (e: React.FormEvent) => {
     formData.append('stock', stock?.toString() || '0');
     formData.append('categoria_id', tipoProducto === 'Bebida' ? '7' : '6');
     
-    // Campos específicos para pizzas
-    formData.append('tamanio', ''); // String vacío
-    formData.append('sabor', ''); // String vacío
-    formData.append('unico_sabor', 'null'); // String "null" como solicitaste
+    formData.append('tamanio', ''); 
+    formData.append('sabor', ''); 
+    formData.append('unico_sabor', 'null');
     
-    // Resto de campos
     formData.append('descripcion', descripcion);
     formData.append('impuesto', impuesto?.toString() || '0');
     formData.append('descuento', descuento?.toString() || '0');
     formData.append('destacado', destacado.toString());
     formData.append('habilitado', habilitado.toString());
 
-    // Manejo de imagen
     if (fileInputRef.current?.files?.[0]) {
       formData.append('imagen', fileInputRef.current.files[0]);
     } else if (modoEdicion && productoEditando?.imagen) {
       formData.append('imagen', productoEditando.imagen);
     }
 
-    // Debug: Mostrar datos que se enviarán
     console.log('Datos a enviar:');
     for (let [key, value] of formData.entries()) {
       console.log(key, value);
@@ -139,15 +135,12 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
     );
 
-    // Verificar respuesta
     if (!response.ok) {
       const errorText = await response.text();
       try {
-        // Intentar parsear como JSON
         const errorData = JSON.parse(errorText);
         throw new Error(errorData.message || errorData.error || 'Error al guardar');
       } catch {
-        // Si no es JSON, mostrar el texto directo
         throw new Error(errorText || 'Error en el servidor');
       }
     }

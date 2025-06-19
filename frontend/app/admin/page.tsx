@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef } from 'react';
 
 export default function AdminLogin() {
   const [credentials, setCredentials] = useState({
@@ -11,25 +12,30 @@ export default function AdminLogin() {
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  const isMounted = useRef(true);
+  
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
-    // Simular carga por 1 segundo y luego redireccionar
+  
     setTimeout(() => {
-      setLoading(false);
-      router.push('/admin/dashboard');
+      if (isMounted.current) {
+        setLoading(false);
+        router.push('/admin/dashboard');
+      }
     }, 1000);
   };
-
+  
   return (
     <div className="min-h-screen bg-[#0C1011] flex items-center justify-center px-4 relative overflow-hidden">
-      {/* Elementos decorativos */}
       <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-[#E74C3C]/10 blur-xl"></div>
       <div className="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-[#E74C3C]/10 blur-xl"></div>
       
-      {/* Tarjeta de login */}
       <div className="max-w-md w-full bg-[#1A2226] rounded-xl shadow-2xl p-10 backdrop-blur-sm border border-[#2C3E50]/30 relative z-10">
         <div className="text-center mb-10">
           <div className="mx-auto w-24 h-24 bg-[#E74C3C]/10 rounded-full flex items-center justify-center mb-6 border border-[#E74C3C]/20">
