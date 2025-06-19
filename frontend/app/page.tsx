@@ -1,3 +1,4 @@
+//page.tsx
 "use client";
 
 import { useRef, useEffect, useState } from "react";
@@ -259,94 +260,136 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
+    <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
       {/* SECCION DE HERO */}
       <Hero />
 
       {/* MENUCARRUSEL -> CATEGORYCARD */}
-      <div className="flex flex-wrap justify-center gap-4 p-4">
-        {categories.map((cat, i) => (
-          <CategoryCard
-            key={i}
-            title={cat.title}
-            image={cat.image}
-            link={cat.link}
-          />
-        ))}
-      </div>
+      <section className="py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+              Nuestro Menú
+            </h2>
+            <p className="text-sm text-gray-600 font-['Open_Sans']">
+              Descubre todas nuestras especialidades
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
+            {categories.map((cat, i) => (
+              <CategoryCard
+                key={i}
+                title={cat.title}
+                image={cat.image}
+                link={cat.link}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* SECCION DE PRODUCTOS DESTACADOS */}
-      <ProductSection
-        title="Promociones"
-        description="Una promoción se disfruta mejor en familia y amigos"
-        link="/menu/promos"
-        productos={productosPromocion}
-        scrollRef={promoRef}
-        onScrollLeft={() => scrollPizzas("left")}
-        onScrollRight={() => scrollPizzas("right")}
-      />
+      <section className="py-4">
+        <ProductSection
+          title="🔥 Promociones Especiales"
+          description="Una promoción se disfruta mejor en familia y amigos"
+          link="/menu/promos"
+          productos={productosPromocion}
+          scrollRef={promoRef}
+          onScrollLeft={() => scrollPizzas("left")}
+          onScrollRight={() => scrollPizzas("right")}
+        />
+      </section>
 
-      <ProductSection
-        title="Pizzas"
-        description="Las pizzas más deliciosas, horneadas al estilo tradicional"
-        link="/menu/pizzas"
-        productos={productosPizzas}
-        scrollRef={pizzasRef}
-        onScrollLeft={() => scrollPizzasSection("left")}
-        onScrollRight={() => scrollPizzasSection("right")}
-      />
+      <section className="py-4">
+        <ProductSection
+          title="🍕 Nuestras Pizzas"
+          description="Las pizzas más deliciosas, horneadas al estilo tradicional"
+          link="/menu/pizzas"
+          productos={productosPizzas}
+          scrollRef={pizzasRef}
+          onScrollLeft={() => scrollPizzasSection("left")}
+          onScrollRight={() => scrollPizzasSection("right")}
+        />
+      </section>
 
-      <ProductSection
-        title="Calzone"
-        description="Disfruta de un delicioso calzone con ingredientes frescos y variados"
-        link="/menu/calzone"
-        productos={productosCalzone}
-        scrollRef={calzoneRef}
-        onScrollLeft={() => scrollCalzone("left")}
-        onScrollRight={() => scrollCalzone("right")}
-      />
+      <section className="py-4">
+        <ProductSection
+          title="🥟 Calzones Artesanales"
+          description="Disfruta de un delicioso calzone con ingredientes frescos y variados"
+          link="/menu/calzone"
+          productos={productosCalzone}
+          scrollRef={calzoneRef}
+          onScrollLeft={() => scrollCalzone("left")}
+          onScrollRight={() => scrollCalzone("right")}
+        />
+      </section>
 
-      <ProductSection
-        title="Pastas"
-        description="Prueba nuestras pastas caseras con salsa tradicional, ¡te encantarán!"
-        link="/menu/pastas"
-        productos={productosPastas}
-        scrollRef={pastasRef}
-        onScrollLeft={() => scrollPastas("left")}
-        onScrollRight={() => scrollPastas("right")}
-      />
-
+      <section className="py-4">
+        <ProductSection
+          title="🍝 Pastas Caseras"
+          description="Prueba nuestras pastas caseras con salsa tradicional, ¡te encantarán!"
+          link="/menu/pastas"
+          productos={productosPastas}
+          scrollRef={pastasRef}
+          onScrollLeft={() => scrollPastas("left")}
+          onScrollRight={() => scrollPastas("right")}
+        />
+      </section>
 
       {/* SECCIÓN DE ADICIONALES CON BANNER */}
-      <div className="w-full px-4">
-        <h2 className="text-2xl font-bold text-center my-6 text-gray-900">Adicionales</h2>
-        {!loadingAdicionales && <SingleBannerSection items={adicionales} />}
-      </div>
+      <section className="py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+              🧄 Adicionales
+            </h2>
+            <p className="text-sm text-gray-600 font-['Open_Sans']">
+              Complementa tu experiencia con nuestros extras especiales
+            </p>
+          </div>
+          {!loadingAdicionales && <SingleBannerSection items={adicionales} />}
+        </div>
+      </section>
+
+      {/* CARRUSEL DE BEBIDAS */}
+      <section className="py-8 px-4 bg-gradient-to-r from-red-50/50 to-red-50/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+              🥤 Bebidas Refrescantes
+            </h2>
+            <p className="text-sm text-gray-600 font-['Open_Sans']">
+              El complemento perfecto para tus platillos favoritos
+            </p>
+          </div>
+          
+          {loadingBebidas ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-8 h-8 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+                <p className="text-sm text-gray-600 font-['Open_Sans']">Cargando bebidas...</p>
+              </div>
+            </div>
+          ) : bebidas.length > 0 ? (
+            <CarruselBebidas items={bebidas} />
+          ) : (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-center">
+                <div className="text-4xl mb-3">🥤</div>
+                <p className="text-sm text-gray-600 font-['Open_Sans']">No hay bebidas disponibles</p>
+              </div>
+            </div>
+          )}
+        </div>
+      </section>
 
       {/* BOTON DE WHATSAPP 
       <WhatsAppButton /> */}
 
-      {/* CARRUSEL DE BEBIDAS */}
-      <section className="mt-10 px-4">
-        <h2 className="text-2xl font-bold text-center mb-12 text-gray-900">
-          Bebidas
-        </h2>
-        {loadingBebidas ? (
-          <div className="flex justify-center items-center h-64">
-            <p>Cargando bebidas...</p>
-          </div>
-        ) : bebidas.length > 0 ? (
-          <CarruselBebidas items={bebidas} />
-        ) : (
-          <div className="flex justify-center items-center h-64">
-            <p>No hay bebidas disponibles</p>
-          </div>
-        )}
-      </section>
-
       {/* FOOTER */}
-      <div>
+      <div className="mt-8">
         <Footer />
       </div>
     </div>

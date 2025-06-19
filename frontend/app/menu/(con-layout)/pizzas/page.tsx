@@ -1,3 +1,4 @@
+//pizzaspage.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -96,10 +97,10 @@ function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
           setDropdownOpen(false)
           onChange({ filter: 'todos' })
         }}
-        className={`px-4 py-2 rounded-full border font-medium transition text-sm sm:text-base ${
+        className={`px-6 py-3 rounded-full border-2 font-semibold transition-all duration-300 text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105 ${
           activeFilter === 'todos'
-            ? 'bg-red-600 text-white border-black'
-            : 'bg-white text-black border-black hover:bg-[#DC0000]'
+            ? 'bg-red-600 text-white border-red-600 shadow-red-200'
+            : 'bg-white text-red-600 border-red-200 hover:bg-red-50 hover:border-red-400'
         }`}
       >
         Todos
@@ -112,24 +113,24 @@ function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
             setDropdownOpen(!dropdownOpen)
             setActiveFilter('tamanio')
           }}
-          className={`flex items-center gap-1 px-4 py-2 w-[140px] sm:w-[160px] rounded-full border font-medium transition text-sm sm:text-base ${
+          className={`flex items-center gap-2 px-6 py-3 w-[140px] sm:w-[160px] rounded-full border-2 font-semibold transition-all duration-300 text-sm sm:text-base shadow-lg hover:shadow-xl transform hover:scale-105 ${
             activeFilter === 'tamanio'
-              ? 'bg-red-600 text-white border-black'
-              : 'bg-white text-black border-black hover:bg-[#DC0000]'
+              ? 'bg-red-600 text-white border-red-600 shadow-red-200'
+              : 'bg-white text-red-600 border-red-200 hover:bg-red-50 hover:border-red-400'
           }`}
           style={{ minWidth: '140px' }}
         >
           <span className="truncate">{selectedValue}</span>
-          <ChevronDown size={16} />
+          <ChevronDown size={16} className={`transition-transform duration-300 ${dropdownOpen ? 'rotate-180' : ''}`} />
         </button>
 
         {dropdownOpen && (
-          <div className="absolute top-full mt-2 w-full bg-white border rounded shadow z-10">
+          <div className="absolute top-full mt-2 w-full bg-white border-2 border-red-100 rounded-xl shadow-2xl z-10 overflow-hidden">
             {tamanios.map((tamanio) => (
               <button
                 key={tamanio.id}
                 onClick={() => handleSelect(tamanio.nombre)}
-                className="w-full text-left px-4 py-2 hover:bg-[#DC0000] text-sm"
+                className="w-full text-left px-4 py-3 hover:bg-red-50 hover:text-red-600 text-sm font-medium transition-colors duration-200 border-b border-red-50 last:border-b-0"
               >
                 {tamanio.nombre}
               </button>
@@ -224,191 +225,239 @@ export default function MenuPizzasPage() {
   })
 
   return (
-    <div className="min-h-screen p-6 sm:p-10 font-[var(--font-geist-sans)]">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 max-w-[700px] w-full">
-        {/* Columna izquierda: filtros */}
-        <div className="flex flex-col items-start gap-4 sm:max-w-[300px] w-full sm:w-auto">
-          <h1 className="text-2xl font-bold">Menú - Pizzas</h1>
+    <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-          {/* Filtro tamaño */}
-          <FilterButtons onChange={handleFilterTamanioChange} tamanios={tamanios} />
+      {/* Filter Section */}
+      <div className="py-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
+              {/* Filtros */}
+              <div className="flex flex-col items-start gap-6 lg:max-w-[400px] w-full lg:w-auto">
+                <div className="space-y-4">
+                  <h2 className="text-xl font-bold text-gray-800 font-['Playfair_Display'] flex items-center gap-2">
+                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                    Filtrar por Tamaño
+                  </h2>
+                  <FilterButtons onChange={handleFilterTamanioChange} tamanios={tamanios} />
+                </div>
 
-          {/* Filtro especial */}
-          <div className="flex gap-3 mt-2">
-            {['todos', 'especial', 'clasico'].map((opt) => (
-              <button
-                key={opt}
-                onClick={() => handleFilterEspecialChange(opt as 'todos' | 'especial' | 'clasico')}
-                className={`px-3 py-1 rounded-full border ${filter.especial === opt
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'border-gray-300 text-gray-700'
-                  } hover:bg-green-600 hover:text-white transition`}
-              >
-                {opt === 'todos' ? 'Todos' : opt === 'especial' ? 'Especiales' : 'Clásicos'}
-              </button>
-            ))}
+                <div className="space-y-4">
+                  <h2 className="text-xl font-bold text-gray-800 font-['Playfair_Display'] flex items-center gap-2">
+                    <span className="w-2 h-2 bg-red-600 rounded-full"></span>
+                    Filtrar por Tipo
+                  </h2>
+                  <div className="flex gap-3 flex-wrap">
+                    {['todos', 'especial', 'clasico'].map((opt) => (
+                      <button
+                        key={opt}
+                        onClick={() => handleFilterEspecialChange(opt as 'todos' | 'especial' | 'clasico')}
+                        className={`px-6 py-3 rounded-full border-2 font-semibold transition-all duration-300 text-sm shadow-lg hover:shadow-xl transform hover:scale-105 ${
+                          filter.especial === opt
+                            ? 'bg-green-600 text-white border-green-600 shadow-green-200'
+                            : 'bg-white text-green-600 border-green-200 hover:bg-green-50 hover:border-green-400'
+                        }`}
+                      >
+                        {opt === 'todos' ? 'Todos' : opt === 'especial' ? 'Especiales' : 'Clásicos'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Descripción */}
+              <div className="flex-1 lg:pl-8 lg:border-l-2 lg:border-red-100 w-full">
+                <div className="bg-gradient-to-r from-red-50 to-red-50/50 rounded-xl p-6">
+                  {filter.tamanio !== 'todos' && filter.especial !== 'todos' && (
+                    <>
+                      <p className="text-gray-800 text-base mb-4 font-medium">
+                        Estás viendo nuestras pizzas de tamaño{' '}
+                        <span className="font-bold text-red-600 capitalize">{filter.tamanio}</span> y tipo{' '}
+                        <span className="font-bold text-green-600 capitalize">
+                          {filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}
+                        </span>
+                        , cuidadosamente seleccionadas para que disfrutes el mejor sabor.
+                      </p>
+                      <p className="text-gray-600 text-sm font-['Open_Sans'] leading-relaxed">
+                        Recuerda que cada tamaño ofrece una experiencia diferente: desde la porción ideal para uno hasta opciones para compartir en familia o con amigos. ¡No dudes en explorar y descubrir tu favorita!
+                      </p>
+                    </>
+                  )}
+
+                  {filter.tamanio !== 'todos' && filter.especial === 'todos' && (
+                    <>
+                      <p className="text-gray-800 text-base mb-4 font-medium">
+                        Navegando por pizzas de tamaño <span className="font-bold text-red-600 capitalize">{filter.tamanio}</span>.
+                      </p>
+                      <p className="text-gray-600 text-sm font-['Open_Sans'] leading-relaxed">
+                        Cada tamaño está pensado para adaptarse a tu apetito y ocasión. Si quieres variar, también puedes probar nuestras opciones clásicas y especiales disponibles en otros tamaños.
+                      </p>
+                    </>
+                  )}
+
+                  {filter.tamanio === 'todos' && filter.especial !== 'todos' && (
+                    <>
+                      <p className="text-gray-800 text-base mb-4 font-medium">
+                        Mostrando pizzas <span className="font-bold text-green-600 capitalize">{filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}</span> de todos los tamaños.
+                      </p>
+                      <p className="text-gray-600 text-sm font-['Open_Sans'] leading-relaxed">
+                        Ya sea que prefieras los sabores tradicionales o las combinaciones más innovadoras, aquí encontrarás opciones para todos los gustos y ocasiones. ¡Buen provecho!
+                      </p>
+                    </>
+                  )}
+
+                  {filter.tamanio === 'todos' && filter.especial === 'todos' && (
+                    <div className="text-center py-4">
+                      <div className="text-4xl mb-3">🍕</div>
+                      <p className="text-gray-600 text-sm font-['Open_Sans'] italic">
+                        Estás viendo todo nuestro menú de pizzas. Explora diferentes tamaños y sabores para encontrar tu próxima favorita.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Columna derecha: texto descriptivo */}
-        <div className="flex-1 pl-4 border-l border-gray-300 min-h-[120px] w-full sm:w-auto">
-          {filter.tamanio !== 'todos' && filter.especial !== 'todos' && (
-            <>
-              <p className="text-gray-800 text-base mb-2">
-                Estás viendo nuestras pizzas de tamaño{' '}
-                <span className="font-semibold capitalize">{filter.tamanio}</span> y tipo{' '}
-                <span className="font-semibold capitalize">
-                  {filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}
-                </span>
-                , cuidadosamente seleccionadas para que disfrutes el mejor sabor.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Recuerda que cada tamaño ofrece una experiencia diferente: desde la porción ideal para uno hasta opciones para compartir en familia o con amigos. ¡No dudes en explorar y descubrir tu favorita!
-              </p>
-            </>
-          )}
-
-          {filter.tamanio !== 'todos' && filter.especial === 'todos' && (
-            <>
-              <p className="text-gray-800 text-base mb-2">
-                Navegando por pizzas de tamaño <span className="font-semibold capitalize">{filter.tamanio}</span>.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Cada tamaño está pensado para adaptarse a tu apetito y ocasión. Si quieres variar, también puedes probar nuestras opciones clásicas y especiales disponibles en otros tamaños.
-              </p>
-            </>
-          )}
-
-          {filter.tamanio === 'todos' && filter.especial !== 'todos' && (
-            <>
-              <p className="text-gray-800 text-base mb-2">
-                Mostrando pizzas <span className="font-semibold capitalize">{filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}</span> de todos los tamaños.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Ya sea que prefieras los sabores tradicionales o las combinaciones más innovadoras, aquí encontrarás opciones para todos los gustos y ocasiones. ¡Buen provecho!
-              </p>
-            </>
-          )}
-
-          {filter.tamanio === 'todos' && filter.especial === 'todos' && (
-            <p className="text-gray-500 text-sm italic">
-              Estás viendo todo nuestro menú de pizzas. Explora diferentes tamaños y sabores para encontrar tu próxima favorita.
-            </p>
-          )}
         </div>
       </div>
 
-      <div className="mt-6 grid gap-4 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]">
-        {loading ? (
-          <p>Cargando pizzas...</p>
-        ) : pizzasFiltradas.length === 0 ? (
-          <p>No hay pizzas disponibles para ese filtro.</p>
-        ) : (
-          pizzasFiltradas.map((pizza) => {
-            // Lógica para productos con combinaciones
-            if (pizza.combinaciones.length > 0) {
-              // Primero verificamos si la pizza debería mostrarse según los filtros
-              const shouldShowPizza = () => {
-                const cumpleTamanio = 
-                  filter.tamanio === 'todos' || 
-                  pizza.combinaciones.some(c => c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio);
-                
-                if (filter.especial === 'todos') return cumpleTamanio;
-                if (filter.especial === 'especial') {
-                  return cumpleTamanio && pizza.combinaciones.some(c => c.tamanio_sabor.sabor.especial);
-                }
-                // 'clasico'
-                return cumpleTamanio && pizza.combinaciones.some(c => !c.tamanio_sabor.sabor.especial);
-              };
+      {/* Products Grid Section */}
+      <div className="py-8 px-6">
+        <div className="max-w-7xl mx-auto">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin"></div>
+                <p className="text-lg text-gray-600 font-['Open_Sans']">Cargando deliciosas pizzas...</p>
+              </div>
+            </div>
+          ) : pizzasFiltradas.length === 0 ? (
+            <div className="text-center py-16">
+              <div className="text-6xl mb-4">🍕</div>
+              <h3 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+                ¡Ups! No encontramos pizzas
+              </h3>
+              <p className="text-gray-600 font-['Open_Sans']">
+                No hay pizzas disponibles para ese filtro. Intenta con otros criterios de búsqueda.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+                  Nuestras Especialidades
+                </h2>
+              </div>
+              
+              <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
+                {pizzasFiltradas.map((pizza) => {
+                  // Lógica para productos con combinaciones
+                  if (pizza.combinaciones.length > 0) {
+                    // Primero verificamos si la pizza debería mostrarse según los filtros
+                    const shouldShowPizza = () => {
+                      const cumpleTamanio = 
+                        filter.tamanio === 'todos' || 
+                        pizza.combinaciones.some(c => c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio);
+                      
+                      if (filter.especial === 'todos') return cumpleTamanio;
+                      if (filter.especial === 'especial') {
+                        return cumpleTamanio && pizza.combinaciones.some(c => c.tamanio_sabor.sabor.especial);
+                      }
+                      // 'clasico'
+                      return cumpleTamanio && pizza.combinaciones.some(c => !c.tamanio_sabor.sabor.especial);
+                    };
 
-              if (!shouldShowPizza()) return null;
+                    if (!shouldShowPizza()) return null;
 
-              // Seleccionamos la combinación a mostrar
-              let combinacionAMostrar = pizza.combinaciones[0]; // Valor por defecto
+                    // Seleccionamos la combinación a mostrar
+                    let combinacionAMostrar = pizza.combinaciones[0]; // Valor por defecto
 
-              if (filter.tamanio !== 'todos' || filter.especial !== 'todos') {
-                // Intentamos encontrar una combinación que coincida exactamente con los filtros
-                const exactMatch = pizza.combinaciones.find(c => {
-                  const cumpleTamanio = 
-                    filter.tamanio === 'todos' || 
-                    c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio;
-                  
-                  const cumpleEspecial =
-                    filter.especial === 'todos' ||
-                    (filter.especial === 'especial' 
-                      ? c.tamanio_sabor.sabor.especial 
-                      : !c.tamanio_sabor.sabor.especial);
-                  
-                  return cumpleTamanio && cumpleEspecial;
-                });
+                    if (filter.tamanio !== 'todos' || filter.especial !== 'todos') {
+                      // Intentamos encontrar una combinación que coincida exactamente con los filtros
+                      const exactMatch = pizza.combinaciones.find(c => {
+                        const cumpleTamanio = 
+                          filter.tamanio === 'todos' || 
+                          c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio;
+                        
+                        const cumpleEspecial =
+                          filter.especial === 'todos' ||
+                          (filter.especial === 'especial' 
+                            ? c.tamanio_sabor.sabor.especial 
+                            : !c.tamanio_sabor.sabor.especial);
+                        
+                        return cumpleTamanio && cumpleEspecial;
+                      });
 
-                if (exactMatch) {
-                  combinacionAMostrar = exactMatch;
-                } else {
-                  // Si no hay match exacto, priorizamos el filtro de tamaño
-                  const sizeMatch = pizza.combinaciones.find(c => 
-                    filter.tamanio === 'todos' || 
-                    c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
-                  );
-                  if (sizeMatch) {
-                    combinacionAMostrar = sizeMatch;
+                      if (exactMatch) {
+                        combinacionAMostrar = exactMatch;
+                      } else {
+                        // Si no hay match exacto, priorizamos el filtro de tamaño
+                        const sizeMatch = pizza.combinaciones.find(c => 
+                          filter.tamanio === 'todos' || 
+                          c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
+                        );
+                        if (sizeMatch) {
+                          combinacionAMostrar = sizeMatch;
+                        }
+                        // Si no, se queda con la primera por defecto
+                      }
+                    }
+
+                    return (
+                      <ProductoCard
+                        key={pizza.id}
+                        id={pizza.id}
+                        titulo={pizza.nombre}
+                        descripcion={pizza.descripcion || combinacionAMostrar.tamanio_sabor.sabor.descripcion || ''}
+                        precio={parseFloat(combinacionAMostrar.tamanio_sabor.precio)}
+                        imagen={pizza.imagen || ''}
+                        descuento={pizza.descuento ?? undefined}
+                        isGrid={true}
+                        especial={combinacionAMostrar.tamanio_sabor.sabor.especial ?? false}
+                      />
+                    );
                   }
-                  // Si no, se queda con la primera por defecto
-                }
-              }
+                  // Lógica original para productos con unicos
+                  else if (pizza.unicos.length > 0) {
+                    const unicoEspecial = pizza.unicos.find((u) => {
+                      const esEspecial = u.tamanios_sabor.sabor.especial ?? false
+                      if (filter.especial === 'especial') return esEspecial
+                      if (filter.especial === 'clasico') return !esEspecial
+                      return true
+                    })
 
-              return (
-                <ProductoCard
-                  key={pizza.id}
-                  id={pizza.id}
-                  titulo={pizza.nombre}
-                  descripcion={pizza.descripcion || combinacionAMostrar.tamanio_sabor.sabor.descripcion || ''}
-                  precio={parseFloat(combinacionAMostrar.tamanio_sabor.precio)}
-                  imagen={pizza.imagen || ''}
-                  descuento={pizza.descuento ?? undefined}
-                  isGrid={true}
-                  especial={combinacionAMostrar.tamanio_sabor.sabor.especial ?? false}
-                />
-              );
-            }
-            // Lógica original para productos con unicos
-            else if (pizza.unicos.length > 0) {
-              const unicoEspecial = pizza.unicos.find((u) => {
-                const esEspecial = u.tamanios_sabor.sabor.especial ?? false
-                if (filter.especial === 'especial') return esEspecial
-                if (filter.especial === 'clasico') return !esEspecial
-                return true
-              })
+                    const unicoTamanio =
+                      filter.tamanio === 'todos'
+                        ? pizza.unicos[0]
+                        : pizza.unicos.find(
+                          (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
+                        ) || pizza.unicos[0]
 
-              const unicoTamanio =
-                filter.tamanio === 'todos'
-                  ? pizza.unicos[0]
-                  : pizza.unicos.find(
-                    (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
-                  ) || pizza.unicos[0]
+                    const unico = unicoEspecial || unicoTamanio || pizza.unicos[0]
 
-              const unico = unicoEspecial || unicoTamanio || pizza.unicos[0]
+                    if (!unico) return null
 
-              if (!unico) return null
-
-              return (
-                <ProductoCard
-                  key={pizza.id}
-                  id={pizza.id}
-                  titulo={pizza.nombre}
-                  descripcion={pizza.descripcion || unico.tamanios_sabor.sabor.descripcion || ''}
-                  precio={parseFloat(unico.tamanios_sabor.precio)}
-                  imagen={pizza.imagen || ''}
-                  descuento={pizza.descuento ?? undefined}
-                  isGrid={true}
-                  especial={unico.tamanios_sabor.sabor.especial ?? false}
-                  
-                />
-              )
-            }
-            return null
-          })
-        )}
+                    return (
+                      <ProductoCard
+                        key={pizza.id}
+                        id={pizza.id}
+                        titulo={pizza.nombre}
+                        descripcion={pizza.descripcion || unico.tamanios_sabor.sabor.descripcion || ''}
+                        precio={parseFloat(unico.tamanios_sabor.precio)}
+                        imagen={pizza.imagen || ''}
+                        descuento={pizza.descuento ?? undefined}
+                        isGrid={true}
+                        especial={unico.tamanios_sabor.sabor.especial ?? false}
+                        
+                      />
+                    )
+                  }
+                  return null
+                })}
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )

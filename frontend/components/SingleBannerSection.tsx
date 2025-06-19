@@ -1,3 +1,4 @@
+//single-banner-section.tsx
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
@@ -21,9 +22,9 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
   const positionRef = useRef(0);
   
   // Configuración fija para las imágenes
-  const imageWidth = 280;  // Ancho fijo en píxeles
-  const imageHeight = 220; // Alto fijo en píxeles
-  const speed = 1.5;       // Velocidad de desplazamiento
+  const imageWidth = 280;
+  const imageHeight = 220;
+  const speed = 1.5;
 
   // Duplicamos los items para el efecto infinito
   const duplicatedItems = [...items, ...items];
@@ -35,7 +36,6 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
     const animate = () => {
       positionRef.current -= speed;
       
-      // Reiniciamos la posición cuando hemos recorrido el ancho de todos los items
       if (-positionRef.current >= imageWidth * items.length) {
         positionRef.current += imageWidth * items.length;
       }
@@ -56,100 +56,156 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
     };
   }, [items.length, imageWidth]);
 
-  // Efecto para el cambio de textos más lento
+  // Efecto para el cambio de textos
   useEffect(() => {
     if (items.length > 1) {
       const interval = setInterval(() => {
         setCurrentTextIndex((prev) => (prev + 1) % items.length);
-      }, 8000); // Cambia cada 8 segundos
+      }, 8000);
       
       return () => clearInterval(interval);
     }
   }, [items.length]);
 
   if (!items || items.length === 0) {
-    return <div className="text-center py-12">No hay elementos para mostrar</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="text-center">
+          <div className="text-4xl mb-3">🧄</div>
+          <p className="text-sm text-gray-600 font-['Open_Sans']">No hay adicionales disponibles</p>
+        </div>
+      </div>
+    );
   }
 
   const currentItem = items[currentTextIndex];
 
   return (
-    <a 
-      href={'/menu/adicionales'} 
-      className="flex justify-center items-center py-10 px-4 cursor-pointer block"
-    >
-      <div className="flex flex-col md:flex-row w-full max-w-6xl h-[300px] overflow-hidden rounded-xl shadow-sm">
-        {/* CINTA DE PELÍCULA CON IMÁGENES */}
-        <div
-          className={`
-            w-full md:w-[65%] 
-            bg-[#0C1011] 
-            overflow-hidden 
-            relative 
-            border-l-4 md:border-l-4 md:rounded-l-xl border-red-600
-            md:rounded-tr-none rounded-t-xl
-            flex items-center
-          `}
-        >
-          <div className="h-full w-full overflow-hidden">
-            <div 
-              ref={containerRef}
-              className="flex h-full items-center will-change-transform absolute"
-              style={{ width: `${duplicatedItems.length * imageWidth}px` }}
-            >
-              {duplicatedItems.map((item, index) => (
-                <div 
-                  key={`${item.id}-${index}`} 
-                  className="flex-shrink-0 flex items-center justify-center"
-                  style={{ 
-                    width: `${imageWidth}px`,
-                    height: `${imageHeight}px`,
-                    padding: '0 8px'
-                  }}
-                >
-                  <div 
-                    className="relative h-full w-full flex items-center justify-center"
-                    style={{
-                      borderRadius: '8px',
-                      border: '2px solid #EF4444',
-                      boxShadow: '0 0 8px rgba(239, 68, 68, 0.7)',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    <img
-                      src={item.imagen}
-                      alt={item.nombre}
-                      className="absolute h-full w-full object-cover select-none"
-                      style={{
-                        objectFit: 'cover',
-                        padding: '4px'
-                      }}
-                      draggable={false}
-                    />
-                  </div>
+    <div className="max-w-7xl mx-auto px-4">
+      <a 
+        href="/menu/adicionales" 
+        className="group block transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
+      >
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-100 via-white to-red-100 shadow-lg border border-red-200/50">
+          {/* Decorative elements */}
+          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-red-500 to-red-500"></div>
+          
+          <div className="flex flex-col lg:flex-row min-h-[320px]">
+            {/* SECCIÓN DE TEXTO */}
+            <div className="lg:w-2/5 p-8 flex flex-col justify-center relative z-10">
+              <div className="space-y-4">
+                {/* Badge */}
+                <div className="inline-flex items-center px-3 py-1 rounded-full bg--red-100 border border-red-200">
+                  <span className="text-xs font-medium text-red-700 font-['Open_Sans']">
+                    ✨ Adicional Especial
+                  </span>
                 </div>
-              ))}
+
+                {/* Título */}
+                <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 font-['Playfair_Display'] leading-tight">
+                  {currentItem.nombre}
+                </h2>
+
+                {/* Precio */}
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-bold text-red-600 font-['Inter']">
+                    S/ {currentItem.precio}
+                  </span>
+                  <div className="h-6 w-px bg-gray-300"></div>
+                  <span className="text-sm text-gray-500 font-['Open_Sans']">
+                    Precio especial
+                  </span>
+                </div>
+
+                {/* Descripción */}
+                <p className="text-gray-600 font-['Open_Sans'] leading-relaxed max-w-md">
+                  {currentItem.descripcion}
+                </p>
+
+                {/* Call to action */}
+                <div className="flex items-center gap-2 text-red-600 font-medium text-sm font-['Open_Sans'] group-hover:text-red-700 transition-colors">
+                  <span>Ver todos los adicionales</span>
+                  <svg 
+                    className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Progress indicators */}
+              {items.length > 1 && (
+                <div className="flex gap-2 mt-6">
+                  {items.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-1 rounded-full transition-all duration-300 ${
+                        index === currentTextIndex 
+                          ? 'w-8 bg-red-500' 
+                          : 'w-2 bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* CINTA DE PELÍCULA CON IMÁGENES */}
+            <div className="lg:w-3/5 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+              {/* Film strip holes effect */}
+              <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
+                <div className="absolute top-2 left-0 w-full flex justify-between px-4">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full bg-gray-700 opacity-60"></div>
+                  ))}
+                </div>
+                <div className="absolute bottom-2 left-0 w-full flex justify-between px-4">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="w-3 h-3 rounded-full bg-gray-700 opacity-60"></div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="h-full flex items-center overflow-hidden">
+                <div 
+                  ref={containerRef}
+                  className="flex h-full items-center will-change-transform absolute"
+                  style={{ width: `${duplicatedItems.length * imageWidth}px` }}
+                >
+                  {duplicatedItems.map((item, index) => (
+                    <div 
+                      key={`${item.id}-${index}`} 
+                      className="flex-shrink-0 flex items-center justify-center p-4"
+                      style={{ 
+                        width: `${imageWidth}px`,
+                        height: `${imageHeight}px`
+                      }}
+                    >
+                      <div className="relative h-full w-full rounded-lg overflow-hidden shadow-lg border-2 border-orange-400/30 group-hover:border-red-500/60 transition-colors">
+                        <img
+                          src={item.imagen}
+                          alt={item.nombre}
+                          className="h-full w-full object-cover select-none transition-transform duration-300 group-hover:scale-105"
+                          draggable={false}
+                        />
+                        {/* Overlay gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Film strip border */}
+              <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-red-500 to-red-500"></div>
+              <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-red-500 to-red-500"></div>
             </div>
           </div>
         </div>
-
-        {/* SECCIÓN DE TEXTO */}
-        <div
-          className={`
-            w-full md:w-[35%] 
-            bg-gray-50 
-            flex items-center 
-            border-r-4 md:border-r-4 border-gray-700
-            md:rounded-r-xl rounded-b-xl md:rounded-tl-none
-          `}
-        >
-          <div className="px-6 py-4 flex flex-col gap-2 text-center md:text-left">
-            <h2 className="text-2xl font-bold text-red-700">{currentItem.nombre}</h2>
-            <h4 className="text-lg font-semibold text-red-600">S/ {currentItem.precio}</h4>
-            <p className="text-sm text-gray-700">{currentItem.descripcion}</p>
-          </div>
-        </div>
-      </div>
-    </a>
+      </a>
+    </div>
   );
 }

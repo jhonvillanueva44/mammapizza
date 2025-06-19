@@ -1,3 +1,4 @@
+//calzone
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -123,7 +124,14 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
   }
 
   if (!calzone || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosAgregados.length) {
-    return <div>Cargando...</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Cargando tu calzone perfecto...</p>
+        </div>
+      </div>
+    )
   }
 
   // Obtener nombre del sabor principal
@@ -146,94 +154,177 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
   })
 
   return (
-    <div className="font-[Poppins]">
-      <div className="w-full bg-red-600 text-white py-4 px-6 mt-20 shadow-lg">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide">🥟 Personalizar Calzone</h1>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 font-[Poppins]">
+      {/* Header */}
+      <div className="relative w-full bg-gradient-to-r from-red-600 via-red-700 to-orange-600 text-white py-8 px-6 mt-20 shadow-2xl overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+        <div className="relative z-10">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wide flex items-center gap-3">
+            <span className="text-4xl">🥟</span>
+            Personalizar Calzone
+          </h1>
+          <p className="text-red-100 mt-2 text-lg">Crea tu calzone perfecto con ingredientes frescos</p>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 p-4 sm:p-6">
-        <div className="w-full md:w-1/2 flex flex-col items-center">
-          <img
-            src={calzone.imagen}
-            alt={calzone.nombre}
-            className="w-full max-w-sm rounded-xl shadow-xl object-cover"
-          />
-          <h2 className="mt-5 text-3xl font-bold text-center text-[#333]">
-            Calzone {nombreSaborPrincipal || calzone.nombre}
-          </h2>
-          <p className="text-2xl font-bold text-red-600 mt-4">${precioFinal.toFixed(2)}</p>
-        </div>
-
-        <div className="w-full md:w-1/2 flex flex-col gap-6 bg-[#FDFDFD] p-4 rounded-xl border-2 border-red-500 shadow-sm">
-          <div>
-            <h3 className="text-md font-semibold mb-2 text-gray-800">Tamaño:</h3>
-            <div className="flex flex-col gap-2">
-              {tamanios.map((t) => (
-                <label key={t.id} className="flex items-center gap-3 bg-white px-3 py-2 rounded-lg border border-gray-200 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="tamano"
-                    value={t.id}
-                    checked={tamanoSeleccionado === t.id.toString()}
-                    onChange={() => onChangeTamano(t.id.toString())}
-                    className="accent-red-600 w-4 h-4"
-                  />
-                  <span className="text-gray-700 text-sm">{t.nombre}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-md font-semibold mb-2 text-gray-800">Sabor Principal:</h3>
-            <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-3 px-3 py-2 rounded-lg border border-red-300 bg-red-50">
-                <input
-                  type="radio"
-                  name="saborPrincipal"
-                  checked={true}
-                  readOnly
-                  className="accent-red-600 w-4 h-4 cursor-default"
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col xl:flex-row gap-8">
+          {/* Panel Izquierdo - Imagen y Precio */}
+          <div className="xl:w-2/5 flex flex-col">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 border border-red-100 sticky top-24">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-orange-200 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                <img
+                  src={calzone.imagen}
+                  alt={calzone.nombre}
+                  className="relative w-full max-w-md mx-auto rounded-2xl shadow-xl object-cover border-4 border-white transform group-hover:scale-105 transition-transform duration-300"
                 />
-                <span className="text-sm text-gray-700">
-                  {nombreSaborPrincipal}
-                  <span className="text-xs text-gray-500 ml-1">(Obligatorio)</span>
-                </span>
-              </label>
-            </div>
-          </div>
+              </div>
+              
+              <div className="text-center mt-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                  Calzone {nombreSaborPrincipal || calzone.nombre}
+                </h2>
+                
+                <div className="bg-gradient-to-r from-green-500 to-green-500 text-white rounded-2xl p-4 shadow-lg">
+                  <p className="text-sm font-medium opacity-90 mb-1">Precio Total</p>
+                  <p className="text-3xl sm:text-4xl font-bold">${precioFinal.toFixed(2)}</p>
+                </div>
 
-          {agregadosDisponibles.length > 0 && (
-            <div>
-              <h3 className="text-md font-semibold mb-2 text-gray-800">Agregados:</h3>
-              <div className="flex flex-col gap-2">
-                {agregadosDisponibles.map((a) => {
-                  const aid = a.id.toString()
-                  const checked = agregadosSeleccionados.includes(aid)
-                  const combAgregado = tamaniosSabores.find(
-                    (ts: any) =>
-                      ts.tamanio_id.toString() === tamanoAgregadoId &&
-                      ts.sabor_id.toString() === aid
-                  )
-                  const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
-
-                  return (
-                    <label key={aid} className="flex items-center gap-3 bg-white px-3 py-2 rounded-lg border border-gray-200">
-                      <input
-                        type="checkbox"
-                        name="agregado"
-                        value={aid}
-                        checked={checked}
-                        onChange={() => onChangeAgregado(aid)}
-                        className="accent-red-600 w-4 h-4"
-                      />
-                      <span className="text-sm text-gray-700">{a.nombre} (+${precioAgregado})</span>
-                    </label>
-                  )
-                })}
+                <button className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+                  <span className="text-xl">🛒</span>
+                  Añadir al Carrito
+                </button>
               </div>
             </div>
-          )}
+          </div>
+
+          {/* Panel Derecho - Opciones */}
+          <div className="xl:w-3/5 space-y-6">
+            {/* Tamaños */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📏</span>
+                <h3 className="text-xl font-bold text-gray-800">Tamaño de Calzone</h3>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {tamanios.map((t) => (
+                  <label 
+                    key={t.id} 
+                    className={`relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer group ${
+                      tamanoSeleccionado === t.id.toString()
+                        ? 'border-red-500 bg-red-50 shadow-md'
+                        : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 hover:shadow-md'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="tamano"
+                      value={t.id}
+                      checked={tamanoSeleccionado === t.id.toString()}
+                      onChange={() => onChangeTamano(t.id.toString())}
+                      className="sr-only"
+                    />
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      tamanoSeleccionado === t.id.toString()
+                        ? 'border-red-500 bg-red-500'
+                        : 'border-gray-300 group-hover:border-red-400'
+                    }`}>
+                      {tamanoSeleccionado === t.id.toString() && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <span className="font-medium text-gray-700">{t.nombre}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Sabor Principal */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🍅</span>
+                <h3 className="text-xl font-bold text-gray-800">Sabor Principal</h3>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <label className="relative flex items-center gap-3 p-4 rounded-xl border-2 border-red-400 bg-red-50 shadow-md">
+                  <input
+                    type="radio"
+                    name="saborPrincipal"
+                    checked={true}
+                    readOnly
+                    className="sr-only"
+                  />
+                  <div className="w-5 h-5 rounded-full border-2 border-red-500 bg-red-500 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700">{nombreSaborPrincipal}</span>
+                    <span className="block text-xs text-red-600 font-medium">Principal • Obligatorio</span>
+                  </div>
+                  <span className="text-red-500 text-lg">👑</span>
+                </label>
+              </div>
+            </div>
+
+            {/* Agregados */}
+            {agregadosDisponibles.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100">
+                <div className="flex items-center gap-3 mb-4">
+                  <span className="text-2xl">🧀</span>
+                  <h3 className="text-xl font-bold text-gray-800">Agregados Extra</h3>
+                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-medium">
+                    Opcional
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {agregadosDisponibles.map((a) => {
+                    const aid = a.id.toString()
+                    const checked = agregadosSeleccionados.includes(aid)
+                    const combAgregado = tamaniosSabores.find(
+                      (ts: any) =>
+                        ts.tamanio_id.toString() === tamanoAgregadoId &&
+                        ts.sabor_id.toString() === aid
+                    )
+                    const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
+
+                    return (
+                      <label 
+                        key={aid} 
+                        className={`flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+                          checked
+                            ? 'border-green-500 bg-green-50 shadow-md'
+                            : 'border-gray-200 bg-white hover:border-green-300 hover:bg-green-50'
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          name="agregado"
+                          value={aid}
+                          checked={checked}
+                          onChange={() => onChangeAgregado(aid)}
+                          className="sr-only"
+                        />
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center ${
+                          checked
+                            ? 'border-green-500 bg-green-500'
+                            : 'border-gray-300'
+                        }`}>
+                          {checked && <span className="text-white text-xs">✓</span>}
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-gray-700 font-medium">{a.nombre}</span>
+                          <span className="block text-sm text-green-600 font-semibold">+${precioAgregado}</span>
+                        </div>
+                      </label>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -13,7 +13,7 @@ export type ProductoCardProps = {
   isGrid?: boolean
   especial?: boolean
   ruta?: String
-  mostrarPersonalizar?: boolean // Nueva propiedad
+  mostrarPersonalizar?: boolean
 }
 
 const ProductoCard = ({
@@ -54,71 +54,109 @@ const ProductoCard = ({
 
   return (
     <div
-      className={`flex-shrink-0 bg-white rounded-xl p-4 border border-gray-600 shadow-[0_5px_25px_rgba(0,0,0,0.15)] transition-all duration-300 snap-start font-[Poppins] flex flex-col justify-between
-      ${isGrid ? 'max-w-[300px] w-full' : 'w-[180px] sm:w-[200px] lg:w-[220px]'}
+      className={`group relative flex-shrink-0 bg-gradient-to-br from-white via-red-50/30 to-red-50/20 rounded-2xl overflow-hidden border-2 border-red-100/50 shadow-[0_8px_40px_rgba(255,0,0,0.15)] hover:shadow-[0_20px_60px_rgba(255,0,0,0.25)] transition-all duration-500 snap-start font-['Inter'] flex flex-col justify-between backdrop-blur-sm hover:-translate-y-2 hover:border-red-200/80
+      ${isGrid ? 'max-w-[320px] w-full' : 'w-[200px] sm:w-[220px] lg:w-[240px]'}
       `}
     >
-      <div>
-        <div className="relative w-full overflow-hidden rounded-md group">
+      {/* Decorative gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-r from-red-400/5 to-red-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+      
+      <div className="relative z-10">
+        {/* Image container with enhanced effects */}
+        <div className="relative w-full overflow-hidden rounded-t-xl">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10"></div>
           <img
             src={imagen}
             alt={titulo}
-            className="w-full h-[140px] object-cover rounded-md transition-transform duration-300 group-hover:scale-110"
+            className="w-full h-[160px] object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
           />
 
-          {/* Botón "Ver más" - Solo se muestra si mostrarPersonalizar es true */}
-          {mostrarPersonalizar && (
-            <Link
-              href={`/menu/${ruta}/${id}`}
-              className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded z-10 transition"
-            >
-              Personalizar
-            </Link>
-          )}
-
+          {/* Floating badges with enhanced styling */}
           {esPromocion && (
-            <span className="absolute top-2 left-2 text-white text-xs px-2 py-1 bg-red-600 rounded">
-              -{descuento}%
-            </span>
+            <div className="absolute top-3 left-3 z-20">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-lg animate-pulse">
+                <span className="flex items-center gap-1">
+                  🔥 -{descuento}%
+                </span>
+              </div>
+            </div>
           )}
 
           {isGrid && !esPromocion && typeof especial === 'boolean' && (
-            <span
-              className={`absolute top-2 right-2 text-xs px-2 py-1 rounded font-semibold ${especial ? 'bg-green-600 text-white' : 'bg-gray-300 text-gray-700'
-                } select-none`}
+            <div className="absolute top-3 right-3 z-20">
+              <span
+                className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-lg backdrop-blur-sm ${
+                  especial 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
+                    : 'bg-white/90 text-gray-700 border border-gray-200'
+                }`}
+              >
+                {especial ? '⭐ Especial' : 'Clásico'}
+              </span>
+            </div>
+          )}
+
+          {/* Customize button with modern design */}
+          {mostrarPersonalizar && (
+            <Link
+              href={`/menu/${ruta}/${id}`}
+              className="absolute bottom-3 right-3 z-20 bg-white/95 hover:bg-white text-red-600 hover:text-red-700 text-xs font-medium px-2.5 py-1.5 rounded-full shadow-lg backdrop-blur-sm border border-red-200/50 transition-all duration-300 hover:scale-105"
             >
-              {especial ? 'Especial' : 'Clásico'}
-            </span>
+              ✨ Personalizar
+            </Link>
           )}
         </div>
 
-        {/* Título y descripción */}
-        <div className="mt-2 h-[100px] flex flex-col justify-between">
-          <h3 className="text-base font-semibold leading-snug line-clamp-2 overflow-hidden">
-            {titulo}
-          </h3>
+        {/* Content section with improved spacing */}
+        <div className="p-4">
+          {/* Title and description with better typography */}
+          <div className="mb-3 min-h-[80px] flex flex-col justify-between">
+            <h3 className="text-base font-bold leading-tight line-clamp-2 text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-['Playfair_Display']">
+              {titulo}
+            </h3>
 
-          <p className="text-sm text-gray-600 mt-1 leading-snug line-clamp-2 overflow-hidden">
-            {descripcion}
-          </p>
-        </div>
+            <p className="text-xs text-gray-600 mt-1.5 leading-relaxed line-clamp-2 overflow-hidden font-['Open_Sans']">
+              {descripcion}
+            </p>
+          </div>
 
-        {/* Precio actual y anterior */}
-        <div className="flex items-center gap-2 mt-2">
-          <p className="text-base font-bold text-[#5E3527]">${precio.toFixed(2)}</p>
-          {esPromocion && (
-            <p className="text-sm text-gray-500 line-through">${precioAntiguo?.toFixed(2)}</p>
-          )}
+          {/* Enhanced price display */}
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold bg-gradient-to-r from-red-600 to-red-600 bg-clip-text text-transparent font-['Roboto']">
+                ${precio.toFixed(2)}
+              </span>
+              {esPromocion && (
+                <span className="text-xs text-gray-500 line-through bg-gray-100 px-1.5 py-0.5 rounded-md">
+                  ${precioAntiguo?.toFixed(2)}
+                </span>
+              )}
+            </div>
+            {esPromocion && (
+              <div className="text-green-600 font-medium text-xs">
+                ¡Ahorra ${((precioAntiguo! - precio)).toFixed(2)}!
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Botón de añadir al carrito */}
-      <button
-        onClick={handleAddToCart}
-        className="mt-3 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-2xl text-sm w-full cursor-pointer"
-      >
-        Añadir al Carrito
-      </button>
+      {/* Enhanced add to cart button */}
+      <div className="relative z-10 p-4 pt-0">
+        <button
+          onClick={handleAddToCart}
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 relative overflow-hidden group/button text-sm"
+        >
+          <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/button:translate-x-[100%] transition-transform duration-500 skew-x-12"></span>
+          <span className="relative flex items-center justify-center gap-2">
+            Añadir al Carrito
+          </span>
+        </button>
+      </div>
+
+      {/* Subtle decorative elements */}
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-200/20 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
+      <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-red-200/20 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
     </div>
   )
 }

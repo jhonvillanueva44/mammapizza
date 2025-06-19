@@ -1,3 +1,4 @@
+//header.tsx
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -5,14 +6,10 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 
 export default function Header() {
-
-
-
-const pathname = usePathname()
-if (pathname.startsWith('/admin')) {
-  return null
-}
-
+  const pathname = usePathname()
+  if (pathname.startsWith('/admin')) {
+    return null
+  }
 
   // ESTAS CONSTANTES SON PARA EL SEARCH
   const [isOpen, setIsOpen] = useState(false)
@@ -107,28 +104,50 @@ if (pathname.startsWith('/admin')) {
   }
 
   return (
-    <header className={`w-full py-2 bg-[#0C1011] text-white font-[var(--font-geist-sans)] fixed top-0 left-0 right-0 z-50 transition-transform duration-300 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
-      <div className="max-w-6xl mx-auto flex items-center justify-between px-4 h-16">
-        {/* SEARCH */}
-        <div className="flex items-center gap-4">
-          <img src="/images/logo-blanco.png" alt="Logo" className="h-10 w-48 object-cover object-center " />
-          <div className="hidden sm:block">
-            <input
-              type="text"
-              placeholder="Buscar..."
-              className={`transition-all duration-300 ease-in-out bg-white text-black rounded px-3 py-1 text-sm focus:outline-none ${isSearchFocused ? 'w-60' : 'w-32'}`}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
+    <header className={`w-full bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white font-['Open_Sans'] fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b border-red-500/20 ${showHeader ? 'translate-y-0' : '-translate-y-full'}`}>
+      {/* Decorative gradient line */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50"></div>
+      
+      {/* Subtle pattern overlay */}
+      <div className="absolute inset-0 opacity-5" style={{
+        backgroundImage: `radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.3) 1px, transparent 1px)`,
+        backgroundSize: '30px 30px'
+      }}></div>
+
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-20 relative z-10">
+        {/* LOGO Y SEARCH */}
+        <div className="flex items-center gap-6">
+          <Link href="/" className="group cursor-pointer transition-all duration-300 hover:scale-105">
+            <img 
+              src="/images/logo-blanco.png" 
+              alt="Logo" 
+              className="h-12 w-auto object-contain transition-all duration-300 group-hover:drop-shadow-lg group-hover:brightness-110" 
             />
+          </Link>
+          
+          <div className="hidden md:block relative">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Buscar pizzas, bebidas..."
+                className={`transition-all duration-500 ease-in-out bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 rounded-2xl px-4 py-2.5 text-sm focus:outline-none border border-white/20 focus:border-red-400 focus:bg-white/15 focus:shadow-lg focus:shadow-red-500/20 ${isSearchFocused ? 'w-80' : 'w-64'}`}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+              />
+              <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
           </div>
         </div>
 
         {/* BOTON DE MENU HAMBURGUESA */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="sm:hidden text-white focus:outline-none"
+          className="md:hidden relative p-3 text-white focus:outline-none group"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-red-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
+          <svg className="w-6 h-6 relative z-10 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             {isOpen ? (
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             ) : (
@@ -138,14 +157,34 @@ if (pathname.startsWith('/admin')) {
         </button>
 
         {/* MENÚ DESKTOP */}
-        <div className="hidden sm:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-8">
           {/* ENLACES DE NAVEGACION */}
           <nav>
-            <ul className="flex gap-4 text-sm sm:text-base">
-              <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
-              <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
-              <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
-              <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
+            <ul className="flex gap-8 text-sm lg:text-base font-medium">
+              <li>
+                <Link href="/" className="relative group py-2 px-1 transition-all duration-300 hover:text-red-400">
+                  Inicio
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/sobrenosotros" className="relative group py-2 px-1 transition-all duration-300 hover:text-red-400">
+                  Sobre Nosotros
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/menu/pizzas" className="relative group py-2 px-1 transition-all duration-300 hover:text-red-400">
+                  Menú
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </li>
+              <li>
+                <Link href="/bebidas" className="relative group py-2 px-1 transition-all duration-300 hover:text-red-400">
+                  Bebidas
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              </li>
             </ul>
           </nav>
 
@@ -155,14 +194,17 @@ if (pathname.startsWith('/admin')) {
               ref={cartButtonRef}
               onClick={() => setShowCartModal((prev) => !prev)}
               onMouseEnter={() => setShowCartModal(true)}
-              className="relative p-2 text-white hover:text-red-500 focus:outline-none"
+              className="relative p-3 text-white hover:text-red-400 focus:outline-none group transition-all duration-300"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-red-600/20 rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 relative z-10 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14l1 12H4L5 8zm7-5a3 3 0 00-3 3v1h6V6a3 3 0 00-3-3z" />
               </svg>
-              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                {cartItems.reduce((sum, item) => sum + item.cantidad, 0)}
-              </span>
+              {cartItems.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold shadow-lg animate-pulse">
+                  {cartItems.reduce((sum, item) => sum + item.cantidad, 0)}
+                </span>
+              )}
             </button>
 
             {/* MODAL DEL CARRITO */}
@@ -170,79 +212,93 @@ if (pathname.startsWith('/admin')) {
               <div
                 ref={cartRef}
                 onMouseLeave={() => setShowCartModal(false)}
-                className="absolute right-0 mt-2 w-90 bg-white text-black rounded shadow-lg p-4 z-50"
+                className="absolute right-0 mt-4 w-96 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white rounded-2xl shadow-2xl border border-red-500/20 backdrop-blur-md z-50 overflow-hidden"
               >
-                <h3 className="font-bold mb-2">Tu Pedido</h3>
-                <div className="max-h-60 overflow-y-auto text-sm">
-                  {cartItems.length === 0 ? (
-                    <p>Tu pedido está vacío.</p>
-                  ) : (
-                    cartItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center py-2 border-b gap-3">
-                        <img src={item.imagen} alt={item.titulo} className="w-14 h-14 object-cover rounded" />
-                        <div className="flex-1 flex flex-col mr-4">
-                          <p
-                            className="font-medium overflow-hidden"
-                            style={{
+                {/* Header del modal */}
+                <div className="bg-gradient-to-r from-red-600/20 to-red-700/20 p-4 border-b border-red-500/20">
+                  <h3 className="font-bold text-lg font-['Playfair_Display'] text-red-200">Tu Pedido</h3>
+                </div>
+                
+                <div className="p-4">
+                  <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                    {cartItems.length === 0 ? (
+                      <div className="text-center py-8">
+                        <svg className="w-16 h-16 mx-auto text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                        <p className="text-gray-400">Tu pedido está vacío</p>
+                      </div>
+                    ) : (
+                      cartItems.map((item) => (
+                        <div key={item.id} className="flex items-center gap-4 py-3 border-b border-gray-700/50 group hover:bg-white/5 rounded-lg px-2 transition-all duration-300">
+                          <img src={item.imagen} alt={item.titulo} className="w-16 h-16 object-cover rounded-lg shadow-md" />
+                          
+                          <div className="flex-1">
+                            <p className="font-medium text-white overflow-hidden" style={{
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical',
                               lineClamp: 2,
-                            }}
-                          >
-                            {item.titulo}
-                          </p>
-                          <span className="text-sm text-gray-700">${(item.precio * item.cantidad).toFixed(2)}</span>
+                            }}>
+                              {item.titulo}
+                            </p>
+                            <span className="text-red-400 font-semibold">
+                              ${(item.precio * item.cantidad).toFixed(2)}
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => handleDecrease(item.id)}
+                              className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded-full text-sm transition-all duration-300 flex items-center justify-center"
+                              aria-label={`Disminuir cantidad de ${item.titulo}`}
+                            >
+                              -
+                            </button>
+                            <span className="w-8 text-center font-medium">{item.cantidad}</span>
+                            <button
+                              onClick={() => handleIncrease(item.id)}
+                              className="w-8 h-8 bg-gray-700 hover:bg-red-600 rounded-full text-sm transition-all duration-300 flex items-center justify-center"
+                              aria-label={`Aumentar cantidad de ${item.titulo}`}
+                            >
+                              +
+                            </button>
+                            <button
+                              onClick={() => handleRemove(item.id)}
+                              className="w-8 h-8 text-red-500 hover:text-red-300 hover:bg-red-500/20 rounded-full transition-all duration-300 flex items-center justify-center ml-2"
+                              aria-label={`Eliminar ${item.titulo}`}
+                            >
+                              ×
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => handleDecrease(item.id)}
-                            className="px-2 py-0.5 bg-gray-300 rounded text-sm"
-                            aria-label={`Disminuir cantidad de ${item.titulo}`}
-                          >
-                            -
-                          </button>
-                          <span>{item.cantidad}</span>
-                          <button
-                            onClick={() => handleIncrease(item.id)}
-                            className="px-2 py-0.5 bg-gray-300 rounded text-sm"
-                            aria-label={`Aumentar cantidad de ${item.titulo}`}
-                          >
-                            +
-                          </button>
-                          <button
-                            onClick={() => handleRemove(item.id)}
-                            className="text-red-600 hover:text-red-800 text-lg font-bold"
-                            aria-label={`Eliminar ${item.titulo}`}
-                          >
-                            ×
-                          </button>
+                      ))
+                    )}
+                  </div>
+                  
+                  {cartItems.length > 0 && (
+                    <>
+                      <div className="pt-4 border-t border-red-500/20 mt-4">
+                        <div className="flex justify-between items-center text-lg font-bold">
+                          <span className="text-red-200">Total:</span>
+                          <span className="text-red-400">
+                            ${cartItems.reduce((total, item) => total + item.precio * item.cantidad, 0).toFixed(2)}
+                          </span>
                         </div>
                       </div>
-
-                    ))
-
+                      
+                      <button
+                        onClick={() => {
+                          setShowCartModal(false)
+                          router.push('/pedido')
+                        }}
+                        className="mt-4 w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-red-500/25"
+                      >
+                        Ver Pedido Completo
+                      </button>
+                    </>
                   )}
                 </div>
-                {cartItems.length > 0 && (
-                  <>
-                    <div className="pt-3 border-t mt-3 text-sm font-bold flex justify-between">
-                      <span>Total:</span>
-                      <span>
-                        ${cartItems.reduce((total, item) => total + item.precio * item.cantidad, 0).toFixed(2)}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowCartModal(false)
-                        router.push('/pedido')
-                      }}
-                      className="mt-3 w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded text-sm"
-                    >
-                      Ver Pedido
-                    </button>
-                  </>
-                )}
               </div>
             )}
           </div>
@@ -251,39 +307,87 @@ if (pathname.startsWith('/admin')) {
 
       {/* MENU MOBILE */}
       {isOpen && (
-        <div className="sm:hidden px-4 pb-4">
-          <div className="mb-2">
-            <input
-              type="text"
-              placeholder="Buscar..."
-              className={`transition-all duration-300 ease-in-out bg-white text-black rounded px-3 py-1 text-sm w-full focus:outline-none ${isSearchFocused ? 'scale-105' : ''}`}
-              onFocus={() => setIsSearchFocused(true)}
-              onBlur={() => setIsSearchFocused(false)}
-            />
+        <div className="md:hidden bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-md border-t border-red-500/20">
+          <div className="px-6 py-4">
+            {/* Search móvil */}
+            <div className="mb-4 relative">
+              <input
+                type="text"
+                placeholder="Buscar pizzas, bebidas..."
+                className="w-full bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none border border-white/20 focus:border-red-400 focus:bg-white/15 transition-all duration-300"
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
+              />
+              <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+
+            {/* Enlaces móvil */}
+            <nav className="mb-4">
+              <ul className="space-y-2">
+                <li>
+                  <Link href="/" className="block py-3 px-4 hover:bg-red-500/20 rounded-lg transition-all duration-300 hover:text-red-400">
+                    Inicio
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/sobrenosotros" className="block py-3 px-4 hover:bg-red-500/20 rounded-lg transition-all duration-300 hover:text-red-400">
+                    Sobre Nosotros
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/menu/pizzas" className="block py-3 px-4 hover:bg-red-500/20 rounded-lg transition-all duration-300 hover:text-red-400">
+                    Menú
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/bebidas" className="block py-3 px-4 hover:bg-red-500/20 rounded-lg transition-all duration-300 hover:text-red-400">
+                    Bebidas
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+
+            {/* Botón de pedido móvil */}
+            {cartItems.length > 0 && (
+              <button
+                onClick={() => {
+                  setIsOpen(false)
+                  router.push('/pedido')
+                }}
+                className="w-full bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white py-3 px-6 rounded-xl font-medium transition-all duration-300 shadow-lg flex items-center justify-center gap-2"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8h14l1 12H4L5 8zm7-5a3 3 0 00-3 3v1h6V6a3 3 0 00-3-3z" />
+                </svg>
+                Ver Pedido ({cartItems.reduce((sum, item) => sum + item.cantidad, 0)})
+              </button>
+            )}
           </div>
-
-          <nav className="mb-2">
-            <ul className="flex flex-col gap-2 text-sm">
-              <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
-              <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
-              <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
-              <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
-            </ul>
-          </nav>
-
-          {cartItems.length > 0 && (
-            <button
-              onClick={() => {
-                setIsOpen(false)
-                router.push('/pedido')
-              }}
-              className="w-full bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded text-sm"
-            >
-              Ver Pedido
-            </button>
-          )}
         </div>
       )}
+
+      {/* Custom scrollbar styles */}
+      <style jsx>{`
+        .custom-scrollbar {
+          scrollbar-width: thin;
+          scrollbar-color: rgba(239, 68, 68, 0.5) transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: rgba(239, 68, 68, 0.5);
+          border-radius: 2px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: rgba(239, 68, 68, 0.7);
+        }
+      `}</style>
     </header>
   )
 }

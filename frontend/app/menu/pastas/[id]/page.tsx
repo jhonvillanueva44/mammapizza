@@ -133,7 +133,14 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   }
 
   if (!pasta || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosDisponibles.length) {
-    return <div>Cargando...</div>
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 to-red-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Cargando tu pasta perfecta...</p>
+        </div>
+      </div>
+    )
   }
 
   // Obtener nombre del sabor principal
@@ -143,68 +150,139 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const tituloProducto = esLazagna ? pasta.nombre : `Pasta ${nombreSaborPrincipal || pasta.nombre}`
 
   return (
-    <div className="font-[Poppins]">
-      <div className="w-full bg-red-600 text-white py-4 px-6 mt-20 shadow-lg">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-wide">🍝 Personalizar Pasta</h1>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-red-50 to-yellow-50 font-[Poppins]">
+      {/* Header */}
+      <div className="relative w-full bg-gradient-to-r from-red-600 via-red-700 to-orange-600 text-white py-8 px-6 mt-20 shadow-2xl overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+        <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
+        <div className="relative z-10 text-center">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-wide flex items-center justify-center gap-3">
+            <span className="text-4xl">🍝</span>
+            Personalizar Pasta
+          </h1>
+          <p className="text-red-100 mt-2 text-lg">Crea tu pasta perfecta con ingredientes frescos</p>
+        </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-6 p-4 sm:p-6">
-        <div className="w-full md:w-1/2 flex flex-col items-center">
-          <img
-            src={pasta.imagen}
-            alt={pasta.nombre}
-            className="w-full max-w-sm rounded-xl shadow-xl object-cover"
-          />
-          <h2 className="mt-5 text-3xl font-bold text-center text-[#333]">
-            {tituloProducto}
-          </h2>
-          <p className="text-2xl font-bold text-red-600 mt-4">${precioFinal.toFixed(2)}</p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col xl:flex-row gap-8">
+          {/* Panel Izquierdo - Imagen y Precio */}
+          <div className="xl:w-2/5 flex flex-col">
+            <div className="bg-white rounded-3xl shadow-2xl p-8 border border-red-100 sticky top-24">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-red-200 to-orange-200 rounded-2xl blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300"></div>
+                <img
+                  src={pasta.imagen}
+                  alt={pasta.nombre}
+                  className="relative w-full max-w-md mx-auto rounded-2xl shadow-xl object-cover border-4 border-white transform group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              
+              <div className="text-center mt-6">
+                <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+                  {tituloProducto}
+                </h2>
+                
+                <div className="bg-gradient-to-r from-green-500 to-green-500 text-white rounded-2xl p-4 shadow-lg">
+                  <p className="text-sm font-medium opacity-90 mb-1">Precio Total</p>
+                  <p className="text-3xl sm:text-4xl font-bold">${precioFinal.toFixed(2)}</p>
+                </div>
 
-        <div className="w-full md:w-1/2 flex flex-col gap-6 bg-[#FDFDFD] p-4 rounded-xl border-2 border-red-500 shadow-sm">
-          <div>
-            <h3 className="text-md font-semibold mb-2 text-gray-800">Tamaño:</h3>
-            <div className="flex flex-col gap-2">
-              {tamaniosDisponibles.map((t: Tamanio) => (
-                <label key={t.id} className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${
-                  esLazagna 
-                    ? 'border-red-300 bg-red-50 cursor-default' 
-                    : 'bg-white border-gray-200 cursor-pointer'
-                }`}>
-                  <input
-                    type="radio"
-                    name="tamano"
-                    value={t.id}
-                    checked={tamanoSeleccionado === t.id.toString()}
-                    onChange={() => onChangeTamano(t.id.toString())}
-                    disabled={esLazagna}
-                    className="accent-red-600 w-4 h-4"
-                  />
-                  <span className="text-gray-700 text-sm">
-                    {t.nombre}
-                    {esLazagna && <span className="text-xs text-gray-500 ml-1">(Tamaño fijo)</span>}
-                  </span>
-                </label>
-              ))}
+                <button className="w-full mt-6 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-2xl shadow-lg transform hover:scale-105 transition-all duration-200 flex items-center justify-center gap-2">
+                  <span className="text-xl">🛒</span>
+                  Añadir al Carrito
+                </button>
+              </div>
             </div>
           </div>
 
-          <div>
-            <h3 className="text-md font-semibold mb-2 text-gray-800">Sabor:</h3>
-            <div className="flex flex-col gap-2">
-              <label className="flex items-center gap-3 px-3 py-2 rounded-lg border border-red-300 bg-red-50">
-                <input
-                  type="radio"
-                  name="saborPrincipal"
-                  checked={true}
-                  readOnly
-                  className="accent-red-600 w-4 h-4 cursor-default"
-                />
-                <span className="text-sm text-gray-700">
-                  {nombreSaborPrincipal}
-                  <span className="text-xs text-gray-500 ml-1">(Sabor fijo)</span>
+          {/* Panel Derecho - Opciones */}
+          <div className="xl:w-3/5 space-y-6">
+            {/* Tamaños */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">📏</span>
+                <h3 className="text-xl font-bold text-gray-800">Tamaño de Pasta</h3>
+                {esLazagna && (
+                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                    Tamaño Fijo
+                  </span>
+                )}
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {tamaniosDisponibles.map((t: Tamanio) => (
+                  <label 
+                    key={t.id} 
+                    className={`relative flex items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer group ${
+                      tamanoSeleccionado === t.id.toString()
+                        ? 'border-red-500 bg-red-50 shadow-md'
+                        : esLazagna
+                        ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
+                        : 'border-gray-200 bg-white hover:border-red-300 hover:bg-red-50 hover:shadow-md'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="tamano"
+                      value={t.id}
+                      checked={tamanoSeleccionado === t.id.toString()}
+                      onChange={() => onChangeTamano(t.id.toString())}
+                      disabled={esLazagna}
+                      className="sr-only"
+                    />
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                      tamanoSeleccionado === t.id.toString()
+                        ? 'border-red-500 bg-red-500'
+                        : 'border-gray-300 group-hover:border-red-400'
+                    }`}>
+                      {tamanoSeleccionado === t.id.toString() && (
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      )}
+                    </div>
+                    <span className={`font-medium ${
+                      esLazagna ? 'text-gray-500' : 'text-gray-700'
+                    }`}>
+                      {t.nombre}
+                    </span>
+                    {esLazagna && tamanoSeleccionado === t.id.toString() && (
+                      <span className="text-xs text-blue-600 font-medium ml-auto">✓ Seleccionado</span>
+                    )}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Sabores */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border border-red-100">
+              <div className="flex items-center gap-3 mb-4">
+                <span className="text-2xl">🍅</span>
+                <h3 className="text-xl font-bold text-gray-800">Sabor de Pasta</h3>
+                <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-medium">
+                  Sabor Fijo
                 </span>
-              </label>
+              </div>
+              <div className="grid grid-cols-1 gap-3">
+                <label className="relative flex items-center gap-3 p-4 rounded-xl border-2 border-red-400 bg-red-50 shadow-md">
+                  <input
+                    type="radio"
+                    name="saborPrincipal"
+                    checked={true}
+                    readOnly
+                    className="sr-only"
+                  />
+                  <div className="w-5 h-5 rounded-full border-2 border-red-500 bg-red-500 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-medium text-gray-700">
+                      {nombreSaborPrincipal}
+                    </span>
+                    <span className="block text-xs text-red-600 font-medium">Principal • Obligatorio</span>
+                  </div>
+                  <span className="text-red-500 text-lg">👑</span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
