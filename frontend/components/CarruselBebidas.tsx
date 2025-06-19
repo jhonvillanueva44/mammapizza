@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export interface BebidaItem {
   titulo: string;
@@ -15,6 +16,7 @@ interface CarruselBebidasProps {
 
 export default function CarruselBebidas({ items }: CarruselBebidasProps) {
   const [current, setCurrent] = useState(0);
+  const router = useRouter();
 
   const prevSlide = () => {
     setCurrent((prev) => (prev - 1 + items.length) % items.length);
@@ -22,6 +24,10 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
 
   const nextSlide = () => {
     setCurrent((prev) => (prev + 1) % items.length);
+  };
+
+  const handleVerMas = () => {
+    router.push('/bebidas');
   };
 
   if (items.length === 0) return null;
@@ -34,8 +40,8 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
     const baseClasses =
       "rounded-xl overflow-hidden transition-transform duration-500 ease-in-out";
 
-    const titleClamp = "line-clamp-2 h-[3rem]";        // Altura fija al título
-    const descClamp = "line-clamp-2 h-[3rem]";         // Altura fija al párrafo
+    const titleClamp = "line-clamp-2 h-[3rem]";
+    const descClamp = "line-clamp-2 h-[3rem]";
 
     if (position === "current") {
       return (
@@ -54,6 +60,13 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
             <h3 className={`text-xl font-bold text-gray-900 ${titleClamp}`}>{item.titulo}</h3>
             <p className={`text-gray-700 text-sm mt-1 ${descClamp}`}>{item.descripcion}</p>
             <p className="text-red-600 font-semibold mt-3 text-lg">${item.precio.toFixed(2)}</p>
+            {/* Botón Ver Más con cursor pointer */}
+            <button
+              onClick={handleVerMas}
+              className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg transition-colors cursor-pointer"
+            >
+              Ver más
+            </button>
           </div>
         </div>
       );
@@ -91,14 +104,14 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
       <div className="flex justify-center mt-6 gap-6">
         <button
           onClick={prevSlide}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow-md transition"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer"
           aria-label="Anterior"
         >
           ◀
         </button>
         <button
           onClick={nextSlide}
-          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow-md transition"
+          className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg shadow-md transition cursor-pointer"
           aria-label="Siguiente"
         >
           ▶

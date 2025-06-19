@@ -7,21 +7,24 @@ import Footer from "@/components/Footer";
 import CategoryCard from "@/components/CategoryCard/CategoryCard";
 import Hero from "@/components/Hero";
 import { ProductoCardProps } from "@/components/ProductoCard";
-import WhatsAppButton from "@/components/WhatsAppButton";
 import useFetchProductos from "@/hooks/useFetchProductos";
 import ProductSection from "@/components/ProductSection";
-import BannerSection from "@/components/BannerSection";
+import SingleBannerSection from "@/components/SingleBannerSection";
 
 
 const transformarPromociones = (data: any[]): ProductoCardProps[] => {
-  const destacadas = data.filter(promocion => promocion.destacado === true);
+  // Verificar que data es un array
+  if (!Array.isArray(data)) return [];
 
-  return destacadas.map(promocion => {
+  return data.map(promocion => {
     const precioActual = Number(promocion.precio) || 0;
     const descuento = promocion.descuento ?? 0;
     const precioAntiguo = descuento
       ? +(precioActual / (1 - descuento / 100)).toFixed(2)
       : undefined;
+
+    // Construir descripción combinada
+    let descripcion = promocion.descripcion || "";
 
     const imagenValida =
       promocion.imagen && promocion.imagen.trim() !== ""
@@ -31,11 +34,13 @@ const transformarPromociones = (data: any[]): ProductoCardProps[] => {
     return {
       id: promocion.id,
       titulo: promocion.nombre,
-      descripcion: promocion.descripcion,
+      descripcion: descripcion,
       precio: precioActual,
       imagen: imagenValida,
       precioAntiguo,
       descuento,
+      ruta: 'promos', 
+      mostrarPersonalizar: false, 
     };
   });
 };
@@ -58,6 +63,7 @@ const transformarCalzones = (data: any[]): ProductoCardProps[] => {
         producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
       precio: precioActual,
       imagen: imagenValida,
+      ruta: 'calzone'
     };
   });
 };
@@ -80,6 +86,7 @@ const transformarPastas = (data: any[]): ProductoCardProps[] => {
         producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
       precio: precioActual,
       imagen: imagenValida,
+      ruta: 'pastas'
     };
   });
 };
@@ -107,6 +114,7 @@ const transformarPizzas = (data: any[]): ProductoCardProps[] => {
       descripcion,
       precio: precioActual,
       imagen: imagenValida,
+      ruta: 'pizzas'
     };
   });
 };
@@ -201,54 +209,54 @@ export default function Home() {
     '/images/category-calzone.png',
   ];
 
-  const banners = [
-    {
-      title: "Jugo de Frutas Tropicales",
-      subtitle: "Frescura 100% Natural",
-      description: "Una mezcla deliciosa de frutas exóticas, perfecta para mantenerte hidratado y saludable.",
-      images,
-      linkLeft: "/desayunos/bebidascalientes",
-      linkRight: "/desayunos/bebidascalientes",
-    },
-    {
-      title: "Jugo de Naranja y Zanahoria",
-      subtitle: "Energía para tu Día",
-      description: "El poder de la vitamina C y betacarotenos en un solo sorbo. Ideal para comenzar tu jornada.",
-      images,
-      linkLeft: "/desayunos/jugos",
-      linkRight: "/desayunos/jugos",
-    },
-    {
-      title: "Jugo Verde Detox",
-      subtitle: "Limpieza y Vitalidad",
-      description: "Una mezcla saludable de manzana, espinaca y pepino. Ideal para revitalizar tu cuerpo.",
-      images,
-      linkLeft: "/desayunos/sandwiches",
-      linkRight: "/desayunos/sandwiches",
-    },
-  ];
+  const [adicionales, setAdicionales] = useState<any[]>([]);
+  const [loadingAdicionales, setLoadingAdicionales] = useState(true);
 
-  // Ejemplo de datos para el carrusel de bebidas:
-  const bebidas: BebidaItem[] = [
-    {
-      titulo: "Vodka Premium",
-      descripcion: "Un vodka suave y refinado con notas cristalinas.",
-      imagen: "/images/Cbodka.png",
-      precio: 150.0,
-    },
-    {
-      titulo: "Gaseosas Variadas",
-      descripcion: "Refrescos perfectos para acompañar cualquier momento.",
-      imagen: "/images/Gaseosas.png",
-      precio: 25.0,
-    },
-    {
-      titulo: "Cóctel Tropical",
-      descripcion: "Mezcla exótica con frutas frescas y un toque dulce.",
-      imagen: "/images/Cbodka.png",
-      precio: 85.0,
-    },
-  ];
+  useEffect(() => {
+    const fetchAdicionales = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/productos/adicionales');
+        const data = await response.json();
+        setAdicionales(data.filter((item: any) => item.destacado));
+      } catch (error) {
+        console.error('Error fetching adicionales:', error);
+      } finally {
+        setLoadingAdicionales(false);
+      }
+    };
+
+    fetchAdicionales();
+  }, []);
+
+  const [bebidas, setBebidas] = useState<BebidaItem[]>([]);
+  const [loadingBebidas, setLoadingBebidas] = useState(true);
+
+  useEffect(() => {
+    const fetchBebidas = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/productos/bebidas');
+        const data = await response.json();
+        
+        // Filtramos solo las bebidas destacadas y las transformamos al formato BebidaItem
+        const bebidasTransformadas = data
+          .filter((item: any) => item.destacado)
+          .map((item: any) => ({
+            titulo: item.nombre,
+            descripcion: item.descripcion || "Refrescante bebida para acompañar tus platillos",
+            imagen: item.imagen || "/images/card-bebida.jpg",
+            precio: Number(item.precio) || 0
+          }));
+        
+        setBebidas(bebidasTransformadas);
+      } catch (error) {
+        console.error('Error fetching bebidas:', error);
+      } finally {
+        setLoadingBebidas(false);
+      }
+    };
+
+    fetchBebidas();
+  }, []);
 
   return (
     <div className="min-h-screen font-[family-name:var(--font-geist-sans)] bg-white">
@@ -310,8 +318,11 @@ export default function Home() {
       />
 
 
-      {/* SECCION DE BANNERS DE JUGOS */}
-      <BannerSection banners={banners} />
+      {/* SECCIÓN DE ADICIONALES CON BANNER */}
+      <div className="w-full px-4">
+        <h2 className="text-2xl font-bold text-center my-6 text-gray-900">Adicionales</h2>
+        {!loadingAdicionales && <SingleBannerSection items={adicionales} />}
+      </div>
 
       {/* BOTON DE WHATSAPP 
       <WhatsAppButton /> */}
@@ -319,9 +330,19 @@ export default function Home() {
       {/* CARRUSEL DE BEBIDAS */}
       <section className="mt-10 px-4">
         <h2 className="text-2xl font-bold text-center mb-12 text-gray-900">
-          Carrusel de Bebidas
+          Bebidas
         </h2>
-        <CarruselBebidas items={bebidas} />
+        {loadingBebidas ? (
+          <div className="flex justify-center items-center h-64">
+            <p>Cargando bebidas...</p>
+          </div>
+        ) : bebidas.length > 0 ? (
+          <CarruselBebidas items={bebidas} />
+        ) : (
+          <div className="flex justify-center items-center h-64">
+            <p>No hay bebidas disponibles</p>
+          </div>
+        )}
       </section>
 
       {/* FOOTER */}

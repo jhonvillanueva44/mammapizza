@@ -279,3 +279,103 @@ export const getPastaById = async (req, res) => {
 };
 
 
+// Obtener todos los adicionales
+export const getProductosByAdicionales = async (req, res) => {
+    const categoriaId = 6;
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener los adicionales' });
+    }
+};
+
+// Obtener un adicional por ID
+export const getAdicionalById = async (req, res) => {
+    const id = parseInt(req.params.id);
+    const categoriaId = 6;
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const producto = productos.find(p => p.id === id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Adicional no encontrado' });
+        }
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productoConImagen = {
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        };
+
+        res.json(productoConImagen);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener el adicional' });
+    }
+};
+
+
+// Obtener todas las bebidas
+export const getProductosByBebidas = async (req, res) => {
+    const categoriaId = 7; // Asigna el ID correcto para bebidas según tu base de datos
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+
+        const productosConImagenAbsoluta = productos.map(producto => ({
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        }));
+
+        res.json(productosConImagenAbsoluta);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener las bebidas' });
+    }
+};
+
+// Obtener una bebida por ID
+export const getBebidaById = async (req, res) => {
+    const id = parseInt(req.params.id);
+    const categoriaId = 7; // Mismo ID que arriba
+
+    try {
+        const productos = await findAllProductosUniquesNestedService(categoriaId);
+        const producto = productos.find(p => p.id === id);
+
+        if (!producto) {
+            return res.status(404).json({ error: 'Bebida no encontrada' });
+        }
+
+        const fullUrl = `${req.protocol}://${req.get('host')}`;
+        const productoConImagen = {
+            ...producto.toJSON(),
+            imagen: producto.imagen
+                ? `${fullUrl}${producto.imagen}`
+                : `${fullUrl}/uploads/default.jpeg`
+        };
+
+        res.json(productoConImagen);
+    } catch (error) {
+        console.error(error);
+        res.status(error.status || 500).json({ error: error.message || 'Error al obtener la bebida' });
+    }
+};

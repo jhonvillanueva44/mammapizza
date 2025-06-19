@@ -12,6 +12,8 @@ export type ProductoCardProps = {
   descuento?: number
   isGrid?: boolean
   especial?: boolean
+  ruta?: String
+  mostrarPersonalizar?: boolean // Nueva propiedad
 }
 
 const ProductoCard = ({
@@ -24,6 +26,8 @@ const ProductoCard = ({
   descuento,
   isGrid = false,
   especial,
+  ruta,
+  mostrarPersonalizar = true
 }: ProductoCardProps) => {
   const esPromocion = precioAntiguo !== undefined && descuento !== undefined
 
@@ -62,13 +66,15 @@ const ProductoCard = ({
             className="w-full h-[140px] object-cover rounded-md transition-transform duration-300 group-hover:scale-110"
           />
 
-          {/* Botón "Ver más" */}
-          <Link
-            href={`/menu/pizzas/${id}`}
-            className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded z-10 transition"
-          >
-            Personalizar
-          </Link>
+          {/* Botón "Ver más" - Solo se muestra si mostrarPersonalizar es true */}
+          {mostrarPersonalizar && (
+            <Link
+              href={`/menu/${ruta}/${id}`}
+              className="absolute bottom-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs px-2 py-1 rounded z-10 transition"
+            >
+              Personalizar
+            </Link>
+          )}
 
           {esPromocion && (
             <span className="absolute top-2 left-2 text-white text-xs px-2 py-1 bg-red-600 rounded">

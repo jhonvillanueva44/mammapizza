@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import FilterButtons from '@/components/FilterButtonsCalzones';
+import { ChevronDown } from 'lucide-react';
 import ProductoCard from '@/components/ProductoCard';
 
 interface Tamanio {
@@ -14,7 +14,6 @@ interface Sabor {
   id: number;
   nombre: string;
   descripcion?: string;
-  especial?: boolean;
 }
 
 interface TamaniosSabor {
@@ -47,62 +46,76 @@ interface Calzone {
   descuento?: number | null;
 }
 
-type Filtro =
-  | { tamanio: 'todos'; especial: 'todos' | 'especial' | 'clasico' }
-  | { tamanio: string; especial: 'todos' | 'especial' | 'clasico' };
+type Filtro = { tamanio: 'todos' | string };
 
 export default function MenuCalzonePage() {
   const [calzones, setCalzones] = useState<Calzone[]>([]);
+  const [tamanios, setTamanios] = useState<Tamanio[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<Filtro>({ tamanio: 'todos', especial: 'todos' });
+  const [filter, setFilter] = useState<Filtro>({ tamanio: 'todos' });
+  
+  // Estados para el filtro
+  const [activeFilter, setActiveFilter] = useState<'todos' | 'tamanio'>('todos');
+  const [selectedValue, setSelectedValue] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleFilterTamanioChange = (
     value: { filter: 'todos' } | { filter: 'tamanio'; selected: string }
   ) => {
     if (value.filter === 'todos') {
-      setFilter((f) => ({ ...f, tamanio: 'todos' }));
+      setFilter({ tamanio: 'todos' });
     } else {
-      setFilter((f) => ({ ...f, tamanio: value.selected.toLowerCase() }));
+      setFilter({ tamanio: value.selected.toLowerCase() });
     }
   };
 
-  const handleFilterEspecialChange = (value: 'todos' | 'especial' | 'clasico') => {
-    setFilter((f) => ({ ...f, especial: value }));
+  const handleSelect = (value: string) => {
+    setSelectedValue(value);
+    setActiveFilter('tamanio');
+    setDropdownOpen(false);
+    handleFilterTamanioChange({ filter: 'tamanio', selected: value });
+  };
+
+  const handleTodosClick = () => {
+    setActiveFilter('todos');
+    setDropdownOpen(false);
+    handleFilterTamanioChange({ filter: 'todos' });
   };
 
   useEffect(() => {
-    const fetchCalzones = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/productos/calzones');
-        const data = await res.json();
-        setCalzones(data);
+        // Fetch calzones
+        const calzonesRes = await fetch('http://localhost:4000/api/productos/calzones');
+        const calzonesData = await calzonesRes.json();
+        setCalzones(calzonesData);
+
+        // Fetch tamaños para el filtro
+        const tamaniosRes = await fetch('http://localhost:4000/api/tamanios/calzone');
+        const tamaniosData = await tamaniosRes.json();
+        setTamanios(tamaniosData);
+        
+        // Establecer el primer tamaño como valor por defecto
+        if (tamaniosData.length > 0) {
+          setSelectedValue(tamaniosData[0].nombre);
+        }
       } catch (error) {
-        console.error('Error al obtener calzones:', error);
+        console.error('Error al obtener datos:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchCalzones();
+    fetchData();
   }, []);
 
   const calzonesFiltrados = calzones.filter((calzone) => {
-    const filtroTamanio =
+    return (
       filter.tamanio === 'todos' ||
       calzone.unicos.some(
         (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
-      );
-
-    const filtroEspecial =
-      filter.especial === 'todos' ||
-      calzone.unicos.some((u) => {
-        const esEspecial = u.tamanios_sabor.sabor.especial ?? false;
-        if (filter.especial === 'especial') return esEspecial;
-        if (filter.especial === 'clasico') return !esEspecial;
-        return true;
-      });
-
-    return filtroTamanio && filtroEspecial;
+      )
+    );
   });
 
   return (
@@ -112,67 +125,68 @@ export default function MenuCalzonePage() {
         <div className="flex flex-col items-start gap-4 sm:max-w-[300px] w-full sm:w-auto">
           <h1 className="text-2xl font-bold">Menú - Calzones</h1>
 
-          {/* Filtro tamaño */}
-          <FilterButtons onChange={handleFilterTamanioChange} />
+          {/* Filtro tamaño integrado */}
+          <div className="flex gap-3 flex-wrap">
+            {/* Botón "Todos" */}
+            <button
+              onClick={handleTodosClick}
+              className={`px-4 py-2 rounded-full border font-medium transition text-sm sm:text-base ${
+                activeFilter === 'todos'
+                  ? 'bg-red-600 text-white border-black'
+                  : 'bg-white text-black border-black hover:bg-[#DC0000]'
+              }`}
+            >
+              Todos
+            </button>
 
-          {/* Filtro especial */}
-          <div className="flex gap-3 mt-2">
-            {['todos', 'especial', 'clasico'].map((opt) => (
+            {/* Botón desplegable "Tamaño" */}
+            <div className="relative">
               <button
-                key={opt}
-                onClick={() => handleFilterEspecialChange(opt as 'todos' | 'especial' | 'clasico')}
-                className={`px-3 py-1 rounded-full border ${filter.especial === opt
-                  ? 'bg-green-600 text-white border-green-600'
-                  : 'border-gray-300 text-gray-700'
-                  } hover:bg-green-600 hover:text-white transition`}
+                onClick={() => {
+                  setDropdownOpen(!dropdownOpen);
+                  setActiveFilter('tamanio');
+                }}
+                className={`flex items-center gap-1 px-4 py-2 w-[140px] sm:w-[160px] rounded-full border font-medium transition text-sm sm:text-base ${
+                  activeFilter === 'tamanio'
+                    ? 'bg-red-600 text-white border-black'
+                    : 'bg-white text-black border-black hover:bg-[#DC0000]'
+                }`}
+                style={{ minWidth: '140px' }}
               >
-                {opt === 'todos' ? 'Todos' : opt === 'especial' ? 'Especiales' : 'Clásicos'}
+                <span className="truncate">{selectedValue}</span>
+                <ChevronDown size={16} />
               </button>
-            ))}
+
+              {dropdownOpen && (
+                <div className="absolute top-full mt-2 w-full bg-white border rounded shadow z-10">
+                  {tamanios.map((tamanio) => (
+                    <button
+                      key={tamanio.id}
+                      onClick={() => handleSelect(tamanio.nombre)}
+                      className="w-full text-left px-4 py-2 hover:bg-[#DC0000] text-sm"
+                    >
+                      {tamanio.nombre}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Columna derecha: texto descriptivo */}
         <div className="flex-1 pl-4 border-l border-gray-300 min-h-[120px] w-full sm:w-auto">
-          {filter.tamanio !== 'todos' && filter.especial !== 'todos' && (
+          {filter.tamanio !== 'todos' ? (
             <>
               <p className="text-gray-800 text-base mb-2">
                 Estás viendo nuestros calzones de tamaño{' '}
-                <span className="font-semibold capitalize">{filter.tamanio}</span> y tipo{' '}
-                <span className="font-semibold capitalize">
-                  {filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}
-                </span>
-                .
-              </p>
-              <p className="text-gray-600 text-sm">
-                Cada uno relleno con ingredientes frescos y cuidadosamente seleccionados.
-              </p>
-            </>
-          )}
-
-          {filter.tamanio !== 'todos' && filter.especial === 'todos' && (
-            <>
-              <p className="text-gray-800 text-base mb-2">
-                Calzones de tamaño <span className="font-semibold capitalize">{filter.tamanio}</span>.
+                <span className="font-semibold capitalize">{filter.tamanio}</span>.
               </p>
               <p className="text-gray-600 text-sm">
                 Disfruta de nuestro menú en diferentes tamaños, según tu antojo o compañía.
               </p>
             </>
-          )}
-
-          {filter.tamanio === 'todos' && filter.especial !== 'todos' && (
-            <>
-              <p className="text-gray-800 text-base mb-2">
-                Mostrando calzones <span className="font-semibold capitalize">{filter.especial === 'especial' ? 'Especiales' : 'Clásicos'}</span>.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Tenemos opciones para todos los gustos: desde combinaciones tradicionales hasta sabores únicos.
-              </p>
-            </>
-          )}
-
-          {filter.tamanio === 'todos' && filter.especial === 'todos' && (
+          ) : (
             <p className="text-gray-500 text-sm italic">
               Estás viendo todos nuestros calzones. Usa los filtros para encontrar justo lo que deseas.
             </p>
@@ -188,21 +202,12 @@ export default function MenuCalzonePage() {
           <p>No hay calzones disponibles para ese filtro.</p>
         ) : (
           calzonesFiltrados.map((calzone) => {
-            const unicoEspecial = calzone.unicos.find((u) => {
-              const esEspecial = u.tamanios_sabor.sabor.especial ?? false;
-              if (filter.especial === 'especial') return esEspecial;
-              if (filter.especial === 'clasico') return !esEspecial;
-              return true;
-            });
-
-            const unicoTamanio =
+            const unico =
               filter.tamanio === 'todos'
                 ? calzone.unicos[0]
                 : calzone.unicos.find(
-                  (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
-                ) || calzone.unicos[0];
-
-            const unico = unicoEspecial || unicoTamanio || calzone.unicos[0];
+                    (u) => u.tamanios_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
+                  ) || calzone.unicos[0];
 
             if (!unico) return null;
 
@@ -218,7 +223,6 @@ export default function MenuCalzonePage() {
                 imagen={calzone.imagen || '/images/card-calzone.jpg'}
                 descuento={calzone.descuento ?? undefined}
                 isGrid={true}
-                especial={unico.tamanios_sabor.sabor.especial ?? false}
               />
             );
           })

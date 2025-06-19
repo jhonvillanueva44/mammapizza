@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import FilterButtons from '@/components/FilterButtonsPizzas'
+import { ChevronDown } from 'lucide-react'
 import ProductoCard from '@/components/ProductoCard'
 
 interface Tamanio {
@@ -55,12 +55,95 @@ interface Pizza {
   descuento?: number | null
 }
 
+interface FilterButtonsProps {
+  onChange: (
+    value:
+      | { filter: 'todos' }
+      | { filter: 'tamanio'; selected: string } 
+  ) => void
+  tamanios: Tamanio[]
+}
+
 type Filtro =
   | { tamanio: 'todos'; especial: 'todos' | 'especial' | 'clasico' }
   | { tamanio: string; especial: 'todos' | 'especial' | 'clasico' }
 
+function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
+  const [activeFilter, setActiveFilter] = useState<'todos' | 'tamanio'>('todos')
+  const [selectedValue, setSelectedValue] = useState('')
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  // Establecer el primer tamaño como valor por defecto
+  useEffect(() => {
+    if (tamanios.length > 0 && !selectedValue) {
+      setSelectedValue(tamanios[0].nombre)
+    }
+  }, [tamanios, selectedValue])
+
+  const handleSelect = (value: string) => {
+    setSelectedValue(value)
+    setActiveFilter('tamanio')
+    setDropdownOpen(false)
+    onChange({ filter: 'tamanio', selected: value })
+  }
+
+  return (
+    <div className="flex gap-3 flex-wrap">
+      {/* Botón "Todos" */}
+      <button
+        onClick={() => {
+          setActiveFilter('todos')
+          setDropdownOpen(false)
+          onChange({ filter: 'todos' })
+        }}
+        className={`px-4 py-2 rounded-full border font-medium transition text-sm sm:text-base ${
+          activeFilter === 'todos'
+            ? 'bg-red-600 text-white border-black'
+            : 'bg-white text-black border-black hover:bg-[#DC0000]'
+        }`}
+      >
+        Todos
+      </button>
+
+      {/* Botón desplegable "Tamaño" */}
+      <div className="relative">
+        <button
+          onClick={() => {
+            setDropdownOpen(!dropdownOpen)
+            setActiveFilter('tamanio')
+          }}
+          className={`flex items-center gap-1 px-4 py-2 w-[140px] sm:w-[160px] rounded-full border font-medium transition text-sm sm:text-base ${
+            activeFilter === 'tamanio'
+              ? 'bg-red-600 text-white border-black'
+              : 'bg-white text-black border-black hover:bg-[#DC0000]'
+          }`}
+          style={{ minWidth: '140px' }}
+        >
+          <span className="truncate">{selectedValue}</span>
+          <ChevronDown size={16} />
+        </button>
+
+        {dropdownOpen && (
+          <div className="absolute top-full mt-2 w-full bg-white border rounded shadow z-10">
+            {tamanios.map((tamanio) => (
+              <button
+                key={tamanio.id}
+                onClick={() => handleSelect(tamanio.nombre)}
+                className="w-full text-left px-4 py-2 hover:bg-[#DC0000] text-sm"
+              >
+                {tamanio.nombre}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function MenuPizzasPage() {
   const [pizzas, setPizzas] = useState<Pizza[]>([])
+  const [tamanios, setTamanios] = useState<Tamanio[]>([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<Filtro>({ tamanio: 'todos', especial: 'todos' })
 
@@ -79,18 +162,27 @@ export default function MenuPizzasPage() {
   }
 
   useEffect(() => {
-    const fetchPizzas = async () => {
+    const fetchData = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/productos/pizzas')
-        const data = await res.json()
-        setPizzas(data)
+        const [pizzasRes, tamaniosRes] = await Promise.all([
+          fetch('http://localhost:4000/api/productos/pizzas'),
+          fetch('http://localhost:4000/api/tamanios/pizza')
+        ])
+        
+        const [pizzasData, tamaniosData] = await Promise.all([
+          pizzasRes.json(),
+          tamaniosRes.json()
+        ])
+        
+        setPizzas(pizzasData)
+        setTamanios(tamaniosData)
       } catch (error) {
-        console.error('Error al obtener pizzas:', error)
+        console.error('Error al obtener datos:', error)
       } finally {
         setLoading(false)
       }
     }
-    fetchPizzas()
+    fetchData()
   }, [])
 
   const pizzasFiltradas = pizzas.filter((pizza) => {
@@ -139,7 +231,7 @@ export default function MenuPizzasPage() {
           <h1 className="text-2xl font-bold">Menú - Pizzas</h1>
 
           {/* Filtro tamaño */}
-          <FilterButtons onChange={handleFilterTamanioChange} />
+          <FilterButtons onChange={handleFilterTamanioChange} tamanios={tamanios} />
 
           {/* Filtro especial */}
           <div className="flex gap-3 mt-2">
@@ -310,6 +402,7 @@ export default function MenuPizzasPage() {
                   descuento={pizza.descuento ?? undefined}
                   isGrid={true}
                   especial={unico.tamanios_sabor.sabor.especial ?? false}
+                  
                 />
               )
             }

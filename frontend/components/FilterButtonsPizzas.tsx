@@ -7,7 +7,7 @@ interface FilterButtonsProps {
   onChange: (
     value:
       | { filter: 'todos' }
-      | { filter: 'tamanio'; selected: string } // selected obligatorio si es tamanio
+      | { filter: 'tamanio'; selected: string } 
   ) => void
 }
 

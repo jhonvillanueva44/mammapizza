@@ -145,7 +145,6 @@ if (pathname.startsWith('/admin')) {
               <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
               <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
               <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
-              <li><Link href="/desayunos/bebidascalientes" className="hover:text-red-500">Desayunos</Link></li>
               <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
             </ul>
           </nav>
@@ -268,7 +267,6 @@ if (pathname.startsWith('/admin')) {
               <li><Link href="/" className="hover:text-red-500">Inicio</Link></li>
               <li><Link href="/sobrenosotros" className="hover:text-red-500">Sobre Nosotros</Link></li>
               <li><Link href="/menu/pizzas" className="hover:text-red-500">Menu</Link></li>
-              <li><Link href="/desayunos" className="hover:text-red-500">Desayunos</Link></li>
               <li><Link href="/bebidas" className="hover:text-red-500">Bebidas</Link></li>
             </ul>
           </nav>
