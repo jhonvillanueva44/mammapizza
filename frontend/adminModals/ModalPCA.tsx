@@ -1,9 +1,9 @@
-// ModalPCA.tsx
+// ModalPCA.tsx - Versión integrada (sin overlay)
 'use client';
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 
-// Types
+// Types (mantén los mismos tipos que ya tienes)
 type Categoria = { id: number; nombre: string };
 type Tamanio = { id: number; nombre: string; tipo: string };
 type TamanioSabor = { id: number; tamanio_id: number; sabor_id: number };
@@ -31,8 +31,7 @@ type Combinacion = {
 };
 
 type Props = {
-  isOpen: boolean;
-  onClose: () => void;
+  // Removemos isOpen y onClose ya que se manejará desde el componente padre
   loading: boolean;
   modoEdicion: boolean;
   productoEditando: Producto | null;
@@ -41,11 +40,12 @@ type Props = {
   refreshProductos: () => void;
   tipoProducto: 'Calzone' | 'Pasta' | 'Agregado';
   categoriaId: number;
+  // Agregamos estas props que vienen del componente padre
+  onClose: () => void;
+  categorias: Categoria[];
 };
 
 export default function ModalPCA({
-  isOpen,
-  onClose,
   loading: parentLoading,
   modoEdicion,
   productoEditando,
@@ -54,9 +54,10 @@ export default function ModalPCA({
   refreshProductos,
   tipoProducto,
   categoriaId,
+  onClose,
+  categorias,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
   
   const [nombre, setNombre] = useState('');
   const [stock, setStock] = useState<number | null>(null);
@@ -78,7 +79,6 @@ export default function ModalPCA({
   const TAMANIO_SABORES_URL = 'http://localhost:4000/api/tamanioSabor';
   const SABORES_URL = 'http://localhost:4000/api/sabores';
   const PRODUCTOS_URL = 'http://localhost:4000/api/productos';
-  const CATEGORIAS_URL = 'http://localhost:4000/api/categorias';
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, setState: (val: number | null) => void) => {
     const value = e.target.value;
@@ -113,30 +113,25 @@ export default function ModalPCA({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isOpen) return;
-      
       try {
         setLoading(true);
-        const [tRes, tsRes, sRes, cRes] = await Promise.all([
+        const [tRes, tsRes, sRes] = await Promise.all([
           fetch(TAMANIOS_URL),
           fetch(TAMANIO_SABORES_URL),
           fetch(SABORES_URL),
-          fetch(CATEGORIAS_URL),
         ]);
         
-        if (!tRes.ok || !tsRes.ok || !sRes.ok || !cRes.ok) throw new Error('Error al cargar datos');
+        if (!tRes.ok || !tsRes.ok || !sRes.ok) throw new Error('Error al cargar datos');
         
-        const [tData, tsData, sData, cData] = await Promise.all([
+        const [tData, tsData, sData] = await Promise.all([
           tRes.json(),
           tsRes.json(),
-          sRes.json(),
-          cRes.json()
+          sRes.json()
         ]);
 
         setTamanios(tData);
         setTamanioSabores(tsData);
         setSabores(sData);
-        setCategorias(cData);
 
         const comb = tsData.map((ts: TamanioSabor) => {
           const tamanio = tData.find((t: Tamanio) => t.id === ts.tamanio_id);
@@ -157,10 +152,10 @@ export default function ModalPCA({
     };
 
     fetchData();
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
-    if (modoEdicion && productoEditando && isOpen) {
+    if (modoEdicion && productoEditando) {
       setNombre(productoEditando.nombre);
       setStock(productoEditando.stock);
       setDescripcion(productoEditando.descripcion || '');
@@ -179,10 +174,10 @@ export default function ModalPCA({
           });
         }
       }
-    } else if (!modoEdicion && isOpen) {
+    } else {
       resetForm();
     }
-  }, [modoEdicion, productoEditando, isOpen, tamanioSabores]);
+  }, [modoEdicion, productoEditando, tamanioSabores]);
 
   const actualizarCombinacion = (campo: 'tamanio_id' | 'sabor_id', valor: number | null) => {
     const nuevaCombinacion = { ...combinacion, [campo]: valor };
@@ -312,192 +307,185 @@ export default function ModalPCA({
     }
   };
 
-  if (!isOpen) return null;
-
+  // Renderizamos solo el contenido del formulario, sin el overlay ni el contenedor del modal
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-        onClick={onClose}
-      />
+    <form onSubmit={handleGuardar} className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Primera columna */}
+        <div className="space-y-4">
+          {/* Nombre */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre del {tipoProducto} *
+            </label>
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              required
+            />
+          </div>
 
-      {/* Contenedor del modal */}
-      <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-4 border-2 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">
-          {modoEdicion ? `Editar ${tipoProducto}` : `Agregar ${tipoProducto}`}
-        </h2>
-        
-        <form onSubmit={handleGuardar}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Primera columna */}
-            <div className="space-y-4">
-              {/* Nombre */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto *</label>
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              {/* Combinación Tamaño-Sabor */}
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Combinación Tamaño-Sabor *</label>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-500 mb-1">Tamaño</div>
-                      {renderSelectTamanio()}
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-500 mb-1">Sabor</div>
-                      {renderSelectSabor()}
-                    </div>
-                  </div>
+          {/* Combinación Tamaño-Sabor */}
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Combinación Tamaño-Sabor *
+            </label>
+            
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 mb-1">Tamaño</div>
+                  {renderSelectTamanio()}
                 </div>
-              </div>
-            </div>
-
-            {/* Segunda columna */}
-            <div className="space-y-4">
-              {/* Stock */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                <input
-                  type="number"
-                  value={stock ?? ''}
-                  onChange={(e) => handleNumberChange(e, setStock)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                />
-              </div>
-
-              {/* Impuesto y Descuento */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
-                <input
-                  type="number"
-                  value={impuesto ?? ''}
-                  onChange={(e) => handleNumberChange(e, setImpuesto)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
-                <input
-                  type="number"
-                  value={descuento ?? ''}
-                  onChange={(e) => handleNumberChange(e, setDescuento)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-
-            {/* Tercera columna */}
-            <div className="space-y-4">
-              {/* Imagen */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <input
-                      type="file"
-                      ref={(ref) => setFileInputRef(ref)}
-                      onChange={handleImageChange}
-                      accept="image/*"
-                      className="hidden"
-                      id="imagen-upload"
-                      disabled={loading}
-                    />
-                    <label
-                      htmlFor="imagen-upload"
-                      className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm transition-colors"
-                    >
-                      Seleccionar imagen
-                    </label>
-                  </div>
-                  {imagenPreview && (
-                    <div className="w-16 h-16 border rounded overflow-hidden">
-                      <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Descripción */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  rows={5}
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Checkboxes */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="destacado"
-                    checked={destacado}
-                    onChange={(e) => setDestacado(e.target.checked)}
-                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                    disabled={loading}
-                  />
-                  <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">Producto destacado</label>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="habilitado"
-                    checked={habilitado}
-                    onChange={(e) => setHabilitado(e.target.checked)}
-                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                    disabled={loading}
-                  />
-                  <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">Producto habilitado</label>
+                <div className="flex-1">
+                  <div className="text-xs text-gray-500 mb-1">Sabor</div>
+                  {renderSelectSabor()}
                 </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+        {/* Segunda columna */}
+        <div className="space-y-4">
+          {/* Stock */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+            <input
+              type="number"
+              value={stock ?? ''}
+              onChange={(e) => handleNumberChange(e, setStock)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
               disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
-              disabled={loading}
-            >
-              {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
-            </button>
+              min="0"
+            />
           </div>
-        </form>
+
+          {/* Impuesto y Descuento */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
+            <input
+              type="number"
+              value={impuesto ?? ''}
+              onChange={(e) => handleNumberChange(e, setImpuesto)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              min="0"
+              max="100"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
+            <input
+              type="number"
+              value={descuento ?? ''}
+              onChange={(e) => handleNumberChange(e, setDescuento)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+
+        {/* Tercera columna */}
+        <div className="space-y-4">
+          {/* Imagen */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+            <div className="flex items-center gap-4">
+              <div>
+                <input
+                  type="file"
+                  ref={(ref) => setFileInputRef(ref)}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                  id="imagen-upload"
+                  disabled={loading}
+                />
+                <label
+                  htmlFor="imagen-upload"
+                  className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm transition-colors"
+                >
+                  Seleccionar imagen
+                </label>
+              </div>
+              {imagenPreview && (
+                <div className="w-16 h-16 border rounded overflow-hidden">
+                  <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Descripción */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              rows={5}
+              disabled={loading}
+            />
+          </div>
+
+          {/* Checkboxes */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="destacado"
+                checked={destacado}
+                onChange={(e) => setDestacado(e.target.checked)}
+                className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                disabled={loading}
+              />
+              <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">
+                Producto destacado
+              </label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="habilitado"
+                checked={habilitado}
+                onChange={(e) => setHabilitado(e.target.checked)}
+                className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                disabled={loading}
+              />
+              <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">
+                Producto habilitado
+              </label>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Botones */}
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
+          disabled={loading}
+        >
+          {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
+        </button>
+      </div>
+    </form>
   );
 }

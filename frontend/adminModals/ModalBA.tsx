@@ -3,8 +3,6 @@ import { useState, useEffect, useRef } from 'react';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 
 type Props = {
-  isOpen: boolean;
-  onClose: () => void;
   loading: boolean;
   modoEdicion: boolean;
   productoEditando: any;
@@ -16,8 +14,6 @@ type Props = {
 };
 
 export default function ModalBA({
-  isOpen,
-  onClose,
   loading: parentLoading,
   modoEdicion,
   productoEditando,
@@ -71,7 +67,7 @@ export default function ModalBA({
   };
 
   useEffect(() => {
-    if (modoEdicion && productoEditando && isOpen) {
+    if (modoEdicion && productoEditando) {
       setNombre(productoEditando.nombre);
       setPrecio(productoEditando.precio);
       setStock(productoEditando.stock);
@@ -83,10 +79,10 @@ export default function ModalBA({
       if (productoEditando.imagen) {
         setImagenPreview(productoEditando.imagen);
       }
-    } else if (!modoEdicion && isOpen) {
+    } else if (!modoEdicion) {
       resetForm();
     }
-  }, [modoEdicion, productoEditando, isOpen]);
+  }, [modoEdicion, productoEditando]);
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
@@ -164,7 +160,6 @@ const handleSubmit = async (e: React.FormEvent) => {
       data.producto
     );
     refreshProductos();
-    onClose();
   } catch (error: any) {
     console.error('Error al guardar:', error);
     onError(error.message || 'Error al guardar el producto');
@@ -173,166 +168,143 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-        onClick={onClose}
-      />
-
-      <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4 border-2 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">
-          {modoEdicion ? `Editar ${tipoProducto}` : `Agregar ${tipoProducto}`}
-        </h2>
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
-                <input
-                  type="number"
-                  value={precio ?? ''}
-                  onChange={(e) => handleNumberChange(e, setPrecio)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                  required
-                  min="0"
-                  step="0.01"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                <input
-                  type="number"
-                  value={stock ?? ''}
-                  onChange={(e) => handleNumberChange(e, setStock)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                  min="0"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
-                <input
-                  type="number"
-                  value={impuesto ?? ''}
-                  onChange={(e) => handleNumberChange(e, setImpuesto)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
-                <input
-                  type="number"
-                  value={descuento ?? ''}
-                  onChange={(e) => handleNumberChange(e, setDescuento)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                  min="0"
-                  max="100"
-                  step="0.01"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                <input
-                  type="file"
-                  ref={fileInputRef}
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading || disabled}
-                />
-                {imagenPreview && (
-                  <div className="mt-2 w-32 h-32 border rounded overflow-hidden">
-                    <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-              <textarea
-                value={descripcion}
-                onChange={(e) => setDescripcion(e.target.value)}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                rows={3}
-                disabled={loading || disabled}
-              />
-            </div>
-
-            <div className="md:col-span-2 space-y-2">
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="destacado"
-                  checked={destacado}
-                  onChange={(e) => setDestacado(e.target.checked)}
-                  className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                  disabled={loading || disabled}
-                />
-                <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">Destacado</label>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="habilitado"
-                  checked={habilitado}
-                  onChange={(e) => setHabilitado(e.target.checked)}
-                  className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                  disabled={loading || disabled}
-                />
-                <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">Habilitado</label>
-              </div>
-            </div>
+    <form onSubmit={handleSubmit}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+              required
+            />
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
-              disabled={loading || disabled || !nombre || precio === null}
-            >
-              {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
-            </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Precio *</label>
+            <input
+              type="number"
+              value={precio ?? ''}
+              onChange={(e) => handleNumberChange(e, setPrecio)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+              required
+              min="0"
+              step="0.01"
+            />
           </div>
-        </form>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+            <input
+              type="number"
+              value={stock ?? ''}
+              onChange={(e) => handleNumberChange(e, setStock)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
+            <input
+              type="number"
+              value={impuesto ?? ''}
+              onChange={(e) => handleNumberChange(e, setImpuesto)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+              min="0"
+              max="100"
+              step="0.01"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
+            <input
+              type="number"
+              value={descuento ?? ''}
+              onChange={(e) => handleNumberChange(e, setDescuento)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+              min="0"
+              max="100"
+              step="0.01"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              accept="image/*"
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading || disabled}
+            />
+            {imagenPreview && (
+              <div className="mt-2 w-32 h-32 border rounded overflow-hidden">
+                <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+          <textarea
+            value={descripcion}
+            onChange={(e) => setDescripcion(e.target.value)}
+            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+            rows={3}
+            disabled={loading || disabled}
+          />
+        </div>
+
+        <div className="md:col-span-2 space-y-2">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="destacado"
+              checked={destacado}
+              onChange={(e) => setDestacado(e.target.checked)}
+              className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              disabled={loading || disabled}
+            />
+            <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">Destacado</label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="habilitado"
+              checked={habilitado}
+              onChange={(e) => setHabilitado(e.target.checked)}
+              className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              disabled={loading || disabled}
+            />
+            <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">Habilitado</label>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="submit"
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
+          disabled={loading || disabled || !nombre || precio === null}
+        >
+          {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
+        </button>
+      </div>
+    </form>
   );
 }

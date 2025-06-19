@@ -34,10 +34,10 @@ export default function CrudSaborPage() {
   const [tipo, setTipo] = useState('');
   const [especial, setEspecial] = useState(false);
 
-  const [search, setSearch] = useState('');
-  const [filtroTipo, setFiltroTipo] = useState<string>('');
-  const [paginaActual, setPaginaActual] = useState(1);
-  const saboresPorPagina = 15;
+  const [busqueda, setBusqueda] = useState('');
+  const [filtroTipo, setFiltroTipo] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const ITEMS_POR_PAGINA = 15;
 
   const API_URL = 'http://localhost:4000/api/sabores';
 
@@ -61,19 +61,18 @@ export default function CrudSaborPage() {
   }, []);
 
   useEffect(() => {
-    setPaginaActual(1);
-  }, [filtroTipo, search]);
+    setPagina(1);
+  }, [filtroTipo, busqueda]);
 
   const saboresFiltrados = sabores.filter((sabor) => {
-    const matchesSearch = sabor.nombre.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = sabor.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
+                         sabor.descripcion.toLowerCase().includes(busqueda.toLowerCase());
     const matchesType = filtroTipo ? sabor.tipo === filtroTipo : true;
     return matchesSearch && matchesType;
   });
 
-  const totalPaginas = Math.ceil(saboresFiltrados.length / saboresPorPagina);
-  const indexInicio = (paginaActual - 1) * saboresPorPagina;
-  const indexFin = indexInicio + saboresPorPagina;
-  const saboresPagina = saboresFiltrados.slice(indexInicio, indexFin);
+  const totalPaginas = Math.ceil(saboresFiltrados.length / ITEMS_POR_PAGINA);
+  const saboresPagina = saboresFiltrados.slice((pagina - 1) * ITEMS_POR_PAGINA, pagina * ITEMS_POR_PAGINA);
 
   const handleEliminarClick = (id: number) => {
     setIdAEliminar(id);
@@ -132,7 +131,6 @@ export default function CrudSaborPage() {
             onClose={() => setMostrarConfirmacion(false)}
             onConfirm={handleConfirmarEliminar}
             title="Confirmar eliminación"
-            confirmText="Eliminar"
           />
 
           <div className="flex justify-between items-center mb-6">
@@ -157,28 +155,10 @@ export default function CrudSaborPage() {
           </div>
 
           <div className="flex flex-wrap gap-4 mb-6">
-            <div className="relative flex-1 min-w-[200px]">
-              <input
-                type="text"
-                placeholder="Buscar por nombre..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-red-500 focus:outline-none cursor-text"
-              />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5 absolute right-3 top-2.5 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
             <select
+              className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 cursor-pointer"
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
-              className="border border-gray-300 rounded-md px-4 py-2 focus:ring-2 focus:ring-red-500 focus:outline-none cursor-pointer"
             >
               <option value="">Todos los tipos</option>
               {tiposDisponibles.map((tipo) => (
@@ -187,6 +167,14 @@ export default function CrudSaborPage() {
                 </option>
               ))}
             </select>
+
+            <input
+              type="text"
+              placeholder="Buscar por nombre o descripción..."
+              className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 flex-1 min-w-[200px]"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+            />
           </div>
 
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -231,9 +219,11 @@ export default function CrudSaborPage() {
                           <div className="text-sm text-gray-500">{sabor.tipo}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">
-                            {sabor.tipo === 'Pizza' ? (sabor.especial ? '✅' : '❌') : '➖'}
-                          </div>
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            sabor.especial ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                          }`}>
+                            {sabor.tipo === 'Pizza' ? (sabor.especial ? 'Sí' : 'No') : '-'}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-3">
@@ -279,53 +269,40 @@ export default function CrudSaborPage() {
           </div>
 
           {totalPaginas > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-6">
-              <button
-                onClick={() => setPaginaActual(paginaActual - 1)}
-                disabled={paginaActual === 1}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
-              
-              {Array.from({ length: Math.min(totalPaginas, 5) }, (_, i) => {
-                let pageNum;
-                if (totalPaginas <= 5) {
-                  pageNum = i + 1;
-                } else if (paginaActual <= 3) {
-                  pageNum = i + 1;
-                } else if (paginaActual >= totalPaginas - 2) {
-                  pageNum = totalPaginas - 4 + i;
-                } else {
-                  pageNum = paginaActual - 2 + i;
-                }
+            <div className="flex justify-center mt-4">
+              <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                <button
+                  onClick={() => setPagina(p => Math.max(1, p - 1))}
+                  disabled={pagina === 1}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${pagina === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 cursor-pointer'}`}
+                >
+                  <span className="sr-only">Anterior</span>
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
 
-                return (
+                {Array.from({ length: totalPaginas }, (_, i) => (
                   <button
-                    key={pageNum}
-                    onClick={() => setPaginaActual(pageNum)}
-                    className={`px-4 py-2 border rounded-md cursor-pointer transition-colors ${
-                      paginaActual === pageNum
-                        ? 'bg-red-600 text-white border-red-600'
-                        : 'border-gray-300 hover:bg-gray-50'
-                    }`}
+                    key={i}
+                    onClick={() => setPagina(i + 1)}
+                    className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${pagina === i + 1 ? 'z-10 bg-red-50 border-red-500 text-red-600 cursor-default' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50 cursor-pointer'}`}
                   >
-                    {pageNum}
+                    {i + 1}
                   </button>
-                );
-              })}
-              
-              <button
-                onClick={() => setPaginaActual(paginaActual + 1)}
-                disabled={paginaActual === totalPaginas}
-                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-                </svg>
-              </button>
+                ))}
+
+                <button
+                  onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                  disabled={pagina === totalPaginas}
+                  className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${pagina === totalPaginas ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 cursor-pointer'}`}
+                >
+                  <span className="sr-only">Siguiente</span>
+                  <svg className="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </nav>
             </div>
           )}
         </main>

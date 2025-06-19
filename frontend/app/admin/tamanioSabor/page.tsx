@@ -8,17 +8,26 @@ import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import TamanioSaborModal from '@/adminModals/ModalFormularioTamanioSabor';
 
+export type Tamanio = { 
+  id: number; 
+  nombre: string; 
+  tipo: string; 
+};
+
+export type Sabor = { 
+  id: number; 
+  nombre: string; 
+  tipo: string; 
+};
+
 export type TamanioSabor = {
-  id: number;
+  id?: number;  
   precio: number;
   tamanio_id: number;
   sabor_id: number;
-  tamanio?: { id: number; nombre: string };
-  sabor?: { id: number; nombre: string };
+  tamanio?: Tamanio;
+  sabor?: Sabor;    
 };
-
-export type Tamanio = { id: number; nombre: string };
-export type Sabor = { id: number; nombre: string };
 
 export default function CrudTamanioSaborPage() {
   const [data, setData] = useState<TamanioSabor[]>([]);
@@ -46,14 +55,26 @@ export default function CrudTamanioSaborPage() {
         fetch('http://localhost:4000/api/tamanios'),
         fetch('http://localhost:4000/api/sabores')
       ]);
+      
+      if (!resComb.ok || !resTam.ok || !resSab.ok) {
+        throw new Error('Error al obtener los datos');
+      }
+
       const [combinaciones, tamaniosList, saboresList] = await Promise.all([
         resComb.json(),
         resTam.json(),
         resSab.json()
       ]);
+
       setData(combinaciones);
       setTamanios(tamaniosList);
-      setSabores(saboresList);
+      setSabores(
+        saboresList.map((s: any) => ({
+          id: s.id,
+          nombre: s.nombre,
+          tipo: s.tipo ?? '', 
+        }))
+      );
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -218,7 +239,7 @@ export default function CrudTamanioSaborPage() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => handleEliminar(item.id)}
+                              onClick={() => handleEliminar(item.id!)} // ← Agregamos ! porque sabemos que existe en items del listado
                               className="text-red-600 hover:text-red-900 transition-colors cursor-pointer"
                               disabled={loading}
                             >

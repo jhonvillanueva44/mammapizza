@@ -1,4 +1,4 @@
-// ModalPizza.tsx
+// ModalPizza.tsx integrado
 'use client';
 import { useState, useEffect, RefObject } from 'react';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
@@ -31,28 +31,25 @@ type Combinacion = {
 };
 
 type Props = {
-  isOpen: boolean;
-  onClose: () => void;
   loading: boolean;
   modoEdicion: boolean;
   productoEditando: Producto | null;
   onError: (msg: string) => void;
   onSave: (msg: string, producto?: Producto) => void;
   refreshProductos: () => void;
+  onClose: () => void;
 };
 
-export default function ModalFormularioPizza({
-  isOpen,
-  onClose,
+export default function ModalPizzaIntegrado({
   loading: parentLoading,
   modoEdicion,
   productoEditando,
   onError,
   onSave,
   refreshProductos,
+  onClose,
 }: Props) {
   const [loading, setLoading] = useState(false);
-  const [categorias, setCategorias] = useState<Categoria[]>([]);
   
   const [nombre, setNombre] = useState('');
   const [stock, setStock] = useState<number | null>(null);
@@ -109,30 +106,25 @@ export default function ModalFormularioPizza({
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!isOpen) return;
-      
       try {
         setLoading(true);
-        const [tRes, tsRes, sRes, cRes] = await Promise.all([
+        const [tRes, tsRes, sRes] = await Promise.all([
           fetch(TAMANIOS_URL),
           fetch(TAMANIO_SABORES_URL),
           fetch(SABORES_URL),
-          fetch(CATEGORIAS_URL),
         ]);
         
-        if (!tRes.ok || !tsRes.ok || !sRes.ok || !cRes.ok) throw new Error('Error al cargar datos');
+        if (!tRes.ok || !tsRes.ok || !sRes.ok) throw new Error('Error al cargar datos');
         
-        const [tData, tsData, sData, cData] = await Promise.all([
+        const [tData, tsData, sData] = await Promise.all([
           tRes.json(),
           tsRes.json(),
-          sRes.json(),
-          cRes.json()
+          sRes.json()
         ]);
 
         setTamanios(tData);
         setTamanioSabores(tsData);
         setSabores(sData);
-        setCategorias(cData);
 
         const comb = tsData.map((ts: TamanioSabor) => {
           const tamanio = tData.find((t: Tamanio) => t.id === ts.tamanio_id);
@@ -153,10 +145,10 @@ export default function ModalFormularioPizza({
     };
 
     fetchData();
-  }, [isOpen]);
+  }, []);
 
   useEffect(() => {
-    if (modoEdicion && productoEditando && isOpen) {
+    if (modoEdicion && productoEditando) {
       setNombre(productoEditando.nombre);
       setStock(productoEditando.stock);
       setDescripcion(productoEditando.descripcion || '');
@@ -177,10 +169,10 @@ export default function ModalFormularioPizza({
         
         setCombinaciones(comb.length > 0 ? comb : [{ tamanio_id: null, sabor_id: null }]);
       }
-    } else if (!modoEdicion && isOpen) {
+    } else {
       resetForm();
     }
-  }, [modoEdicion, productoEditando, isOpen, tamanioSabores]);
+  }, [modoEdicion, productoEditando, tamanioSabores]);
 
   const agregarCombinacion = () => {
     if (combinaciones.length < 2) {
@@ -208,8 +200,7 @@ export default function ModalFormularioPizza({
   };
 
   const renderSelectTamanio = (index: number) => {
-    const categoriaNombre = categorias.find(c => c.id === 1)?.nombre?.toLowerCase().replace(/s$/, '').trim() || '';
-    const tamaniosFiltrados = tamanios.filter(t => t.tipo?.toLowerCase().trim() === categoriaNombre);
+    const tamaniosFiltrados = tamanios.filter(t => t.tipo?.toLowerCase().trim() === 'pizza');
     
     return (
       <select
@@ -328,220 +319,203 @@ export default function ModalFormularioPizza({
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div
-        className="absolute inset-0"
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)' }}
-        onClick={onClose}
-      />
+    <form onSubmit={handleGuardar}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Primera columna */}
+        <div className="space-y-4">
+          {/* Nombre */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto *</label>
+            <input
+              type="text"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              required
+            />
+          </div>
 
-      {/* Contenedor del modal */}
-      <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-6xl mx-4 border-2 max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">
-          {modoEdicion ? 'Editar Pizza' : 'Agregar Pizza'}
-        </h2>
-        
-        <form onSubmit={handleGuardar}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Primera columna */}
-            <div className="space-y-4">
-              {/* Nombre */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre del Producto *</label>
-                <input
-                  type="text"
-                  value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              {/* Combinaciones Tamaño-Sabor */}
-              <div className="space-y-4">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Combinaciones Tamaño-Sabor *</label>
-                
-                {combinaciones.map((combinacion, index) => (
-                  <div key={index} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-500 mb-1">Tamaño</div>
-                        {renderSelectTamanio(index)}
-                      </div>
-                      <div className="flex-1">
-                        <div className="text-xs text-gray-500 mb-1">Sabor</div>
-                        {renderSelectSabor(index)}
-                      </div>
-                      {index > 0 && (
-                        <button
-                          type="button"
-                          onClick={() => eliminarCombinacion(index)}
-                          className="text-red-500 hover:text-red-700 mt-5"
-                          disabled={loading}
-                        >
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      )}
-                    </div>
+          {/* Combinaciones Tamaño-Sabor */}
+          <div className="space-y-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Combinaciones Tamaño-Sabor *</label>
+            
+            {combinaciones.map((combinacion, index) => (
+              <div key={index} className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Tamaño</div>
+                    {renderSelectTamanio(index)}
                   </div>
-                ))}
-
-                {combinaciones.length < 2 && (
-                  <button
-                    type="button"
-                    onClick={agregarCombinacion}
-                    className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
-                    disabled={loading}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
-                    </svg>
-                    Agregar otra combinación
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Segunda columna */}
-            <div className="space-y-4">
-              {/* Stock */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
-                <input
-                  type="number"
-                  value={stock ?? ''}
-                  onChange={(e) => handleNumberChange(e, setStock)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                />
-              </div>
-
-              {/* Impuesto y Descuento */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
-                <input
-                  type="number"
-                  value={impuesto ?? ''}
-                  onChange={(e) => handleNumberChange(e, setImpuesto)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
-                <input
-                  type="number"
-                  value={descuento ?? ''}
-                  onChange={(e) => handleNumberChange(e, setDescuento)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  disabled={loading}
-                  min="0"
-                  max="100"
-                />
-              </div>
-            </div>
-
-            {/* Tercera columna */}
-            <div className="space-y-4">
-              {/* Imagen */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
-                <div className="flex items-center gap-4">
-                  <div>
-                    <input
-                      type="file"
-                      ref={(ref) => setFileInputRef(ref)}
-                      onChange={handleImageChange}
-                      accept="image/*"
-                      className="hidden"
-                      id="imagen-upload"
+                  <div className="flex-1">
+                    <div className="text-xs text-gray-500 mb-1">Sabor</div>
+                    {renderSelectSabor(index)}
+                  </div>
+                  {index > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => eliminarCombinacion(index)}
+                      className="text-red-500 hover:text-red-700 mt-5"
                       disabled={loading}
-                    />
-                    <label
-                      htmlFor="imagen-upload"
-                      className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm transition-colors"
                     >
-                      Seleccionar imagen
-                    </label>
-                  </div>
-                  {imagenPreview && (
-                    <div className="w-16 h-16 border rounded overflow-hidden">
-                      <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
-                    </div>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                      </svg>
+                    </button>
                   )}
                 </div>
               </div>
+            ))}
 
-              {/* Descripción */}
+            {combinaciones.length < 2 && (
+              <button
+                type="button"
+                onClick={agregarCombinacion}
+                className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
+                disabled={loading}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+                Agregar otra combinación
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Segunda columna */}
+        <div className="space-y-4">
+          {/* Stock */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Stock</label>
+            <input
+              type="number"
+              value={stock ?? ''}
+              onChange={(e) => handleNumberChange(e, setStock)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              min="0"
+            />
+          </div>
+
+          {/* Impuesto y Descuento */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Impuesto (%)</label>
+            <input
+              type="number"
+              value={impuesto ?? ''}
+              onChange={(e) => handleNumberChange(e, setImpuesto)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              min="0"
+              max="100"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descuento (%)</label>
+            <input
+              type="number"
+              value={descuento ?? ''}
+              onChange={(e) => handleNumberChange(e, setDescuento)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              disabled={loading}
+              min="0"
+              max="100"
+            />
+          </div>
+        </div>
+
+        {/* Tercera columna */}
+        <div className="space-y-4">
+          {/* Imagen */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Imagen</label>
+            <div className="flex items-center gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
-                <textarea
-                  value={descripcion}
-                  onChange={(e) => setDescripcion(e.target.value)}
-                  className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
-                  rows={5}
+                <input
+                  type="file"
+                  ref={(ref) => setFileInputRef(ref)}
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="hidden"
+                  id="imagen-upload"
                   disabled={loading}
                 />
+                <label
+                  htmlFor="imagen-upload"
+                  className="cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm transition-colors"
+                >
+                  Seleccionar imagen
+                </label>
               </div>
-
-              {/* Checkboxes */}
-              <div className="space-y-2 pt-2">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="destacado"
-                    checked={destacado}
-                    onChange={(e) => setDestacado(e.target.checked)}
-                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                    disabled={loading}
-                  />
-                  <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">Producto destacado</label>
+              {imagenPreview && (
+                <div className="w-16 h-16 border rounded overflow-hidden">
+                  <img src={imagenPreview} alt="Preview" className="w-full h-full object-cover" />
                 </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="habilitado"
-                    checked={habilitado}
-                    onChange={(e) => setHabilitado(e.target.checked)}
-                    className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
-                    disabled={loading}
-                  />
-                  <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">Producto habilitado</label>
-                </div>
-              </div>
+              )}
             </div>
           </div>
 
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+          {/* Descripción */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+            <textarea
+              value={descripcion}
+              onChange={(e) => setDescripcion(e.target.value)}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              rows={5}
               disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
-              disabled={loading}
-            >
-              {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
-            </button>
+            />
           </div>
-        </form>
+
+          {/* Checkboxes */}
+          <div className="space-y-2 pt-2">
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="destacado"
+                checked={destacado}
+                onChange={(e) => setDestacado(e.target.checked)}
+                className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                disabled={loading}
+              />
+              <label htmlFor="destacado" className="ml-2 text-sm text-gray-700">Producto destacado</label>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                id="habilitado"
+                checked={habilitado}
+                onChange={(e) => setHabilitado(e.target.checked)}
+                className="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+                disabled={loading}
+              />
+              <label htmlFor="habilitado" className="ml-2 text-sm text-gray-700">Producto habilitado</label>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <div className="mt-6 flex justify-end gap-3">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-gray-300 rounded hover:bg-gray-50 text-gray-700"
+          disabled={loading}
+        >
+          Cancelar
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
+          disabled={loading}
+        >
+          {loading ? <LoadingSpinner size={5} /> : modoEdicion ? 'Actualizar' : 'Guardar'}
+        </button>
+      </div>
+    </form>
   );
 }
