@@ -1,4 +1,4 @@
-// ModalPCA.tsx - Versión integrada (sin overlay)
+// ModalPCA.tsx 
 'use client';
 import { useState, useEffect } from 'react';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
@@ -307,7 +307,6 @@ export default function ModalPCA({
     }
   };
 
-  // Renderizamos solo el contenido del formulario, sin el overlay ni el contenedor del modal
   return (
     <form onSubmit={handleGuardar} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

@@ -1,3 +1,4 @@
+//ModalTamanio.tsx
 'use client';
 import { useEffect } from 'react';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
