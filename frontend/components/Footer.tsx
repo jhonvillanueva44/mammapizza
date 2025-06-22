@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { FaWhatsapp, FaFacebook, FaInstagram, FaPhone, FaEnvelope, FaPizzaSlice, FaGlassCheers, FaCoffee } from "react-icons/fa";
+import { FaWhatsapp, FaFacebook, FaInstagram, FaEnvelope, FaPizzaSlice, FaGlassCheers } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -16,18 +16,6 @@ export default function Footer() {
               En <span className="text-yellow-400 font-semibold">Mamma Pizza</span> sentimos pasión por las pizzas y pastas artesanales. 
               Te invitamos a probar nuestras especialidades preparadas con ingredientes frescos y amor italiano.
             </p>
-            <div className="pt-4">
-              <div className="bg-white p-2 inline-block rounded-lg shadow-lg">
-                <Image
-                  src="/images/qr.png"
-                  alt="QR para promociones"
-                  width={120}
-                  height={120}
-                  className="rounded-md"
-                />
-              </div>
-              <p className="text-sm text-gray-400 mt-2">Escanea para promociones exclusivas</p>
-            </div>
           </div>
 
           {/* Contact Section */}
@@ -35,7 +23,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Contáctenos</h3>
             <div className="space-y-3">
               <a
-                href="https://api.whatsapp.com/message/C6GK35HNPVDBH1?autoload=1&app_absent=0"
+                href="https://wa.me/51929302775"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-green-400 hover:text-green-300 transition-colors"
@@ -49,13 +37,6 @@ export default function Footer() {
               >
                 <FaEnvelope className="text-lg" />
                 <span>Mammapizza@pizzarico.com</span>
-              </a>
-              <a 
-                href="tel:+51989481847" 
-                className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors"
-              >
-                <FaPhone className="text-lg" />
-                <span>+51 989 481 847</span>
               </a>
             </div>
           </div>
@@ -95,7 +76,7 @@ export default function Footer() {
             <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Menú Express</h3>
             <ul className="space-y-3">
               <li>
-                <a href="#" className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors">
+                <a href="/menu/pizzas" className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors">
                   <FaPizzaSlice />
                   <span>Pedir</span>
                 </a>
@@ -107,8 +88,6 @@ export default function Footer() {
                 </a>
               </li>
             </ul>
-            
-            
           </div>
         </div>
 
@@ -120,10 +99,7 @@ export default function Footer() {
           <div className="mb-4 md:mb-0">
             © {new Date().getFullYear()} Mamma Pizza. Todos los derechos reservados.
           </div>
-          <div className="flex space-x-4">
-            <a href="#" className="hover:text-yellow-400 transition-colors">Términos y condiciones</a>
-            <a href="#" className="hover:text-yellow-400 transition-colors">Política de privacidad</a>
-          </div>
+          {/* Se removió el bloque con términos y política */}
         </div>
       </div>
     </footer>

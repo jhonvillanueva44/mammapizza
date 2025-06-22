@@ -287,7 +287,7 @@ export default function Home() {
       </section>
 
       {/* SECCION DE PRODUCTOS DESTACADOS */}
-      <section className="py-4">
+      <section className="py-4 px-4 sm:px-6">
         <ProductSection
           title="Promociones Especiales"
           description="Una promoción se disfruta mejor en familia y amigos"
@@ -339,13 +339,14 @@ export default function Home() {
       <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 font-['Playfair_Display'] mb-3">
               Adicionales
             </h2>
-            <p className="text-sm text-gray-600 font-['Open_Sans']">
+            <p className="text-base sm:text-lg text-gray-600 font-['Open_Sans']">
               Complementa tu experiencia con nuestros extras especiales
             </p>
           </div>
+
           {!loadingAdicionales && <SingleBannerSection items={adicionales} />}
         </div>
       </section>
@@ -354,12 +355,13 @@ export default function Home() {
       <section className="py-8 px-4 bg-gradient-to-r from-red-50/50 to-red-50/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+            <h2 className="text-4xl sm:text-5xl font-bold text-gray-800 font-['Playfair_Display'] mb-4">
               Bebidas Refrescantes
             </h2>
-            <p className="text-sm text-gray-600 font-['Open_Sans']">
+            <p className="text-base sm:text-lg text-gray-600 font-['Open_Sans']">
               El complemento perfecto para tus platillos favoritos
             </p>
+
           </div>
 
           {loadingBebidas ? (

@@ -1,3 +1,4 @@
+// components/ProductSection.tsx
 import React, { RefObject } from "react";
 import Link from "next/link";
 import ProductoCard, { ProductoCardProps } from "@/components/ProductoCard";
@@ -7,7 +8,7 @@ interface ProductSectionProps {
   description: string;
   link: string;
   productos: ProductoCardProps[];
-  scrollRef: RefObject<HTMLDivElement | null>; // <-- Cambiado aquí
+  scrollRef: RefObject<HTMLDivElement | null>;
   onScrollLeft: () => void;
   onScrollRight: () => void;
 }
@@ -36,17 +37,20 @@ export default function ProductSection({
           </Link>
         </div>
 
-        <div className="relative">
+        <div className="relative group">
+          {/* Botón izquierdo - posicionado correctamente */}
           <button
             onClick={onScrollLeft}
-            className="hidden sm:flex absolute -left-4 top-1/2 -translate-y-1/2 z-30 bg-red-600 text-white border border-red-600 rounded-l-xl p-3 cursor-pointer hover:brightness-110 transition"
+            className="hidden sm:flex absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-red-600 text-white border border-red-600 rounded-l-lg p-2 cursor-pointer hover:brightness-110 transition transform -translate-x-1/2"
+            aria-label="Scroll left"
           >
             ◀
           </button>
 
+          {/* Contenedor de productos */}
           <div
             ref={scrollRef}
-            className="flex gap-4 flex-nowrap overflow-x-auto sm:overflow-x-hidden scrollbar-hide"
+            className="flex gap-4 flex-nowrap overflow-x-auto sm:overflow-x-hidden scrollbar-hide px-2"
           >
             {productos.map((producto, index) => (
               <div key={index} className="flex-shrink-0 lg:w-64 sm:w-48">
@@ -55,9 +59,11 @@ export default function ProductSection({
             ))}
           </div>
 
+          {/* Botón derecho - posicionado correctamente */}
           <button
             onClick={onScrollRight}
-            className="hidden sm:flex absolute -right-4 top-1/2 -translate-y-1/2 z-30 bg-red-600 text-white border border-red-600 rounded-r-xl p-3 cursor-pointer hover:brightness-110 transition"
+            className="hidden sm:flex absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-red-600 text-white border border-red-600 rounded-r-lg p-2 cursor-pointer hover:brightness-110 transition transform translate-x-1/2"
+            aria-label="Scroll right"
           >
             ▶
           </button>

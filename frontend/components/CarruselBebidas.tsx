@@ -21,7 +21,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
 
   useEffect(() => {
     if (items.length <= 1) return;
-    
+
     const interval = setInterval(() => {
       nextSlide();
     }, 5000);
@@ -70,7 +70,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
 
   const renderCard = (index: number, position: "prev" | "current" | "next") => {
     const item = items[index];
-    
+
     const positionStyles = {
       prev: {
         transform: "translateX(-20px) scale(0.85)",
@@ -102,19 +102,11 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
         onClick={() => !isActive && goToSlide(index)}
       >
         <div className={`
-          relative overflow-hidden rounded-2xl bg-white shadow-lg border border-red-200/50
-          ${isActive ? 'shadow-2xl border-red-300' : 'hover:shadow-xl'}
+          relative overflow-hidden rounded-2xl bg-white shadow-lg border border-red-600
+          ${isActive ? 'shadow-2xl border-red-700' : 'hover:shadow-xl'}
           transition-all duration-300 
         `}>
-          {/* Badge superior */}
-          {isActive && (
-            <div className="absolute top-4 left-4 z-20">
-              <div className="inline-flex items-center px-3 py-1 rounded-full bg-red-500 text-white text-xs font-medium font-['Open_Sans'] shadow-lg">
-                <span className="mr-1">🥤</span>
-                Destacado
-              </div>
-            </div>
-          )}
+          {/* Quité el badge "Destacado" */}
 
           {/* Imagen */}
           <div className="relative overflow-hidden">
@@ -154,7 +146,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className={`
-                    font-bold text-red-600 font-['Inter']
+                    font-bold text-red-700 font-['Inter']
                     ${isActive ? 'text-2xl' : 'text-xl'}
                   `}>
                     S/ {item.precio.toFixed(2)}
@@ -174,7 +166,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
                     e.stopPropagation();
                     handleVerMas();
                   }}
-                  className="w-full mt-4 bg-gradient-to-r from-red-500 to-red-500 hover:from-red-600 hover:to-red-600 text-white py-3 px-6 rounded-xl font-medium font-['Open_Sans'] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  className="w-full mt-4 bg-gradient-to-r from-red-600 to-red-600 hover:from-red-700 hover:to-red-700 text-white py-3 px-6 rounded-xl font-medium font-['Open_Sans'] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl cursor-pointer"
                 >
                   Ver todas las bebidas
                 </button>
@@ -194,7 +186,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
         <button
           onClick={prevSlide}
           disabled={isAnimating}
-          className="absolute left-0 lg:left-4 z-20 p-3 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl border border-red-200 text-red-500 hover:text-red-700 transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute left-0 lg:left-4 z-20 p-3 rounded-full bg-white/90 hover:bg-red-700 shadow-lg hover:shadow-xl border border-red-600 text-red-600 hover:text-white transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           aria-label="Bebida anterior"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -209,11 +201,11 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
               {renderCard(prevIndex, "prev")}
             </div>
           )}
-          
+
           <div className="flex-shrink-0">
             {renderCard(current, "current")}
           </div>
-          
+
           {items.length > 1 && (
             <div className="hidden lg:block">
               {renderCard(nextIndex, "next")}
@@ -225,7 +217,7 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
         <button
           onClick={nextSlide}
           disabled={isAnimating}
-          className="absolute right-0 lg:right-4 z-20 p-3 rounded-full bg-white/90 hover:bg-white shadow-lg hover:shadow-xl border border-red-200 text--red-500 hover:text-red-700 transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="absolute right-0 lg:right-4 z-20 p-3 rounded-full bg-white/90 hover:bg-red-700 shadow-lg hover:shadow-xl border border-red-600 text-red-600 hover:text-white transition-all duration-300 transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           aria-label="Siguiente bebida"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,9 +235,9 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
               onClick={() => goToSlide(index)}
               className={`
                 h-2 rounded-full transition-all duration-300
-                ${index === current 
-                  ? 'w-8 bg-red-500' 
-                  : 'w-2 bg-gray-300 hover:bg-gray-400'
+                ${index === current
+                  ? 'w-8 bg-red-600'
+                  : 'w-2 bg-gray-300 hover:bg-gray-400 cursor-pointer'
                 }
               `}
               aria-label={`Ir a bebida ${index + 1}`}
@@ -256,7 +248,6 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
 
       {/* Información adicional */}
       <div className="text-center px-4">
-        
         {items.length > 1 && (
           <p className="text-xs text-gray-500 font-['Open_Sans'] mt-1">
           </p>

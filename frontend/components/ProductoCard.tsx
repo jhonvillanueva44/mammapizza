@@ -60,7 +60,7 @@ const ProductoCard = ({
     >
       {/* Decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-red-400/5 to-red-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-      
+
       <div className="relative z-10">
         {/* Image container with enhanced effects */}
         <div className="relative w-full overflow-hidden rounded-t-xl">
@@ -85,11 +85,10 @@ const ProductoCard = ({
           {isGrid && !esPromocion && typeof especial === 'boolean' && (
             <div className="absolute top-3 right-3 z-20">
               <span
-                className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-lg backdrop-blur-sm font-sans ${
-                  especial 
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' 
+                className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-lg backdrop-blur-sm font-sans ${especial
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
                     : 'bg-white/90 text-gray-700 border border-gray-200'
-                }`}
+                  }`}
               >
                 {especial ? '⭐ Especial' : 'Clásico'}
               </span>
@@ -111,11 +110,12 @@ const ProductoCard = ({
         <div className="p-4">
           {/* Title and description with better typography */}
           <div className="mb-3 min-h-[80px] flex flex-col justify-between">
-            <h3 className="text-lg font-bold leading-tight line-clamp-2 text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-serif">
+            <h3 className="text-lg font-bold leading-tight line-clamp-2 overflow-hidden text-ellipsis h-[3.25rem] text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-serif">
               {titulo}
             </h3>
 
-            <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-2 overflow-hidden font-serif">
+
+            <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-2 h-[3rem] overflow-hidden font-serif">
               {descripcion}
             </p>
           </div>
@@ -145,7 +145,7 @@ const ProductoCard = ({
       <div className="relative z-10 p-4 pt-0">
         <button
           onClick={handleAddToCart}
-          className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 relative overflow-hidden group/button text-sm font-sans"
+          className="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-2.5 px-5 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95 relative overflow-hidden group/button text-sm font-sans cursor-pointer"
         >
           <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/button:translate-x-[100%] transition-transform duration-500 skew-x-12"></span>
           <span className="relative flex items-center justify-center gap-2">
