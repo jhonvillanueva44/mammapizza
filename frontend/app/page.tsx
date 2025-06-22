@@ -40,8 +40,8 @@ const transformarPromociones = (data: any[]): ProductoCardProps[] => {
       imagen: imagenValida,
       precioAntiguo,
       descuento,
-      ruta: 'promos', 
-      mostrarPersonalizar: false, 
+      ruta: 'promos',
+      mostrarPersonalizar: false,
     };
   });
 };
@@ -237,7 +237,7 @@ export default function Home() {
       try {
         const response = await fetch('http://localhost:4000/api/productos/bebidas');
         const data = await response.json();
-        
+
         // Filtramos solo las bebidas destacadas y las transformamos al formato BebidaItem
         const bebidasTransformadas = data
           .filter((item: any) => item.destacado)
@@ -247,7 +247,7 @@ export default function Home() {
             imagen: item.imagen || "/images/card-bebida.jpg",
             precio: Number(item.precio) || 0
           }));
-        
+
         setBebidas(bebidasTransformadas);
       } catch (error) {
         console.error('Error fetching bebidas:', error);
@@ -268,13 +268,10 @@ export default function Home() {
       {/* MENUCARRUSEL -> CATEGORYCARD */}
       <section className="py-8 px-4">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
+          <div className="max-w-7xl mx-auto text-center">
+            <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-800 font-['Playfair_Display'] mb-12">
               Nuestro Menú
             </h2>
-            <p className="text-sm text-gray-600 font-['Open_Sans']">
-              Descubre todas nuestras especialidades
-            </p>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             {categories.map((cat, i) => (
@@ -292,7 +289,7 @@ export default function Home() {
       {/* SECCION DE PRODUCTOS DESTACADOS */}
       <section className="py-4">
         <ProductSection
-          title="🔥 Promociones Especiales"
+          title="Promociones Especiales"
           description="Una promoción se disfruta mejor en familia y amigos"
           link="/menu/promos"
           productos={productosPromocion}
@@ -304,7 +301,7 @@ export default function Home() {
 
       <section className="py-4">
         <ProductSection
-          title="🍕 Nuestras Pizzas"
+          title="Nuestras Pizzas"
           description="Las pizzas más deliciosas, horneadas al estilo tradicional"
           link="/menu/pizzas"
           productos={productosPizzas}
@@ -316,7 +313,7 @@ export default function Home() {
 
       <section className="py-4">
         <ProductSection
-          title="🥟 Calzones Artesanales"
+          title="Calzones Artesanales"
           description="Disfruta de un delicioso calzone con ingredientes frescos y variados"
           link="/menu/calzone"
           productos={productosCalzone}
@@ -328,7 +325,7 @@ export default function Home() {
 
       <section className="py-4">
         <ProductSection
-          title="🍝 Pastas Caseras"
+          title="Pastas Caseras"
           description="Prueba nuestras pastas caseras con salsa tradicional, ¡te encantarán!"
           link="/menu/pastas"
           productos={productosPastas}
@@ -343,7 +340,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
-              🧄 Adicionales
+              Adicionales
             </h2>
             <p className="text-sm text-gray-600 font-['Open_Sans']">
               Complementa tu experiencia con nuestros extras especiales
@@ -358,13 +355,13 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
-              🥤 Bebidas Refrescantes
+              Bebidas Refrescantes
             </h2>
             <p className="text-sm text-gray-600 font-['Open_Sans']">
               El complemento perfecto para tus platillos favoritos
             </p>
           </div>
-          
+
           {loadingBebidas ? (
             <div className="flex justify-center items-center h-64">
               <div className="flex flex-col items-center gap-3">

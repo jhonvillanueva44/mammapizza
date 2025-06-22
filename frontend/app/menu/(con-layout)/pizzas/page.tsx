@@ -414,6 +414,7 @@ export default function MenuPizzasPage() {
                         descuento={pizza.descuento ?? undefined}
                         isGrid={true}
                         especial={combinacionAMostrar.tamanio_sabor.sabor.especial ?? false}
+                        ruta="pizzas"
                       />
                     );
                   }
@@ -448,7 +449,7 @@ export default function MenuPizzasPage() {
                         descuento={pizza.descuento ?? undefined}
                         isGrid={true}
                         especial={unico.tamanios_sabor.sabor.especial ?? false}
-                        
+                        ruta="pizzas"
                       />
                     )
                   }

@@ -279,6 +279,7 @@ export default function MenuPastasPage() {
                       imagen={pasta.imagen || '/images/card-pasta.jpg'}
                       descuento={pasta.descuento ?? undefined}
                       isGrid={true}
+                      ruta="pastas"
                     />
                   );
                 })}

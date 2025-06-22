@@ -106,12 +106,6 @@ export default function Footer() {
                   <span>Bebidas</span>
                 </a>
               </li>
-              <li>
-                <a href="/desayunos" className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors">
-                  <FaCoffee />
-                  <span>Desayunos</span>
-                </a>
-              </li>
             </ul>
             
             

@@ -278,6 +278,7 @@ export default function MenuCalzonePage() {
                       imagen={calzone.imagen || '/images/card-calzone.jpg'}
                       descuento={calzone.descuento ?? undefined}
                       isGrid={true}
+                      ruta="calzone"
                     />
                   );
                 })}
