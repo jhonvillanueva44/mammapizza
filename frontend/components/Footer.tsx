@@ -1,6 +1,12 @@
 "use client";
-import Image from "next/image";
-import { FaWhatsapp, FaFacebook, FaInstagram, FaEnvelope, FaPizzaSlice, FaGlassCheers } from "react-icons/fa";
+import {
+  FaWhatsapp,
+  FaFacebook,
+  FaInstagram,
+  FaEnvelope,
+  FaPizzaSlice,
+  FaGlassCheers,
+} from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -8,19 +14,21 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto">
         {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          
           {/* About Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Sobre nosotros</h3>
+            <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
+              Sobre nosotros
+            </h3>
             <p className="text-gray-300 leading-relaxed">
-              En <span className="text-yellow-400 font-semibold">Mamma Pizza</span> sentimos pasión por las pizzas y pastas artesanales. 
-              Te invitamos a probar nuestras especialidades preparadas con ingredientes frescos y amor italiano.
+              En <span className="text-red-600 font-semibold">Mamma Pizza</span> sentimos pasión por las pizzas y pastas artesanales. Te invitamos a probar nuestras especialidades preparadas con ingredientes frescos y amor italiano.
             </p>
           </div>
 
           {/* Contact Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Contáctenos</h3>
+            <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
+              Contáctenos
+            </h3>
             <div className="space-y-3">
               <a
                 href="https://wa.me/51929302775"
@@ -31,9 +39,9 @@ export default function Footer() {
                 <FaWhatsapp className="text-xl" />
                 <span>WhatsApp</span>
               </a>
-              <a 
-                href="mailto:Mammapizza@pizzarico.com" 
-                className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors"
+              <a
+                href="mailto:Mammapizza@pizzarico.com"
+                className="flex items-center gap-3 text-gray-300 hover:text-red-600 transition-colors"
               >
                 <FaEnvelope className="text-lg" />
                 <span>Mammapizza@pizzarico.com</span>
@@ -43,18 +51,20 @@ export default function Footer() {
 
           {/* Social Media Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Redes Sociales</h3>
+            <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
+              Redes Sociales
+            </h3>
             <div className="space-y-3">
-              <a 
-                href="https://facebook.com/mammapizza" 
+              <a
+                href="https://facebook.com/mammapizza"
                 target="_blank"
                 className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition-colors"
               >
                 <FaFacebook className="text-xl" />
                 <span>Facebook</span>
               </a>
-              <a 
-                href="https://www.instagram.com/mammapizzatrujillo" 
+              <a
+                href="https://www.instagram.com/mammapizzatrujillo"
                 target="_blank"
                 className="flex items-center gap-3 text-gray-300 hover:text-pink-500 transition-colors"
               >
@@ -62,10 +72,10 @@ export default function Footer() {
                 <span>Instagram</span>
               </a>
             </div>
-            
+
             {/* Hours Section */}
             <div className="pt-4">
-              <h4 className="font-semibold text-yellow-400">Horario de atención:</h4>
+              <h4 className="font-semibold text-red-600">Horario de atención:</h4>
               <p className="text-gray-300 text-sm">Lunes a Domingo</p>
               <p className="text-gray-300 text-sm">10:00 AM - 10:00 PM</p>
             </div>
@@ -73,16 +83,24 @@ export default function Footer() {
 
           {/* Quick Menu Section */}
           <div className="space-y-4">
-            <h3 className="text-xl font-bold text-yellow-400 border-b border-yellow-400 pb-2 inline-block">Menú Express</h3>
+            <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
+              Menú Express
+            </h3>
             <ul className="space-y-3">
               <li>
-                <a href="/menu/pizzas" className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors">
+                <a
+                  href="/menu/pizzas"
+                  className="flex items-center gap-3 text-gray-300 hover:text-red-600 transition-colors"
+                >
                   <FaPizzaSlice />
                   <span>Pedir</span>
                 </a>
               </li>
               <li>
-                <a href="/bebidas" className="flex items-center gap-3 text-gray-300 hover:text-yellow-400 transition-colors">
+                <a
+                  href="/bebidas"
+                  className="flex items-center gap-3 text-gray-300 hover:text-red-600 transition-colors"
+                >
                   <FaGlassCheers />
                   <span>Bebidas</span>
                 </a>
@@ -99,7 +117,6 @@ export default function Footer() {
           <div className="mb-4 md:mb-0">
             © {new Date().getFullYear()} Mamma Pizza. Todos los derechos reservados.
           </div>
-          {/* Se removió el bloque con términos y política */}
         </div>
       </div>
     </footer>

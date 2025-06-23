@@ -12,7 +12,7 @@ export type ProductoCardProps = {
   descuento?: number
   isGrid?: boolean
   especial?: boolean
-  ruta?: String
+  ruta?: string
   mostrarPersonalizar?: boolean
 }
 
@@ -26,7 +26,7 @@ const ProductoCard = ({
   descuento,
   isGrid = false,
   especial,
-  ruta,
+  ruta = '',
   mostrarPersonalizar = true
 }: ProductoCardProps) => {
   const esPromocion = precioAntiguo !== undefined && descuento !== undefined
@@ -50,6 +50,14 @@ const ProductoCard = ({
     }
 
     sessionStorage.setItem('carrito', JSON.stringify(cart))
+  }
+
+  // Construir la ruta dinámicamente
+  const getPersonalizarUrl = () => {
+    if (ruta === 'bebidas') {
+      return `/${ruta}/${id}`
+    }
+    return `/menu/${ruta}/${id}`
   }
 
   return (
@@ -98,7 +106,7 @@ const ProductoCard = ({
           {/* Customize button with modern design */}
           {mostrarPersonalizar && (
             <Link
-              href={`/menu/${ruta}/${id}`}
+              href={getPersonalizarUrl()}
               className="absolute bottom-3 right-3 z-20 bg-red-600 hover:bg-red-700 text-white hover:text-white text-xs font-medium px-2.5 py-1.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer font-sans"
             >
               ✨ Personalizar

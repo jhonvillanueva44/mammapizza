@@ -6,7 +6,8 @@ import {
   findSaboresPizzaService,
   findSaboresCalzoneService,
   findSaboresPastaService,
-  findSaboresAgregadoService
+  findSaboresAgregadoService,
+  findSaboresBebidaService
 } from '../services/sabores.service.js';
 
 export const getSabores = async (req, res) => {
@@ -98,5 +99,15 @@ export const getSaboresAgregado = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener sabores tipo Agregado.' });
+  }
+};
+
+export const getSaboresBebida = async (req, res) => {
+  try {
+    const sabores = await findSaboresBebidaService();
+    res.json(sabores);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener sabores tipo Bebida.' });
   }
 };

@@ -8,7 +8,8 @@ import {
   findSaboresPizza,
   findSaboresCalzone,
   findSaboresPasta,
-  findSaboresAgregado
+  findSaboresAgregado,
+  findSaboresBebida
 } from '../repositories/sabores.repository.js';
 
 export const findAllSaboresService = async () => {
@@ -80,4 +81,8 @@ export const findSaboresPastaService = async () => {
 
 export const findSaboresAgregadoService = async () => {
   return await findSaboresAgregado();
+};
+
+export const findSaboresBebidaService = async () => {
+  return await findSaboresBebida();
 };

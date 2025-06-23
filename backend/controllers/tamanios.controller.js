@@ -6,7 +6,8 @@ import {
   findTamaniosPizzaService,
   findTamaniosCalzoneService,
   findTamaniosPastaService,
-  findTamaniosAgregadoService
+  findTamaniosAgregadoService,
+  findTamaniosBebidaService
 } from '../services/tamanios.service.js';
 
 export const getTamanios = async (req, res) => {
@@ -98,5 +99,15 @@ export const getTamaniosAgregado = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener tamaños tipo Agregado.' });
+  }
+};
+
+export const getTamaniosBebida = async (req, res) => {
+  try {
+    const tamanios = await findTamaniosBebidaService();
+    res.json(tamanios);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener tamaños tipo Bebida.' });
   }
 };

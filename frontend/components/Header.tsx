@@ -1,4 +1,3 @@
-//header.tsx
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
@@ -11,9 +10,7 @@ export default function Header() {
     return null
   }
 
-  // ESTAS CONSTANTES SON PARA EL SEARCH
   const [isOpen, setIsOpen] = useState(false)
-  const [isSearchFocused, setIsSearchFocused] = useState(false)
   const [showHeader, setShowHeader] = useState(true)
   const [lastScrollY, setLastScrollY] = useState(0)
 
@@ -115,7 +112,7 @@ export default function Header() {
       }}></div>
 
       <div className="max-w-7xl mx-auto flex items-center justify-between px-6 h-20 relative z-10">
-        {/* LOGO Y SEARCH */}
+        {/* LOGO */}
         <div className="flex items-center gap-6">
           <Link href="/" className="group cursor-pointer transition-all duration-300 hover:scale-105">
             <img 
@@ -124,21 +121,6 @@ export default function Header() {
               className="h-12 w-auto object-contain transition-all duration-300 group-hover:drop-shadow-lg group-hover:brightness-110" 
             />
           </Link>
-          
-          <div className="hidden md:block relative">
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Buscar pizzas, bebidas..."
-                className={`transition-all duration-500 ease-in-out bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 rounded-2xl px-4 py-2.5 text-sm focus:outline-none border border-white/20 focus:border-red-400 focus:bg-white/15 focus:shadow-lg focus:shadow-red-500/20 ${isSearchFocused ? 'w-80' : 'w-64'}`}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-              />
-              <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-          </div>
         </div>
 
         {/* BOTON DE MENU HAMBURGUESA */}
@@ -309,20 +291,6 @@ export default function Header() {
       {isOpen && (
         <div className="md:hidden bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-md border-t border-red-500/20">
           <div className="px-6 py-4">
-            {/* Search móvil */}
-            <div className="mb-4 relative">
-              <input
-                type="text"
-                placeholder="Buscar pizzas, bebidas..."
-                className="w-full bg-white/10 backdrop-blur-sm text-white placeholder-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none border border-white/20 focus:border-red-400 focus:bg-white/15 transition-all duration-300"
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setIsSearchFocused(false)}
-              />
-              <svg className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </div>
-
             {/* Enlaces móvil */}
             <nav className="mb-4">
               <ul className="space-y-2">

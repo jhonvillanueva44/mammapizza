@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 export default function SobreNosotros() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-      
+
       {/* HERO SECTION */}
       <section className="relative py-16 px-4 bg-gradient-to-r from-red-900 via-red-800 to-red-900 overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -31,10 +31,10 @@ export default function SobreNosotros() {
       {/* SECCIÓN PRINCIPAL DE HISTORIA */}
       <section className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Card principal con historia */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-12 transform hover:scale-[1.02] transition-all duration-300">
-            
+
             {/* Header con gradiente */}
             <div className="bg-gradient-to-r from-red-900 to-red-800 p-8 md:p-12">
               <div className="text-center">
@@ -48,7 +48,7 @@ export default function SobreNosotros() {
             {/* Contenido principal */}
             <div className="p-8 md:p-12">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 items-center">
-                
+
                 {/* Imagen del pizzero */}
                 <div className="relative group">
                   <div className="relative w-full h-64 sm:h-80 md:h-96 rounded-2xl overflow-hidden shadow-lg">
@@ -83,7 +83,7 @@ export default function SobreNosotros() {
                       las bases de lo que hoy conocemos como la tradición Mammapizza.
                     </p>
                   </div>
-                  
+
                   {/* Elementos decorativos */}
                   <div className="flex justify-center lg:justify-start space-x-4 pt-4">
                     <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -133,14 +133,14 @@ export default function SobreNosotros() {
       {/* SECCIÓN DE UBICACIÓN */}
       <section className="py-12 md:py-20 px-4 bg-gradient-to-r from-red-50/50 to-red-50/50">
         <div className="max-w-7xl mx-auto">
-          
+
           {/* Título de sección */}
           <div className="text-center mb-12">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 font-['Playfair_Display'] mb-4">
               📍 Visítanos en Nuestros Locales
             </h2>
             <p className="text-base sm:text-lg text-gray-600 font-['Open_Sans'] max-w-2xl mx-auto">
-              Encuentra tu local más cercano y vive la experiencia Mammapizza. 
+              Encuentra tu local más cercano y vive la experiencia Mammapizza.
               ¡Te esperamos con los brazos abiertos y la mejor pizza!
             </p>
             <div className="w-24 h-1 bg-red-500 mx-auto mt-6 rounded-full"></div>
@@ -149,7 +149,7 @@ export default function SobreNosotros() {
           {/* Card de ubicación */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
-              
+
               {/* Información de contacto */}
               <div className="p-8 md:p-12 flex flex-col justify-center bg-gradient-to-br from-white to-red-50/30">
                 <div className="space-y-6">
@@ -163,12 +163,12 @@ export default function SobreNosotros() {
                         <div>
                           <p className="font-semibold text-gray-800">Dirección:</p>
                           <p className="text-gray-600 font-['Open_Sans']">
-                            Calle Granados 529 California<br/>
+                            Calle Granados 529 California<br />
                             Víctor Larco Herrera, Perú 13001
                           </p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start space-x-3">
                         <span className="text-red-500 text-xl mt-1">🕒</span>
                         <div>
@@ -190,7 +190,7 @@ export default function SobreNosotros() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Botón de acción */}
                   <a
                     href="https://www.google.com/maps/place/MammaPizza/@-8.1326004,-79.03972,17z/data=!3m1!4b1!4m6!3m5!1s0x91ad3d12d4889cad:0x6fa247c62dc910ed!8m2!3d-8.1326004!4d-79.03972!16s%2Fg%2F11cn949l64?hl=es-419&entry=ttu&g_ep=EgoyMDI1MDUxMy4xIKXMDSoJLDEwMjExNDUzSAFQAw%3D%3D"
@@ -245,19 +245,22 @@ export default function SobreNosotros() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a
-              href="/menu"
+              href="/menu/pizzas"
               className="inline-flex items-center px-8 py-4 bg-white text-red-900 font-bold rounded-xl hover:bg-red-50 transition-all duration-300 transform hover:scale-105 shadow-lg"
             >
               <span className="mr-2">🍕</span>
               Ver Nuestro Menú
             </a>
             <a
-              href="tel:+51441234567"
+              href="https://wa.me/51929302775"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white hover:text-red-900 transition-all duration-300 transform hover:scale-105"
             >
               <span className="mr-2">📞</span>
               Hacer Pedido
             </a>
+
           </div>
         </div>
       </section>

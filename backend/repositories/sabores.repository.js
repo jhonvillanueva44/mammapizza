@@ -75,3 +75,10 @@ export const findSaboresAgregado = async () => {
     order: [['id', 'ASC']]
   });
 };
+
+export const findSaboresBebida = async () => {
+  return await Sabor.findAll({
+    where: { estado: true, tipo: 'Bebida' },
+    order: [['id', 'ASC']]
+  });
+};

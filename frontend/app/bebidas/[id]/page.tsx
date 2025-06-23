@@ -21,7 +21,7 @@ interface TamanioSabor {
   precio: string
 }
 
-interface Pasta {
+interface Bebida {
   id: number
   nombre: string
   imagen: string
@@ -34,10 +34,10 @@ interface Pasta {
   }>
 }
 
-const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
+const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
 
-  const [pasta, setPasta] = useState<Pasta | null>(null)
+  const [bebida, setBebida] = useState<Bebida | null>(null)
   const [tamanios, setTamanios] = useState<Tamanio[]>([])
   const [sabores, setSabores] = useState<Sabor[]>([])
   const [tamaniosSabores, setTamaniosSabores] = useState<TamanioSabor[]>([])
@@ -45,8 +45,6 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const [tamanoSeleccionado, setTamanoSeleccionado] = useState<string>('')
   const [precioFinal, setPrecioFinal] = useState(0)
   const [saborPrincipalId, setSaborPrincipalId] = useState<string>('')
-  const [esLazagna, setEsLazagna] = useState<boolean>(false)
-  const [tamaniosDisponibles, setTamaniosDisponibles] = useState<Tamanio[]>([])
 
   // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
@@ -64,48 +62,28 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [pastaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/pastas/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/pasta'),
-          fetch('http://localhost:4000/api/sabores/pasta'),
+        const [bebidaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
+          fetch(`http://localhost:4000/api/productos/bebidas/${params.id}`),
+          fetch('http://localhost:4000/api/tamanios/bebida'),
+          fetch('http://localhost:4000/api/sabores/bebida'),
           fetch('http://localhost:4000/api/tamaniosabor'),
         ])
 
-        const pastaData = await pastaRes.json()
+        const bebidaData = await bebidaRes.json()
         const tamaniosData = await tamaniosRes.json()
         const saboresData = await saboresRes.json()
         const tamaniosSaboresData = await tamaniosSaboresRes.json()
 
-        setPasta(pastaData)
+        setBebida(bebidaData)
         setTamanios(tamaniosData)
         setSabores(saboresData)
         setTamaniosSabores(tamaniosSaboresData)
 
         // Obtener datos principales del producto
-        const tamanioId = pastaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || ''
-        const saborId = pastaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || ''
-        const precioInicial = pastaData.unicos?.[0]?.tamanios_sabor?.precio || '0'
+        const tamanioId = bebidaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || ''
+        const saborId = bebidaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || ''
+        const precioInicial = bebidaData.unicos?.[0]?.tamanios_sabor?.precio || '0'
 
-        // Buscar el ID del tamaño 'Lazagna'
-        const tamanoLazagna = tamaniosData.find((t: Tamanio) => t.nombre.toLowerCase() === 'lazagna')
-        const idLazagna = tamanoLazagna?.id?.toString() || ''
-
-        // Verificar si el producto tiene el tamaño Lazagna
-        const tieneIdLazagna = tamanioId === idLazagna
-
-        // Determinar tamaños disponibles
-        let tamaniosParaMostrar: Tamanio[] = []
-        if (tieneIdLazagna) {
-          // Si tiene Lazagna, solo mostrar ese tamaño
-          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() === idLazagna)
-          setEsLazagna(true)
-        } else {
-          // Si no tiene Lazagna, mostrar todos menos Lazagna
-          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() !== idLazagna)
-          setEsLazagna(false)
-        }
-
-        setTamaniosDisponibles(tamaniosParaMostrar)
         setTamanoSeleccionado(tamanioId)
         setSaborPrincipalId(saborId)
         setPrecioFinal(parseFloat(precioInicial))
@@ -121,7 +99,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   }, [params.id])
 
   const onChangeTamano = (id: string) => {
-    if (id === tamanoSeleccionado || esLazagna) return
+    if (id === tamanoSeleccionado) return
     
     setTamanoSeleccionado(id)
     actualizarPrecio(id, saborPrincipalId, tamaniosSabores)
@@ -132,7 +110,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     saborId: string,
     tamaniosSaboresData: TamanioSabor[]
   ) => {
-    // Precio base de la pasta (tamaño + sabor principal)
+    // Precio base de la bebida (tamaño + sabor principal)
     const combPrincipal = tamaniosSaboresData.find(
       (ts: TamanioSabor) =>
         ts.tamanio_id.toString() === tamanoId &&
@@ -145,12 +123,12 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     }
   }
 
-  if (!pasta || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosDisponibles.length) {
+  if (!bebida || !tamanios.length || !sabores.length || !tamaniosSabores.length) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg font-medium">Cargando tu pasta perfecta...</p>
+          <p className="text-gray-600 text-lg font-medium">Cargando tu bebida refrescante...</p>
         </div>
       </div>
     )
@@ -160,7 +138,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || ''
 
   // Determinar el título a mostrar
-  const tituloProducto = esLazagna ? pasta.nombre : `Pasta ${nombreSaborPrincipal || pasta.nombre}`
+  const tituloProducto = bebida.nombre
 
   return (
     <div className="min-h-screen bg-gray-50 font-['Poppins']">
@@ -168,7 +146,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       <div className="w-full bg-red-600 text-white py-6 px-6 shadow-md mt-20">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="text-3xl font-bold tracking-tight">MAMMA PIZZA</h1>
-          <p className="mt-2 text-red-100">Personaliza tu pasta al gusto</p>
+          <p className="mt-2 text-red-100">Personaliza tu bebida al gusto</p>
         </div>
       </div>
 
@@ -178,8 +156,8 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
           <div className="xl:w-2/5 flex flex-col">
             <div className="bg-white rounded-xl shadow-md p-6 sticky top-24">
               <img
-                src={pasta.imagen}
-                alt={pasta.nombre}
+                src={bebida.imagen}
+                alt={bebida.nombre}
                 className="w-full h-64 object-cover rounded-lg mb-4"
               />
               
@@ -208,7 +186,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                 onClick={() => toggleSection('tamanio')}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
-                <h3 className="text-lg font-bold text-gray-800">Tamaño de Pasta</h3>
+                <h3 className="text-lg font-bold text-gray-800">Tamaño de Bebida</h3>
                 <span className="text-gray-500">
                   {openSections.tamanio ? '−' : '+'}
                 </span>
@@ -217,14 +195,12 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
               {openSections.tamanio && (
                 <div className="px-4 pb-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {tamaniosDisponibles.map((t: Tamanio) => (
+                    {tamanios.map((t: Tamanio) => (
                       <label 
                         key={t.id} 
                         className={`relative flex items-center gap-2 p-3 rounded-lg border transition-all ${
                           tamanoSeleccionado === t.id.toString()
                             ? 'border-red-500 bg-red-50'
-                            : esLazagna
-                            ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
                             : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
                         }`}
                       >
@@ -234,7 +210,6 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                           value={t.id}
                           checked={tamanoSeleccionado === t.id.toString()}
                           onChange={() => onChangeTamano(t.id.toString())}
-                          disabled={esLazagna}
                           className="sr-only"
                         />
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -247,14 +222,9 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                           )}
                         </div>
                         <div className="flex-1">
-                          <span className={`text-sm ${
-                            esLazagna ? 'text-gray-500' : 'text-gray-700'
-                          }`}>
+                          <span className="text-sm text-gray-700">
                             {t.nombre}
                           </span>
-                          {esLazagna && tamanoSeleccionado === t.id.toString() && (
-                            <span className="block text-xs text-blue-600 font-medium">✓ Seleccionado</span>
-                          )}
                         </div>
                       </label>
                     ))}
@@ -269,7 +239,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                 onClick={() => toggleSection('sabor')}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
-                <h3 className="text-lg font-bold text-gray-800">Sabor de Pasta</h3>
+                <h3 className="text-lg font-bold text-gray-800">Sabor de Bebida</h3>
                 <span className="text-gray-500">
                   {openSections.sabor ? '−' : '+'}
                 </span>
@@ -309,4 +279,4 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   )
 }
 
-export default PastaDetailPage
+export default BebidaDetailPage

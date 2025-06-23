@@ -7,7 +7,8 @@ import {
   getSaboresPizza,
   getSaboresCalzone,
   getSaboresPasta,
-  getSaboresAgregado
+  getSaboresAgregado,
+  getSaboresBebida
 } from '../controllers/sabores.controller.js';
 
 const router = Router();
@@ -20,6 +21,6 @@ router.get('/pizza', getSaboresPizza);
 router.get('/calzone', getSaboresCalzone);
 router.get('/pasta', getSaboresPasta);
 router.get('/agregado', getSaboresAgregado);
-
+router.get('/bebida', getSaboresBebida);
 
 export default router;

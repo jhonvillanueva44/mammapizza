@@ -382,7 +382,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      </section>
+      </section> 
 
       {/* BOTON DE WHATSAPP 
       <WhatsAppButton /> */}

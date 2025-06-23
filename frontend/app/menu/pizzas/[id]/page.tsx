@@ -1,4 +1,4 @@
-// pizza (versión optimizada con acordeones)
+// pizza (versión optimizada con acordeones y tamaño de agregados automático)
 'use client'
 
 import React, { useState, useEffect } from 'react'
@@ -15,7 +15,6 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const [tamaniosSabores, setTamaniosSabores] = useState<any[]>([])
 
   const [tamanoSeleccionado, setTamanoSeleccionado] = useState<string>('1')
-  const [tamanoAgregadoSeleccionado, setTamanoAgregadoSeleccionado] = useState<string>('11')
   const [saboresPrincipalesIds, setSaboresPrincipalesIds] = useState<string[]>([])
   const [agregadosSeleccionados, setAgregadosSeleccionados] = useState<string[]>([])
   const [precioFinal, setPrecioFinal] = useState(0)
@@ -27,7 +26,6 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     tamanio: true,
     saboresClasicos: false,
     saboresEspeciales: false,
-    tamanioAgregados: false,
     agregados: false
   })
 
@@ -77,7 +75,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
           setTamanoSeleccionado(tamanioId)
           setSaboresPrincipalesIds(saboresIds)
           setPrecioFinal(parseFloat(precioInicial))
-          actualizarPrecio(tamanioId, saboresIds, [], '11')
+          actualizarPrecio(tamanioId, saboresIds, [])
         } else {
           const tamanioId = pizzaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || '1'
           const saborId = pizzaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || '1'
@@ -87,7 +85,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
           setSaborPrincipalId(saborId)
           setSaboresPrincipalesIds([saborId])
           setPrecioFinal(parseFloat(precioInicial))
-          actualizarPrecio(tamanioId, [saborId], [], '11')
+          actualizarPrecio(tamanioId, [saborId], [])
         }
       } catch (error) {
         console.error('Error al cargar los datos:', error)
@@ -98,7 +96,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   }, [params.id])
 
   const esTamanioRegular = (tamanioId: string) => {
-    return tamanioId === '1'
+    return tamanioId === '1' || tamanioId === '2'
   }
 
   const onChangeTamano = (id: string) => {
@@ -112,12 +110,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     
     setTamanoSeleccionado(id)
     setSaboresPrincipalesIds(nuevosSabores)
-    actualizarPrecio(id, nuevosSabores, agregadosSeleccionados, tamanoAgregadoSeleccionado)
-  }
-
-  const onChangeTamanoAgregado = (id: string) => {
-    setTamanoAgregadoSeleccionado(id)
-    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, agregadosSeleccionados, id)
+    actualizarPrecio(id, nuevosSabores, agregadosSeleccionados)
   }
 
   const onChangeSabor = (id: string) => {
@@ -137,7 +130,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     }
 
     setSaboresPrincipalesIds(nuevosSabores)
-    actualizarPrecio(tamanoSeleccionado, nuevosSabores, agregadosSeleccionados, tamanoAgregadoSeleccionado)
+    actualizarPrecio(tamanoSeleccionado, nuevosSabores, agregadosSeleccionados)
   }
 
   const onChangeAgregado = (id: string) => {
@@ -148,14 +141,13 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       nuevosAgregados.push(id)
     }
     setAgregadosSeleccionados(nuevosAgregados)
-    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, nuevosAgregados, tamanoAgregadoSeleccionado)
+    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, nuevosAgregados)
   }
 
   const actualizarPrecio = (
     tamanoId: string,
     saboresIds: string[],
-    agregadosIds: string[],
-    tamanoAgregadoId: string
+    agregadosIds: string[]
   ) => {
     let precioSabores = 0
 
@@ -180,6 +172,14 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       }
     }
 
+    // Obtener el índice del tamaño de pizza seleccionado
+    const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoId)
+    
+    // Obtener el tamaño de agregado correspondiente (mismo índice)
+    const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
+    const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
+
+    // Precio de los agregados usando el tamaño de agregado correspondiente
     const precioAgregados = agregadosIds.reduce((acc, aid) => {
       const combAgregado = tamaniosSabores.find(
         (ts: any) =>
@@ -213,6 +213,19 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     .filter(s => saboresPrincipalesIds.includes(s.id.toString()))
     .map(s => s.nombre)
     .join(', ')
+
+  // Obtener agregados disponibles para el tamaño actual
+  const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoSeleccionado)
+  const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
+  const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
+  
+  const agregadosDisponibles = agregados.filter(a => {
+    return tamaniosSabores.some(
+      (ts: any) =>
+        ts.tamanio_id.toString() === tamanoAgregadoId &&
+        ts.sabor_id.toString() === a.id.toString()
+    )
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 font-['Poppins']">
@@ -462,115 +475,68 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
               )}
             </div>
 
-            {/* Tamaño de Agregados */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <button 
-                onClick={() => toggleSection('tamanioAgregados')}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="text-lg font-bold text-gray-800">Tamaño de Agregados</h3>
-                <span className="text-gray-500">
-                  {openSections.tamanioAgregados ? '−' : '+'}
-                </span>
-              </button>
-              
-              {openSections.tamanioAgregados && (
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {tamaniosAgregados.map((t) => (
-                      <label 
-                        key={t.id} 
-                        className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
-                          tamanoAgregadoSeleccionado === t.id.toString()
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="tamanoAgregado"
-                          value={t.id}
-                          checked={tamanoAgregadoSeleccionado === t.id.toString()}
-                          onChange={() => onChangeTamanoAgregado(t.id.toString())}
-                          className="sr-only"
-                        />
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          tamanoAgregadoSeleccionado === t.id.toString()
-                            ? 'border-blue-500 bg-blue-500'
-                            : 'border-gray-300'
-                        }`}>
-                          {tamanoAgregadoSeleccionado === t.id.toString() && (
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-700">{t.nombre}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Agregados */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <button 
-                onClick={() => toggleSection('agregados')}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="text-lg font-bold text-gray-800">Agregados Extra</h3>
-                <span className="text-gray-500">
-                  {openSections.agregados ? '−' : '+'}
-                </span>
-              </button>
-              
-              {openSections.agregados && (
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {agregados.map((a) => {
-                      const aid = a.id.toString()
-                      const checked = agregadosSeleccionados.includes(aid)
-                      const combAgregado = tamaniosSabores.find(
-                        (ts: any) =>
-                          ts.tamanio_id.toString() === tamanoAgregadoSeleccionado &&
-                          ts.sabor_id.toString() === aid
-                      )
-                      const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
+            {agregadosDisponibles.length > 0 && (
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <button 
+                  onClick={() => toggleSection('agregados')}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <h3 className="text-lg font-bold text-gray-800">Agregados Extra</h3>
+                  <span className="text-gray-500">
+                    {openSections.agregados ? '−' : '+'}
+                  </span>
+                </button>
+                
+                {openSections.agregados && (
+                  <div className="px-4 pb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {agregadosDisponibles.map((a) => {
+                        const aid = a.id.toString()
+                        const checked = agregadosSeleccionados.includes(aid)
+                        const combAgregado = tamaniosSabores.find(
+                          (ts: any) =>
+                            ts.tamanio_id.toString() === tamanoAgregadoId &&
+                            ts.sabor_id.toString() === aid
+                        )
+                        const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
 
-                      return (
-                        <label 
-                          key={aid} 
-                          className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
-                            checked
-                              ? 'border-green-500 bg-green-50'
-                              : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            name="agregado"
-                            value={aid}
-                            checked={checked}
-                            onChange={() => onChangeAgregado(aid)}
-                            className="sr-only"
-                          />
-                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                            checked
-                              ? 'border-green-500 bg-green-500'
-                              : 'border-gray-300'
-                          }`}>
-                            {checked && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <div className="flex-1">
-                            <span className="text-sm text-gray-700">{a.nombre}</span>
-                            <span className="block text-xs text-green-600 font-semibold">+S/ {precioAgregado}</span>
-                          </div>
-                        </label>
-                      )
-                    })}
+                        return (
+                          <label 
+                            key={aid} 
+                            className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
+                              checked
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              name="agregado"
+                              value={aid}
+                              checked={checked}
+                              onChange={() => onChangeAgregado(aid)}
+                              className="sr-only"
+                            />
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                              checked
+                                ? 'border-green-500 bg-green-500'
+                                : 'border-gray-300'
+                            }`}>
+                              {checked && <span className="text-white text-xs">✓</span>}
+                            </div>
+                            <div className="flex-1">
+                              <span className="text-sm text-gray-700">{a.nombre}</span>
+                              <span className="block text-xs text-green-600 font-semibold">+S/ {precioAgregado}</span>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
