@@ -38,7 +38,7 @@ type Props = {
   onError: (msg: string) => void;
   onSave: (msg: string, producto?: Producto) => void;
   refreshProductos: () => void;
-  tipoProducto: 'Calzone' | 'Pasta' | 'Agregado';
+  tipoProducto: 'Calzone' | 'Pasta' | 'Agregado' | 'Bebida';
   categoriaId: number;
   // Agregamos estas props que vienen del componente padre
   onClose: () => void;

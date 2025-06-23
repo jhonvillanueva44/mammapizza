@@ -1,3 +1,4 @@
+//tamanio/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -15,7 +16,7 @@ type Tamano = {
   tipo: string;
 };
 
-const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado'];
+const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado', 'Bebida'];
 
 export default function CrudTamaniosPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([]);

@@ -37,6 +37,11 @@ export default function ModalBA({
 
   const PRODUCTOS_URL = 'http://localhost:4000/api/productos';
 
+  // Si es tipo "Bebida", no renderizar el modal
+  if (tipoProducto === 'Bebida') {
+    return null;
+  }
+
   const resetForm = () => {
     setNombre('');
     setPrecio(null);
@@ -102,7 +107,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     formData.append('nombre', nombre);
     formData.append('precio', precio.toString());
     formData.append('stock', stock?.toString() || '0');
-    formData.append('categoria_id', tipoProducto === 'Bebida' ? '7' : '6');
+    // Solo categoria 6 para Adicionales (ya que eliminamos Bebidas)
+    formData.append('categoria_id', '6');
     
     formData.append('tamanio', ''); 
     formData.append('sabor', ''); 

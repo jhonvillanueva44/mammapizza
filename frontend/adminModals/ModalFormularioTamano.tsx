@@ -17,7 +17,7 @@ type Props = {
   setTipo: (value: string) => void;
 };
 
-const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado'];
+const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado', 'Bebida'];
 
 export default function ModalFormularioTamano({
   isOpen,

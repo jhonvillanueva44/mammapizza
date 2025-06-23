@@ -1,3 +1,8 @@
+
+// no sirve
+
+
+
 export default function ReportsPanel() {
   const topProducts = ['Pizza Pepperoni', 'Pizza Margherita', 'Pizza Hawaiana', 'Refresco 1L', 'Ensalada César'];
 

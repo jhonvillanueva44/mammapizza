@@ -1,3 +1,4 @@
+//modalsabor
 'use client';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import { useEffect } from 'react';
@@ -21,7 +22,7 @@ type Props = {
 
 };
 
-const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado'];
+const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado', 'Bebida'];
 
 export default function ModalFormularioSabor({
   isOpen,

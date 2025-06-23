@@ -1,3 +1,4 @@
+//sabores/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,11 +13,11 @@ type Sabor = {
   id: number;
   nombre: string;
   descripcion: string;
-  tipo: 'Pizza' | 'Calzone' | 'Pasta';
+  tipo: 'Pizza' | 'Calzone' | 'Pasta' | 'Agregado' | 'Bebida';
   especial: boolean;
 };
 
-const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta'];
+const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Bebida'];
 
 export default function CrudSaborPage() {
   const [sabores, setSabores] = useState<Sabor[]>([]);
@@ -66,7 +67,7 @@ export default function CrudSaborPage() {
 
   const saboresFiltrados = sabores.filter((sabor) => {
     const matchesSearch = sabor.nombre.toLowerCase().includes(busqueda.toLowerCase()) || 
-                         sabor.descripcion.toLowerCase().includes(busqueda.toLowerCase());
+                          sabor.descripcion.toLowerCase().includes(busqueda.toLowerCase());
     const matchesType = filtroTipo ? sabor.tipo === filtroTipo : true;
     return matchesSearch && matchesType;
   });
@@ -114,6 +115,56 @@ export default function CrudSaborPage() {
     setMostrarModal(false);
   };
 
+  const handleGuardarSabor = async () => {
+    try {
+      setLoading(true);
+
+      const saborData = {
+        nombre,
+        descripcion,
+        tipo,
+        especial,
+      };
+
+      const res = await fetch(
+        modoEdicion ? `${API_URL}/${idEditando}` : API_URL,
+        {
+          method: modoEdicion ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(saborData),
+        }
+      );
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Error al guardar el sabor');
+      }
+
+      handleSuccess(modoEdicion ? 'Sabor actualizado correctamente' : 'Sabor agregado correctamente');
+    } catch (error: any) {
+      setError(error.message);
+      setSuccess(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const limpiarFormulario = () => {
+    setNombre('');
+    setDescripcion('');
+    setTipo('');
+    setEspecial(false);
+    setModoEdicion(false);
+    setIdEditando(null);
+  };
+
+  const handleAgregarClick = () => {
+    limpiarFormulario();
+    setMostrarModal(true);
+  };
+
   return (
     <div className="min-h-screen flex bg-gray-50">
       <HeaderAdmin />
@@ -136,15 +187,7 @@ export default function CrudSaborPage() {
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-semibold text-gray-800">Listado de Sabores</h2>
             <button
-              onClick={() => {
-                setNombre('');
-                setDescripcion('');
-                setTipo('');
-                setEspecial(false);
-                setMostrarModal(true);
-                setModoEdicion(false);
-                setIdEditando(null);
-              }}
+              onClick={handleAgregarClick}
               className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm transition-colors duration-200 flex items-center gap-2 cursor-pointer"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -154,11 +197,21 @@ export default function CrudSaborPage() {
             </button>
           </div>
 
+          {/* Controles de filtro y búsqueda */}
           <div className="flex flex-wrap gap-4 mb-6">
+            <div className="flex-1 min-w-64">
+              <input
+                type="text"
+                placeholder="Buscar sabores..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
             <select
-              className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 cursor-pointer"
               value={filtroTipo}
               onChange={(e) => setFiltroTipo(e.target.value)}
+              className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 cursor-pointer"
             >
               <option value="">Todos los tipos</option>
               {tiposDisponibles.map((tipo) => (
@@ -167,16 +220,9 @@ export default function CrudSaborPage() {
                 </option>
               ))}
             </select>
-
-            <input
-              type="text"
-              placeholder="Buscar por nombre o descripción..."
-              className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 flex-1 min-w-[200px]"
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
-            />
           </div>
 
+          {/* Tabla de sabores */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
             {loading && sabores.length === 0 ? (
               <div className="flex justify-center py-12">
@@ -191,13 +237,10 @@ export default function CrudSaborPage() {
                         Nombre
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Descripción
-                      </th>
-                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Tipo
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Especial
+                        Descripción
                       </th>
                       <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Acciones
@@ -210,20 +253,15 @@ export default function CrudSaborPage() {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{sabor.nombre}</div>
                         </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            {sabor.tipo}
+                          </span>
+                        </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-500 max-w-xs line-clamp-2">
                             {sabor.descripcion || <span className="text-gray-400">Sin descripción</span>}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-500">{sabor.tipo}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            sabor.especial ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {sabor.tipo === 'Pizza' ? (sabor.especial ? 'Sí' : 'No') : '-'}
-                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-3">
@@ -251,12 +289,12 @@ export default function CrudSaborPage() {
                     ))}
                     {saboresPagina.length === 0 && !loading && (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center">
+                        <td colSpan={4} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center justify-center text-gray-500">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 opacity-50 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                             </svg>
-                            <p className="text-lg font-medium">No hay sabores registrados</p>
+                            <p className="text-lg font-medium">No se encontraron sabores</p>
                             <p className="text-sm mt-1">Comienza agregando un nuevo sabor</p>
                           </div>
                         </td>
@@ -268,11 +306,12 @@ export default function CrudSaborPage() {
             )}
           </div>
 
+          {/* Paginación */}
           {totalPaginas > 1 && (
             <div className="flex justify-center mt-4">
               <nav className="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                 <button
-                  onClick={() => setPagina(p => Math.max(1, p - 1))}
+                  onClick={() => setPagina(pagina - 1)}
                   disabled={pagina === 1}
                   className={`relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium ${pagina === 1 ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 cursor-pointer'}`}
                 >
@@ -293,7 +332,7 @@ export default function CrudSaborPage() {
                 ))}
 
                 <button
-                  onClick={() => setPagina(p => Math.min(totalPaginas, p + 1))}
+                  onClick={() => setPagina(pagina + 1)}
                   disabled={pagina === totalPaginas}
                   className={`relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium ${pagina === totalPaginas ? 'text-gray-300 cursor-not-allowed' : 'text-gray-500 hover:bg-gray-50 cursor-pointer'}`}
                 >
@@ -305,32 +344,29 @@ export default function CrudSaborPage() {
               </nav>
             </div>
           )}
+  
+          <ModalFormularioSabor
+            isOpen={mostrarModal}
+            onClose={() => {
+              setMostrarModal(false);
+              limpiarFormulario();
+            }}
+            onSuccess={handleSuccess}
+            modoEdicion={modoEdicion}
+            idEditando={idEditando}
+            nombre={nombre}
+            setNombre={setNombre}
+            descripcion={descripcion}
+            setDescripcion={setDescripcion}
+            tipo={tipo}
+            setTipo={setTipo}
+            especial={especial}
+            setEspecial={setEspecial}
+            onSave={handleGuardarSabor}
+            loading={loading}
+          />
         </main>
       </div>
-
-      <ModalFormularioSabor
-        isOpen={mostrarModal}
-        onClose={() => {
-          setMostrarModal(false);
-          setModoEdicion(false);
-          setIdEditando(null);
-        }}
-        onSuccess={handleSuccess}
-        modoEdicion={modoEdicion}
-        idEditando={idEditando}
-        nombre={nombre}
-        setNombre={setNombre}
-        descripcion={descripcion}
-        setDescripcion={setDescripcion}
-        tipo={tipo}
-        setTipo={setTipo}
-        especial={especial}
-        setEspecial={setEspecial}
-        onSave={function (): void {
-          throw new Error('Function not implemented.');
-        }}
-        loading={false}
-      />
     </div>
   );
 }

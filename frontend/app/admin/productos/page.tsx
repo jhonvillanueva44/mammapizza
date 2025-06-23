@@ -251,7 +251,7 @@ export default function CrudProductoPage() {
                 {selectedModalCategory === 3 && <ModalPCA {...commonProps} tipoProducto="Pasta" categoriaId={3} />}
                 {selectedModalCategory === 4 && <ModalPCA {...commonProps} tipoProducto="Agregado" categoriaId={4} />}
                 {selectedModalCategory === 6 && <ModalBA {...commonProps} tipoProducto="Adicional" />}
-                {selectedModalCategory === 7 && <ModalBA {...commonProps} tipoProducto="Bebida" />}
+                {selectedModalCategory === 7 && <ModalPCA {...commonProps} tipoProducto="Bebida" categoriaId={7} />}
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-gray-500">

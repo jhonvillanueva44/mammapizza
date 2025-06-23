@@ -10,6 +10,7 @@ import unicosRoutes from './routes/unicos.routes.js';
 import combinacionesRoutes from './routes/combinaciones.routes.js';
 import promocionesRoutes from './routes/promociones.routes.js';
 import detallesPromocionRoutes from './routes/detallesPromocion.routes.js';
+import estadisticasRoutes from './routes/estadisticas.routes.js';
 import path from 'path';
 
 import cors from 'cors';
@@ -32,5 +33,6 @@ app.use('/api/unicos', unicosRoutes);
 app.use('/api/combinaciones', combinacionesRoutes);
 app.use('/api/promociones', promocionesRoutes )
 app.use('/api/detallespromocion', detallesPromocionRoutes);
+app.use('/api/estadisticas', estadisticasRoutes);
 
 export default app;
