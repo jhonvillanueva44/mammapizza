@@ -28,7 +28,6 @@ export const updateOneCategoria = async (id, data) => {
     const categoria = await Categoria.findByPk(id);
     if (!categoria || !categoria.estado) return null;
 
-    // Si el nombre cambia, verificar que no exista otro con ese nombre
     if (data.nombre && data.nombre !== categoria.nombre) {
         const existing = await Categoria.findOne({ where: { nombre: data.nombre, estado: true } });
         if (existing) throw { status: 409, message: 'Ya existe otra categoría activa con ese nombre.' };

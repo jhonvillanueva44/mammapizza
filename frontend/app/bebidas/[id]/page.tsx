@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
 
-// Interfaces para tipar correctamente
 interface Tamanio {
   id: number
   nombre: string
@@ -45,8 +44,10 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
   const [tamanoSeleccionado, setTamanoSeleccionado] = useState<string>('')
   const [precioFinal, setPrecioFinal] = useState(0)
   const [saborPrincipalId, setSaborPrincipalId] = useState<string>('')
+  const [esFanta, setEsFanta] = useState<boolean>(false)
+  const [esChichaOMaracuya, setEsChichaOMaracuya] = useState<boolean>(false)
+  const [tamaniosDisponibles, setTamaniosDisponibles] = useState<Tamanio[]>([])
 
-  // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
     tamanio: true,
     sabor: true
@@ -63,10 +64,10 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     const fetchData = async () => {
       try {
         const [bebidaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/bebidas/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/bebida'),
-          fetch('http://localhost:4000/api/sabores/bebida'),
-          fetch('http://localhost:4000/api/tamaniosabor'),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas/${params.id}`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/bebida`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/bebida`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
         ])
 
         const bebidaData = await bebidaRes.json()
@@ -79,16 +80,40 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
         setSabores(saboresData)
         setTamaniosSabores(tamaniosSaboresData)
 
-        // Obtener datos principales del producto
         const tamanioId = bebidaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || ''
         const saborId = bebidaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || ''
         const precioInicial = bebidaData.unicos?.[0]?.tamanios_sabor?.precio || '0'
 
+        // Verificar si es Fanta
+        const esFantaCheck = bebidaData.nombre.toLowerCase().includes('fanta')
+        setEsFanta(esFantaCheck)
+
+        // Verificar si es Chicha o Maracuyá
+        const nombreBebida = bebidaData.nombre.toLowerCase()
+        const esChichaOMaracuyaCheck = nombreBebida.includes('chicha') || nombreBebida.includes('maracuya')
+        setEsChichaOMaracuya(esChichaOMaracuyaCheck)
+
+        let tamaniosParaMostrar: Tamanio[] = []
+        if (esFantaCheck) {
+          // Si es Fanta, mostrar solo el primer tamaño
+          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() === tamanioId)
+        } else if (esChichaOMaracuyaCheck) {
+          // Si es Chicha o Maracuyá, ocultar el último tamaño
+          if (tamaniosData.length > 0) {
+            tamaniosParaMostrar = tamaniosData.slice(0, -1) // Todos excepto el último
+          } else {
+            tamaniosParaMostrar = tamaniosData
+          }
+        } else {
+          // Si no es Fanta, Chicha ni Maracuyá, mostrar todos los tamaños
+          tamaniosParaMostrar = tamaniosData
+        }
+
+        setTamaniosDisponibles(tamaniosParaMostrar)
         setTamanoSeleccionado(tamanioId)
         setSaborPrincipalId(saborId)
         setPrecioFinal(parseFloat(precioInicial))
         
-        // Actualizar precio inicial
         actualizarPrecio(tamanioId, saborId, tamaniosSaboresData)
       } catch (error) {
         console.error('Error al cargar los datos:', error)
@@ -99,7 +124,7 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
   }, [params.id])
 
   const onChangeTamano = (id: string) => {
-    if (id === tamanoSeleccionado) return
+    if (id === tamanoSeleccionado || esFanta) return
     
     setTamanoSeleccionado(id)
     actualizarPrecio(id, saborPrincipalId, tamaniosSabores)
@@ -110,7 +135,6 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     saborId: string,
     tamaniosSaboresData: TamanioSabor[]
   ) => {
-    // Precio base de la bebida (tamaño + sabor principal)
     const combPrincipal = tamaniosSaboresData.find(
       (ts: TamanioSabor) =>
         ts.tamanio_id.toString() === tamanoId &&
@@ -123,7 +147,7 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     }
   }
 
-  if (!bebida || !tamanios.length || !sabores.length || !tamaniosSabores.length) {
+  if (!bebida || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosDisponibles.length) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -134,10 +158,8 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     )
   }
 
-  // Obtener nombre del sabor principal
   const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || ''
 
-  // Determinar el título a mostrar
   const tituloProducto = bebida.nombre
 
   return (
@@ -195,12 +217,14 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
               {openSections.tamanio && (
                 <div className="px-4 pb-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {tamanios.map((t: Tamanio) => (
+                    {tamaniosDisponibles.map((t: Tamanio) => (
                       <label 
                         key={t.id} 
                         className={`relative flex items-center gap-2 p-3 rounded-lg border transition-all ${
                           tamanoSeleccionado === t.id.toString()
                             ? 'border-red-500 bg-red-50'
+                            : esFanta
+                            ? 'border-gray-200 bg-gray-50 cursor-not-allowed'
                             : 'border-gray-200 hover:border-red-300 hover:bg-red-50'
                         }`}
                       >
@@ -210,6 +234,7 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
                           value={t.id}
                           checked={tamanoSeleccionado === t.id.toString()}
                           onChange={() => onChangeTamano(t.id.toString())}
+                          disabled={esFanta}
                           className="sr-only"
                         />
                         <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
@@ -222,9 +247,14 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
                           )}
                         </div>
                         <div className="flex-1">
-                          <span className="text-sm text-gray-700">
+                          <span className={`text-sm ${
+                            esFanta ? 'text-gray-500' : 'text-gray-700'
+                          }`}>
                             {t.nombre}
                           </span>
+                          {esFanta && tamanoSeleccionado === t.id.toString() && (
+                            <span className="block text-xs text-blue-600 font-medium">✓ Seleccionado</span>
+                          )}
                         </div>
                       </label>
                     ))}

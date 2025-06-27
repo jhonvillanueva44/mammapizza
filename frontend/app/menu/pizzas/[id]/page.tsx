@@ -1,11 +1,12 @@
-// pizza (versión optimizada con acordeones y tamaño de agregados automático)
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 
 const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
+  const router = useRouter()
 
   const [pizza, setPizza] = useState<any>(null)
   const [tamanios, setTamanios] = useState<any[]>([])
@@ -21,7 +22,6 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const [esCombinacion, setEsCombinacion] = useState(false)
   const [saborPrincipalId, setSaborPrincipalId] = useState<string>('')
 
-  // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
     tamanio: true,
     saboresClasicos: false,
@@ -40,12 +40,12 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pizzaRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/pizzas/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/pizza'),
-          fetch('http://localhost:4000/api/sabores/pizza'),
-          fetch('http://localhost:4000/api/sabores/agregado'),
-          fetch('http://localhost:4000/api/tamanios/agregado'),
-          fetch('http://localhost:4000/api/tamaniosabor'),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pizzas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
         ])
 
         const pizzaData = await pizzaRes.json()
@@ -172,14 +172,11 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       }
     }
 
-    // Obtener el índice del tamaño de pizza seleccionado
     const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoId)
     
-    // Obtener el tamaño de agregado correspondiente (mismo índice)
     const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
     const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
 
-    // Precio de los agregados usando el tamaño de agregado correspondiente
     const precioAgregados = agregadosIds.reduce((acc, aid) => {
       const combAgregado = tamaniosSabores.find(
         (ts: any) =>
@@ -193,6 +190,46 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     if (nuevoPrecio > 0) {
       setPrecioFinal(nuevoPrecio)
     }
+  }
+
+  const handleAddToCart = () => {
+    // Obtener el carrito actual del sessionStorage
+    const existingCart = sessionStorage.getItem('carrito')
+    let cart = existingCart ? JSON.parse(existingCart) : []
+
+    // Obtener los nombres de los sabores y agregados seleccionados
+    const nombresSabores = sabores
+      .filter(s => saboresPrincipalesIds.includes(s.id.toString()))
+      .map(s => s.nombre)
+
+    const nombresAgregados = agregados
+      .filter(a => agregadosSeleccionados.includes(a.id.toString()))
+      .map(a => a.nombre)
+
+    // Obtener el tamaño seleccionado
+    const tamanioSeleccionadoObj = tamanios.find(t => t.id.toString() === tamanoSeleccionado)
+    const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
+
+    // Crear el nuevo ítem del carrito
+    const newItem = {
+      id: pizza.id,
+      titulo: pizza.nombre,
+      imagen: pizza.imagen,
+      precio: precioFinal.toFixed(2),
+      tamanio: nombreTamanio,
+      sabores: nombresSabores,
+      agregados: nombresAgregados,
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9) // ID único para este ítem
+    }
+
+    // Añadir el nuevo ítem al carrito
+    const updatedCart = [...cart, newItem]
+    
+    // Guardar en sessionStorage
+    sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
+    
+    // Redirigir al carrito
+    router.push('/pedido')
   }
 
   if (!pizza || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosAgregados.length) {
@@ -214,7 +251,6 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     .map(s => s.nombre)
     .join(', ')
 
-  // Obtener agregados disponibles para el tamaño actual
   const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoSeleccionado)
   const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
   const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
@@ -258,8 +294,11 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors">
-                  Añadir al Carrito
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105"
+                >
+                  Añadir al Pedido
                 </button>
               </div>
             </div>

@@ -5,7 +5,6 @@ export default function SobreNosotros() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-      {/* HERO SECTION */}
       <section className="relative py-16 px-4 bg-gradient-to-r from-red-900 via-red-800 to-red-900 overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative max-w-7xl mx-auto text-center">
@@ -32,10 +31,8 @@ export default function SobreNosotros() {
       <section className="py-12 md:py-20 px-4">
         <div className="max-w-7xl mx-auto">
 
-          {/* Card principal con historia */}
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden mb-12 transform hover:scale-[1.02] transition-all duration-300">
 
-            {/* Header con gradiente */}
             <div className="bg-gradient-to-r from-red-900 to-red-800 p-8 md:p-12">
               <div className="text-center">
                 <h2 className="text-white text-xl sm:text-2xl md:text-4xl font-bold font-['Playfair_Display'] leading-tight">
@@ -164,7 +161,7 @@ export default function SobreNosotros() {
                           <p className="font-semibold text-gray-800">Dirección:</p>
                           <p className="text-gray-600 font-['Open_Sans']">
                             Calle Granados 529 California<br />
-                            Víctor Larco Herrera, Perú 13001
+                            Víctor Larco Herrera, Perú 13001, Trujillo
                           </p>
                         </div>
                       </div>
@@ -174,7 +171,7 @@ export default function SobreNosotros() {
                         <div>
                           <p className="font-semibold text-gray-800">Horarios:</p>
                           <p className="text-gray-600 font-['Open_Sans']">
-                            Lunes a Domingo: 11:00 AM - 11:00 PM
+                            Lunes a Domingo: 06:00 PM - 11:00 PM
                           </p>
                         </div>
                       </div>
@@ -184,7 +181,7 @@ export default function SobreNosotros() {
                         <div>
                           <p className="font-semibold text-gray-800">Contacto:</p>
                           <p className="text-gray-600 font-['Open_Sans']">
-                            +51 44 123-4567
+                            989 481 847
                           </p>
                         </div>
                       </div>
@@ -234,7 +231,6 @@ export default function SobreNosotros() {
         </div>
       </section>
 
-      {/* CALL TO ACTION */}
       <section className="py-16 px-4 bg-gradient-to-r from-red-900 to-red-800 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold font-['Playfair_Display'] mb-6">
@@ -252,7 +248,7 @@ export default function SobreNosotros() {
               Ver Nuestro Menú
             </a>
             <a
-              href="https://wa.me/51929302775"
+              href={`https://web.whatsapp.com/send?phone=${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center px-8 py-4 border-2 border-white text-white font-bold rounded-xl hover:bg-white hover:text-red-900 transition-all duration-300 transform hover:scale-105"

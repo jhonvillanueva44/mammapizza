@@ -7,7 +7,6 @@ import { usePathname } from "next/navigation";
 export default function MenuNav() {
   const pathname = usePathname();
 
-  // Mapea cada enlace con su path y nombre
   const navItems = [
     { name: "Pizzas", path: "/menu/pizzas" },
     { name: "Calzone", path: "/menu/calzone" },
@@ -18,10 +17,8 @@ export default function MenuNav() {
 
   return (
     <nav className="relative">
-      {/* Contenedor principal con mejor spacing y sombra sutil */}
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 shadow-sm border-b border-gray-200/60 mt-3">
         <div className="px-4 py-4">
-          {/* Grid mejorado con mejor responsive */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 max-w-6xl mx-auto">
             {navItems.map(({ name, path }) => {
               const isActive = pathname === path;
@@ -41,17 +38,14 @@ export default function MenuNav() {
                     }
                   `}
                 >
-                  {/* Efecto de brillo sutil para el elemento activo */}
                   {isActive && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent rounded-xl"></div>
                   )}
                   
-                  {/* Texto con mejor centrado */}
                   <span className="relative z-10 block text-center leading-tight">
                     {name}
                   </span>
                   
-                  {/* Indicador inferior para elemento activo */}
                   {isActive && (
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-red-300 rounded-full"></div>
                   )}
@@ -61,7 +55,6 @@ export default function MenuNav() {
           </div>
         </div>
         
-        {/* Línea decorativa inferior */}
         <div className="h-px bg-gradient-to-r from-transparent via-red-200 to-transparent"></div>
       </div>
     </nav>

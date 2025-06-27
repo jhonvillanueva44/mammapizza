@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { FaWhatsapp } from 'react-icons/fa'
 
 export default function PedidoPage() {
   const [cartItems, setCartItems] = useState<any[]>([])
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
+  const [deliveryOption, setDeliveryOption] = useState<'recoger' | 'delivery'>('recoger')
+  const [deliveryAddress, setDeliveryAddress] = useState('')
 
   // CARGAR PEDIDO DESDE SESSION STORAGE
   useEffect(() => {
@@ -21,111 +23,333 @@ export default function PedidoPage() {
 
   // GUARDAR LOS CAMBIOS DESPUES DE HABERSE CARGADO EL SESSION STORAGE
   useEffect(() => {
-    if (isMounted && cartItems.length > 0) {
+    if (isMounted) {
       sessionStorage.setItem('carrito', JSON.stringify(cartItems))
     }
   }, [cartItems, isMounted])
 
-  // FUNCIONES PARA MANIPULAR EL PEDIDO
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) {
-      removeFromCart(id)
-      return
+  // MANEJADORES PARA EL CARRITO
+  const handleAddDuplicate = (itemId: string) => {
+    const itemToAdd = cartItems.find(item => item.itemId === itemId)
+    if (itemToAdd) {
+      const newItem = {
+        ...itemToAdd,
+        itemId: Date.now() + Math.random().toString(36).substring(2, 9)
+      }
+      const updatedItems = [...cartItems, newItem]
+      setCartItems(updatedItems)
     }
-    const updated = cartItems.map(item =>
-      item.id === id ? { ...item, cantidad: newQuantity } : item
+  }
+
+  const handleRemoveOne = (itemId: string) => {
+    const itemIndex = cartItems.findIndex(item => item.itemId === itemId)
+    if (itemIndex !== -1) {
+      const updatedItems = [...cartItems]
+      updatedItems.splice(itemIndex, 1)
+      setCartItems(updatedItems)
+    }
+  }
+
+  const handleRemoveAll = (itemId: string) => {
+    const updatedItems = cartItems.filter(item => item.itemId !== itemId)
+    setCartItems(updatedItems)
+  }
+
+  // Función para agrupar items similares
+  const groupedCartItems = cartItems.reduce((acc, item) => {
+    const key = `${item.id}-${item.tamanio}-${JSON.stringify(item.sabores)}-${JSON.stringify(item.agregados)}`
+    if (!acc[key]) {
+      acc[key] = {
+        ...item,
+        count: 1,
+        items: [item]
+      }
+    } else {
+      acc[key].count += 1
+      acc[key].items.push(item)
+    }
+    return acc
+  }, {})
+
+  // CALCULAR TOTAL DEL PEDIDO
+  const subtotal = cartItems.reduce((total, item) => total + parseFloat(item.precio), 0)
+  const deliveryFee = deliveryOption === 'delivery' ? 5 : 0
+  const totalPrice = subtotal + deliveryFee
+
+  // Generar mensaje para WhatsApp
+  const generateWhatsAppMessage = () => {
+    let message = `¡Hola! Quiero realizar el siguiente pedido:\n\n`
+    
+    // Detalles de los productos
+    Object.values(groupedCartItems).forEach((group: any) => {
+      message += `*${group.titulo}* (${group.count}x)\n`
+      message += `- Tamaño: ${group.tamanio}\n`
+      if (group.sabores?.length > 0) {
+        message += `- Sabores: ${group.sabores.join(', ')}\n`
+      }
+      if (group.agregados?.length > 0) {
+        message += `- Extras: ${group.agregados.join(', ')}\n`
+      }
+      message += `- Subtotal: S/ ${(parseFloat(group.precio) * group.count).toFixed(2)}\n\n`
+    })
+
+    // Método de entrega
+    message += `*Método de entrega:* ${deliveryOption === 'delivery' ? 'Delivery' : 'Recoger en local'}\n`
+    if (deliveryOption === 'delivery' && deliveryAddress) {
+      message += `*Dirección:* ${deliveryAddress}\n`
+    }
+
+    // Resumen de pago
+    message += `\n*Resumen de pago:*\n`
+    message += `- Subtotal: S/ ${subtotal.toFixed(2)}\n`
+    if (deliveryOption === 'delivery') {
+      message += `- Costo de envío: S/ 5.00\n`
+    }
+    message += `*Total a pagar: S/ ${totalPrice.toFixed(2)}*\n\n`
+    message += `Por favor confirmen mi pedido. ¡Gracias!`
+
+    return encodeURIComponent(message)
+  }
+
+  const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${generateWhatsAppMessage()}`
+
+  if (!isMounted) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-gray-600 text-lg font-medium">Cargando tu pedido...</p>
+        </div>
+      </div>
     )
-    setCartItems(updated)
   }
-
-  const removeFromCart = (id: number) => {
-    const filtered = cartItems.filter(item => item.id !== id)
-    setCartItems(filtered)
-  }
-
-  // TOTAL DEL PEDIDO
-  const totalPrice = cartItems.reduce((total, item) => total + item.precio * item.cantidad, 0)
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">Tu Pedido</h1>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="flex items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 font-serif">Detalles de tu Pedido</h1>
+        <Link 
+          href="/menu/pizzas" 
+          className="text-red-600 hover:text-red-700 font-medium flex items-center gap-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+          </svg>
+          Seguir comprando
+        </Link>
+      </div>
 
       {cartItems.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-lg mb-4">Tu pedido está vacío</p>
-          <Link href="/menu/pizzas" className="text-red-600 hover:text-red-700 font-medium">
-            Ver Menú
+        <div className="text-center py-20 bg-gray-50 rounded-xl">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+          <h2 className="text-xl font-medium text-gray-700 mb-2">Tu carrito está vacío</h2>
+          <p className="text-gray-500 mb-6">Añade algunos productos para comenzar tu pedido</p>
+          <Link 
+            href="/menu/pizzas" 
+            className="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors duration-300"
+          >
+            Explorar Menú
           </Link>
         </div>
       ) : (
-        <>
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="md:col-span-2">
-              {cartItems.map(item => (
-                <div key={item.id} className="flex items-center justify-between py-4 border-b">
-                  <div className="flex items-center">
-                    <img 
-                      src={item.imagen} 
-                      alt={item.titulo} 
-                      className="w-16 h-16 object-cover rounded mr-4"
-                    />
-                    <div>
-                      <h3 className="font-medium">{item.titulo}</h3>
-                      <p className="text-gray-600">S/{item.precio.toFixed(2)}</p>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* LISTA DE PRODUCTOS */}
+          <div className="lg:col-span-2 space-y-6">
+            {Object.values(groupedCartItems).map((group: any) => (
+              <div key={group.itemId} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-5 sm:p-6">
+                  <div className="flex flex-col sm:flex-row gap-5">
+                    {/* IMAGEN DEL PRODUCTO */}
+                    <div className="relative flex-shrink-0">
+                      <img 
+                        src={group.imagen} 
+                        alt={group.titulo} 
+                        className="w-24 h-24 sm:w-32 sm:h-32 object-cover rounded-lg border border-gray-200"
+                      />
+                      <span className="absolute -top-2 -right-2 bg-red-600 text-white text-sm font-bold rounded-full h-6 w-6 flex items-center justify-center">
+                        {group.count}
+                      </span>
+                    </div>
+
+                    {/* DETALLES DEL PRODUCTO */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-3">
+                        <h3 className="text-lg font-semibold text-gray-900 truncate">
+                          {group.titulo}
+                        </h3>
+                        <span className="text-lg font-bold text-red-600 whitespace-nowrap">
+                          S/ {(parseFloat(group.precio) * group.count).toFixed(2)}
+                        </span>
+                      </div>
+
+                      <p className="text-sm text-gray-500 mt-1">
+                        <span className="font-medium">Precio unitario:</span> S/ {parseFloat(group.precio).toFixed(2)}
+                      </p>
+
+                      {/* VARIANTES */}
+                      <div className="mt-3 space-y-2">
+                        {group.tamanio && (
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium text-gray-700 w-20">Tamaño:</span>
+                            <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full">
+                              {group.tamanio}
+                            </span>
+                          </div>
+                        )}
+
+                        {group.sabores?.length > 0 && (
+                          <div className="flex items-start">
+                            <span className="text-sm font-medium text-gray-700 w-20">Sabores:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {group.sabores.map((sabor: string, i: number) => (
+                                <span key={i} className="text-sm bg-red-100 text-red-800 px-3 py-1 rounded-full">
+                                  {sabor}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {group.agregados?.length > 0 && (
+                          <div className="flex items-start">
+                            <span className="text-sm font-medium text-gray-700 w-20">Extras:</span>
+                            <div className="flex flex-wrap gap-2">
+                              {group.agregados.map((extra: string, i: number) => (
+                                <span key={i} className="text-sm bg-amber-100 text-amber-800 px-3 py-1 rounded-full">
+                                  +{extra}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* CONTROLES */}
+                      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
+                        <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
+                          <button
+                            onClick={() => handleRemoveOne(group.items[0].itemId)}
+                            className="w-8 h-8 bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
+                            aria-label="Quitar uno"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                          <span className="w-8 text-center font-medium">{group.count}</span>
+                          <button
+                            onClick={() => handleAddDuplicate(group.items[0].itemId)}
+                            className="w-8 h-8 bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
+                            aria-label="Añadir otro"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                            </svg>
+                          </button>
+                        </div>
+                        <button
+                          onClick={() => handleRemoveAll(group.items[0].itemId)}
+                          className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1 transition-colors duration-300"
+                          aria-label="Eliminar todos"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Eliminar
+                        </button>
+                      </div>
                     </div>
                   </div>
+                </div>
+              </div>
+            ))}
+          </div>
 
-                  <div className="flex items-center">
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.cantidad - 1)}
-                      className="px-3 py-1 bg-gray-200 rounded-l hover:bg-gray-300"
-                    >
-                      -
-                    </button>
-                    <span className="px-3 py-1 bg-gray-100">
-                      {item.cantidad}
-                    </span>
-                    <button 
-                      onClick={() => updateQuantity(item.id, item.cantidad + 1)}
-                      className="px-3 py-1 bg-gray-200 rounded-r hover:bg-gray-300"
-                    >
-                      +
-                    </button>
-                    <button 
-                      onClick={() => removeFromCart(item.id)}
-                      className="ml-4 text-red-600 hover:text-red-800"
-                    >
-                      Eliminar
-                    </button>
+          {/* RESUMEN DEL PEDIDO */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
+              <div className="p-5 sm:p-6">
+                <h2 className="text-xl font-bold text-gray-900 mb-6">Resumen del Pedido</h2>
+                
+                <div className="space-y-3 mb-6">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Subtotal ({cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'}):</span>
+                    <span className="font-medium">S/ {subtotal.toFixed(2)}</span>
+                  </div>
+
+                  {/* Opciones de envío */}
+                  <div className="pt-2">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">Método de entrega:</h3>
+                    <div className="flex flex-col gap-2">
+                      <label className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors">
+                        <input
+                          type="radio"
+                          name="deliveryOption"
+                          checked={deliveryOption === 'recoger'}
+                          onChange={() => setDeliveryOption('recoger')}
+                          className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"
+                        />
+                        <span className="text-sm text-gray-700">Recoger en local</span>
+                      </label>
+                      <label className="flex items-center gap-2 p-3 rounded-lg border border-gray-200 hover:border-red-300 hover:bg-red-50 transition-colors">
+                        <input
+                          type="radio"
+                          name="deliveryOption"
+                          checked={deliveryOption === 'delivery'}
+                          onChange={() => setDeliveryOption('delivery')}
+                          className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"
+                        />
+                        <span className="text-sm text-gray-700">Delivery (+S/ 5.00)</span>
+                      </label>
+                    </div>
+
+                    {/* Campo de dirección para delivery */}
+                    {deliveryOption === 'delivery' && (
+                      <div className="mt-3">
+                        <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-700 mb-1">
+                          Dirección de entrega
+                        </label>
+                        <input
+                          type="text"
+                          id="deliveryAddress"
+                          value={deliveryAddress}
+                          onChange={(e) => setDeliveryAddress(e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                          placeholder="Ingresa tu dirección completa"
+                          required
+                        />
+                        <p className="mt-1 text-xs text-gray-500">El costo de envío es de S/ 5.00</p>
+                      </div>
+                    )}
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="bg-gray-50 p-6 rounded-lg h-fit">
-              <h2 className="text-xl font-bold mb-4">Resumen del Pedido</h2>
-              <div className="flex justify-between mb-2">
-                <span>Subtotal:</span>
-                <span>S/{totalPrice.toFixed(2)}</span>
+                <div className="border-t border-gray-200 my-4"></div>
+
+                <div className="flex justify-between mb-6">
+                  <span className="text-lg font-bold">Total:</span>
+                  <span className="text-xl font-bold text-red-600">S/ {totalPrice.toFixed(2)}</span>
+                </div>
+
+                <a
+                  href={whatsappUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-green-500/20 ${
+                    deliveryOption === 'delivery' && !deliveryAddress
+                      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+                      : ''
+                  }`}
+                >
+                  <FaWhatsapp className="text-xl" />
+                  Proceder con el Pedido
+                </a>
               </div>
-              <div className="flex justify-between mb-2">
-                <span>Envío:</span>
-                <span>Gratis</span>
-              </div>
-              <div className="border-t my-4"></div>
-              <div className="flex justify-between font-bold text-lg mb-6">
-                <span>Total:</span>
-                <span>S/{totalPrice.toFixed(2)}</span>
-              </div>
-              <button
-                onClick={() => setShowCheckoutModal(true)}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg font-medium"
-              >
-                Proceder al Pago
-              </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   )

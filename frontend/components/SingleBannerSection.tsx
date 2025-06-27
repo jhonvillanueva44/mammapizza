@@ -21,15 +21,12 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
   const animationRef = useRef<number | null>(null);
   const positionRef = useRef(0);
   
-  // Configuración fija para las imágenes
   const imageWidth = 280;
   const imageHeight = 220;
   const speed = 1.5;
 
-  // Duplicamos los items para el efecto infinito
   const duplicatedItems = [...items, ...items];
 
-  // Efecto para el movimiento continuo tipo cinta de película
   useEffect(() => {
     if (!containerRef.current || items.length === 0) return;
 
@@ -56,7 +53,6 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
     };
   }, [items.length, imageWidth]);
 
-  // Efecto para el cambio de textos
   useEffect(() => {
     if (items.length > 1) {
       const interval = setInterval(() => {
@@ -87,26 +83,21 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
         className="group block transform transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl"
       >
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-100 via-white to-red-100 shadow-lg border border-red-200/50">
-          {/* Decorative elements */}
           <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-red-500 to-red-500"></div>
           
           <div className="flex flex-col lg:flex-row min-h-[320px]">
-            {/* SECCIÓN DE TEXTO */}
             <div className="lg:w-2/5 p-8 flex flex-col justify-center relative z-10">
               <div className="space-y-4">
-                {/* Badge */}
                 <div className="inline-flex items-center px-3 py-1 rounded-full bg--red-100 border border-red-200">
                   <span className="text-xs font-medium text-red-700 font-['Open_Sans']">
                     ✨ Adicional Especial
                   </span>
                 </div>
 
-                {/* Título */}
                 <h2 className="text-3xl lg:text-4xl font-bold text-gray-800 font-['Playfair_Display'] leading-tight">
                   {currentItem.nombre}
                 </h2>
 
-                {/* Precio */}
                 <div className="flex items-center gap-2">
                   <span className="text-2xl font-bold text-red-600 font-['Inter']">
                     S/ {currentItem.precio}
@@ -117,12 +108,10 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
                   </span>
                 </div>
 
-                {/* Descripción */}
                 <p className="text-gray-600 font-['Open_Sans'] leading-relaxed max-w-md">
                   {currentItem.descripcion}
                 </p>
 
-                {/* Call to action */}
                 <div className="flex items-center gap-2 text-red-600 font-medium text-sm font-['Open_Sans'] group-hover:text-red-700 transition-colors">
                   <span>Ver todos los adicionales</span>
                   <svg 
@@ -136,7 +125,6 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
                 </div>
               </div>
 
-              {/* Progress indicators */}
               {items.length > 1 && (
                 <div className="flex gap-2 mt-6">
                   {items.map((_, index) => (
@@ -153,9 +141,8 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
               )}
             </div>
 
-            {/* CINTA DE PELÍCULA CON IMÁGENES */}
             <div className="lg:w-3/5 relative overflow-hidden bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-              {/* Film strip holes effect */}
+          
               <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-10">
                 <div className="absolute top-2 left-0 w-full flex justify-between px-4">
                   {[...Array(8)].map((_, i) => (
@@ -191,7 +178,6 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
                           className="h-full w-full object-cover select-none transition-transform duration-300 group-hover:scale-105"
                           draggable={false}
                         />
-                        {/* Overlay gradient */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                       </div>
                     </div>
@@ -199,7 +185,6 @@ export default function SingleBannerSection({ items }: SingleBannerSectionProps)
                 </div>
               </div>
 
-              {/* Film strip border */}
               <div className="absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-red-500 to-red-500"></div>
               <div className="absolute inset-y-0 right-0 w-1 bg-gradient-to-b from-red-500 to-red-500"></div>
             </div>

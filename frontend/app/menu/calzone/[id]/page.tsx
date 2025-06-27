@@ -18,7 +18,6 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
   const [precioFinal, setPrecioFinal] = useState(0)
   const [saborPrincipalId, setSaborPrincipalId] = useState<string>('')
 
-  // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
     tamanio: true,
     sabor: true,
@@ -36,12 +35,12 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     const fetchData = async () => {
       try {
         const [calzoneRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/calzones/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/calzone'),
-          fetch('http://localhost:4000/api/sabores/calzone'),
-          fetch('http://localhost:4000/api/sabores/agregado'),
-          fetch('http://localhost:4000/api/tamanios/agregado'),
-          fetch('http://localhost:4000/api/tamaniosabor'),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/calzones/${params.id}`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/calzone`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/calzone`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/agregado`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/agregado`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
         ])
 
         const calzoneData = await calzoneRes.json()
@@ -58,7 +57,6 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
         setTamaniosAgregados(tamaniosAgregadosData)
         setTamaniosSabores(tamaniosSaboresData)
 
-        // Obtener datos principales del producto
         const tamanioId = calzoneData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || '1'
         const saborId = calzoneData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || ''
         const precioInicial = calzoneData.unicos?.[0]?.tamanios_sabor?.precio || '0'
@@ -79,7 +77,6 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     if (id === tamanoSeleccionado) return
     
     setTamanoSeleccionado(id)
-    // Limpiar agregados al cambiar tamaño
     setAgregadosSeleccionados([])
     actualizarPrecio(id, saborPrincipalId, [])
   }
@@ -100,7 +97,6 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     saborId: string,
     agregadosIds: string[]
   ) => {
-    // Precio base del calzone (tamaño + sabor principal)
     const combPrincipal = tamaniosSabores.find(
       (ts: any) =>
         ts.tamanio_id.toString() === tamanoId &&
@@ -108,14 +104,11 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     )
     const precioBase = combPrincipal ? parseFloat(combPrincipal.precio) : 0
 
-    // Obtener el índice del tamaño de calzone seleccionado
     const indiceTamanoCalzone = tamanios.findIndex(t => t.id.toString() === tamanoId)
     
-    // Obtener el tamaño de agregado correspondiente (mismo índice)
     const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoCalzone]
     const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
 
-    // Precio de los agregados usando el tamaño de agregado correspondiente
     const precioAgregados = agregadosIds.reduce((acc, aid) => {
       const combAgregado = tamaniosSabores.find(
         (ts: any) =>
@@ -142,17 +135,13 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     )
   }
 
-  // Obtener nombre del sabor principal
   const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || calzone.nombre
 
-  // Obtener el índice del tamaño de calzone seleccionado
   const indiceTamanoCalzone = tamanios.findIndex(t => t.id.toString() === tamanoSeleccionado)
   
-  // Obtener el tamaño de agregado correspondiente (mismo índice)
   const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoCalzone]
   const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
 
-  // Filtrar agregados disponibles para el tamaño de agregado correspondiente
   const agregadosDisponibles = agregados.filter(a => {
     return tamaniosSabores.some(
       (ts: any) =>

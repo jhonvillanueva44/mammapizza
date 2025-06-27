@@ -12,9 +12,8 @@ export default function Footer() {
   return (
     <footer className="w-full bg-[#0C1011] text-white px-4 sm:px-6 py-12 border-t border-gray-800">
       <div className="max-w-7xl mx-auto">
-        {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
-          {/* About Section */}
+        
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
               Sobre nosotros
@@ -24,14 +23,13 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Contact Section */}
           <div className="space-y-4">
             <h3 className="text-xl font-bold text-red-600 border-b border-red-600 pb-2 inline-block">
               Contáctenos
             </h3>
             <div className="space-y-3">
               <a
-                href="https://wa.me/51929302775"
+                href={`https://web.whatsapp.com/send?phone=${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 text-green-400 hover:text-green-300 transition-colors"
@@ -40,11 +38,13 @@ export default function Footer() {
                 <span>WhatsApp</span>
               </a>
               <a
-                href="mailto:Mammapizza@pizzarico.com"
+                href={`https://mail.google.com/mail/?view=cm&fs=1&to=${process.env.NEXT_PUBLIC_EMAIL_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 text-gray-300 hover:text-red-600 transition-colors"
               >
                 <FaEnvelope className="text-lg" />
-                <span>Mammapizza@pizzarico.com</span>
+                <span>Correo</span>
               </a>
             </div>
           </div>
@@ -77,7 +77,7 @@ export default function Footer() {
             <div className="pt-4">
               <h4 className="font-semibold text-red-600">Horario de atención:</h4>
               <p className="text-gray-300 text-sm">Lunes a Domingo</p>
-              <p className="text-gray-300 text-sm">10:00 AM - 10:00 PM</p>
+              <p className="text-gray-300 text-sm">06:00 PM - 11:00 PM</p>
             </div>
           </div>
 
@@ -109,10 +109,8 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Divider */}
         <div className="border-t border-gray-800 my-8"></div>
 
-        {/* Footer Bottom */}
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
           <div className="mb-4 md:mb-0">
             © {new Date().getFullYear()} Mamma Pizza. Todos los derechos reservados.

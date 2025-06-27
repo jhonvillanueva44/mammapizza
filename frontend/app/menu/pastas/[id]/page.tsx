@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
 
-// Interfaces para tipar correctamente
 interface Tamanio {
   id: number
   nombre: string
@@ -48,7 +47,6 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const [esLazagna, setEsLazagna] = useState<boolean>(false)
   const [tamaniosDisponibles, setTamaniosDisponibles] = useState<Tamanio[]>([])
 
-  // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
     tamanio: true,
     sabor: true
@@ -65,10 +63,10 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pastaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/pastas/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/pasta'),
-          fetch('http://localhost:4000/api/sabores/pasta'),
-          fetch('http://localhost:4000/api/tamaniosabor'),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas/${params.id}`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pasta`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/pasta`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
         ])
 
         const pastaData = await pastaRes.json()
@@ -81,27 +79,21 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
         setSabores(saboresData)
         setTamaniosSabores(tamaniosSaboresData)
 
-        // Obtener datos principales del producto
         const tamanioId = pastaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || ''
         const saborId = pastaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || ''
         const precioInicial = pastaData.unicos?.[0]?.tamanios_sabor?.precio || '0'
 
-        // Buscar el ID del tamaño 'Lazagna'
-        const tamanoLazagna = tamaniosData.find((t: Tamanio) => t.nombre.toLowerCase() === 'lazagna')
-        const idLazagna = tamanoLazagna?.id?.toString() || ''
+        const tamanoLagsana = tamaniosData.find((t: Tamanio) => t.nombre.toLowerCase() === 'lagsana')
+        const idLagsana = tamanoLagsana?.id?.toString() || ''
 
-        // Verificar si el producto tiene el tamaño Lazagna
-        const tieneIdLazagna = tamanioId === idLazagna
+        const tieneIdLagsana = tamanioId === idLagsana
 
-        // Determinar tamaños disponibles
         let tamaniosParaMostrar: Tamanio[] = []
-        if (tieneIdLazagna) {
-          // Si tiene Lazagna, solo mostrar ese tamaño
-          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() === idLazagna)
+        if (tieneIdLagsana) {
+          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() === idLagsana)
           setEsLazagna(true)
         } else {
-          // Si no tiene Lazagna, mostrar todos menos Lazagna
-          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() !== idLazagna)
+          tamaniosParaMostrar = tamaniosData.filter((t: Tamanio) => t.id.toString() !== idLagsana)
           setEsLazagna(false)
         }
 
@@ -110,7 +102,6 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
         setSaborPrincipalId(saborId)
         setPrecioFinal(parseFloat(precioInicial))
         
-        // Actualizar precio inicial
         actualizarPrecio(tamanioId, saborId, tamaniosSaboresData)
       } catch (error) {
         console.error('Error al cargar los datos:', error)
@@ -132,7 +123,6 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     saborId: string,
     tamaniosSaboresData: TamanioSabor[]
   ) => {
-    // Precio base de la pasta (tamaño + sabor principal)
     const combPrincipal = tamaniosSaboresData.find(
       (ts: TamanioSabor) =>
         ts.tamanio_id.toString() === tamanoId &&
@@ -156,10 +146,8 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     )
   }
 
-  // Obtener nombre del sabor principal
   const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || ''
 
-  // Determinar el título a mostrar
   const tituloProducto = esLazagna ? pasta.nombre : `Pasta ${nombreSaborPrincipal || pasta.nombre}`
 
   return (

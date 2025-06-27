@@ -149,13 +149,11 @@ export default function MenuBebidasPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch bebidas
-        const bebidasRes = await fetch('http://localhost:4000/api/productos/bebidas');
+        const bebidasRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas`);
         const bebidasData = await bebidasRes.json();
         setBebidas(bebidasData);
 
-        // Fetch tamaños para el filtro
-        const tamaniosRes = await fetch('http://localhost:4000/api/tamanios/bebida');
+        const tamaniosRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/bebida`);
         const tamaniosData = await tamaniosRes.json();
         setTamanios(tamaniosData);
       } catch (error) {
@@ -180,12 +178,11 @@ export default function MenuBebidasPage() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-      {/* Filter Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
-              {/* Filtros */}
+          
               <div className="flex flex-col items-start gap-6 lg:max-w-[400px] w-full lg:w-auto">
                 <div className="space-y-4">
                   <h2 className="text-xl font-bold text-gray-800 font-['Playfair_Display'] flex items-center gap-2">
@@ -196,7 +193,6 @@ export default function MenuBebidasPage() {
                 </div>
               </div>
 
-              {/* Descripción */}
               <div className="flex-1 lg:pl-8 lg:border-l-2 lg:border-red-100 w-full">
                 <div className="bg-gradient-to-r from-red-50 to-red-50/50 rounded-xl p-6">
                   {filter.tamanio !== 'todos' && (
@@ -227,7 +223,6 @@ export default function MenuBebidasPage() {
         </div>
       </div>
 
-      {/* Products Grid Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           {loading ? (
