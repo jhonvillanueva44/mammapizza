@@ -106,7 +106,6 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
           ${isActive ? 'shadow-2xl border-red-700' : 'hover:shadow-xl'}
           transition-all duration-300 
         `}>
-          {/* Quité el badge "Destacado" */}
 
           {/* Imagen */}
           <div className="relative overflow-hidden">
@@ -119,7 +118,6 @@ export default function CarruselBebidas({ items }: CarruselBebidasProps) {
               `}
               loading="lazy"
             />
-            {/* Overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
           </div>
 

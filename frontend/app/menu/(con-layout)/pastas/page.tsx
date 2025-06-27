@@ -62,7 +62,6 @@ function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
   const [selectedValue, setSelectedValue] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Establecer el primer tamaño como valor por defecto
   useEffect(() => {
     if (tamanios.length > 0 && !selectedValue) {
       setSelectedValue(tamanios[0].nombre)
@@ -150,12 +149,12 @@ export default function MenuPastasPage() {
     const fetchData = async () => {
       try {
         // Fetch pastas
-        const pastasRes = await fetch('http://localhost:4000/api/productos/pastas');
+        const pastasRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas`);
         const pastasData = await pastasRes.json();
         setPastas(pastasData);
 
         // Fetch tamaños para el filtro
-        const tamaniosRes = await fetch('http://localhost:4000/api/tamanios/pasta');
+        const tamaniosRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pasta`);
         const tamaniosData = await tamaniosRes.json();
         setTamanios(tamaniosData);
       } catch (error) {
@@ -180,7 +179,6 @@ export default function MenuPastasPage() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-      {/* Filter Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -227,7 +225,6 @@ export default function MenuPastasPage() {
         </div>
       </div>
 
-      {/* Products Grid Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           {loading ? (

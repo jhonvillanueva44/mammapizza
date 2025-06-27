@@ -8,7 +8,8 @@ import {
   findTamaniosPizza,
   findTamaniosCalzone,
   findTamaniosPasta,
-  findTamaniosAgregado
+  findTamaniosAgregado,
+  findTamaniosBebida
 } from '../repositories/tamanios.repository.js';
 
 export const findAllTamaniosService = async () => {
@@ -70,4 +71,8 @@ export const findTamaniosPastaService = async () => {
 
 export const findTamaniosAgregadoService = async () => {
   return await findTamaniosAgregado();
+};
+
+export const findTamaniosBebidaService = async () => {
+  return await findTamaniosBebida();
 };

@@ -76,4 +76,9 @@ export const findTamaniosAgregado = async () => {
   });
 };
 
-
+export const findTamaniosBebida = async () => {
+  return await Tamanio.findAll({
+    where: { estado: true, tipo: 'Bebida' },
+    order: [['id', 'ASC']]
+  });
+};

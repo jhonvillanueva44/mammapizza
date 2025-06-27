@@ -50,16 +50,16 @@ export default function Hero() {
 
     return (
         <section className="relative w-full h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-[100vh] overflow-hidden">
-            {/* Background with gradient and pattern */}
+          
             <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black">
-                {/* Decorative elements */}
+              
                 <div className="absolute top-0 left-0 w-full h-full opacity-10">
                     <div className="absolute top-20 left-20 w-32 h-32 rounded-full bg-red-500 blur-3xl"></div>
                     <div className="absolute bottom-20 right-20 w-40 h-40 rounded-full bg-red-600 blur-3xl"></div>
                     <div className="absolute top-1/2 left-1/3 w-24 h-24 rounded-full bg-red-400 blur-2xl"></div>
                 </div>
 
-                {/* Subtle pattern overlay */}
+             
                 <div className="absolute inset-0 opacity-5" style={{
                     backgroundImage: `radial-gradient(circle at 50% 50%, rgba(220, 38, 38, 0.3) 1px, transparent 1px)`,
                     backgroundSize: '50px 50px'
@@ -67,31 +67,28 @@ export default function Hero() {
             </div>
 
             <div className="max-w-7xl mx-auto h-full px-6 sm:px-12 flex flex-col md:flex-row items-center md:items-start justify-between gap-10 relative z-10">
-                {/* Content Section */}
+              
                 <div className="flex-1 text-white flex flex-col justify-center h-full mt-15">
 
-
-                    {/* Main Title */}
                     <div className={`transition-all duration-300 ${isAnimating ? 'opacity-0 transform translate-y-4' : 'opacity-100 transform translate-y-0'}`}>
                         <h1 className="text-left text-4xl sm:text-5xl lg:text-7xl font-bold mb-3 sm:mb-5 bg-gradient-to-r from-white via-red-100 to-red-200 bg-clip-text text-transparent leading-tight font-['Playfair_Display']">
                             {texts[index].title}
                         </h1>
 
-                        {/* Subtitle */}
+            
                         <p className="text-left text-xl sm:text-2xl lg:text-4xl mb-4 sm:mb-6 text-red-300 font-['Dancing_Script'] font-semibold">
                             {texts[index].subtitle}
                         </p>
 
-                        {/* Description */}
+                
                         <p className="text-left max-w-md sm:max-w-xl mb-8 text-base sm:text-lg lg:text-xl text-gray-300 leading-relaxed font-['Open_Sans']">
                             {texts[index].description}
                         </p>
                     </div>
 
-                    {/* CTA Buttons */}
                     <div className="flex flex-col sm:flex-row gap-4 mb-8">
                         <a
-                            href="https://wa.me/51929302775"
+                            href={`https://web.whatsapp.com/send?phone=${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="group relative overflow-hidden bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-8 py-4 rounded-2xl text-base font-medium font-['Open_Sans'] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-2xl cursor-pointer inline-block"
@@ -120,7 +117,6 @@ export default function Hero() {
 
                     </div>
 
-                    {/* Navigation Dots */}
                     <div className="flex gap-3">
                         {texts.map((_, i) => (
                             <button
@@ -139,7 +135,6 @@ export default function Hero() {
                         ))}
                     </div>
 
-                    {/* Progress Bar */}
                     <div className="mt-4 w-full max-w-xs bg-gray-700 rounded-full h-1 overflow-hidden">
                         <div
                             className="h-full bg-gradient-to-r from-red-500 to-red-600 rounded-full transition-all duration-75 ease-linear"
@@ -150,15 +145,14 @@ export default function Hero() {
                     </div>
                 </div>
 
-                {/* Image Section */}
                 <div className="hidden md:flex flex-1 justify-end items-center h-full relative">
-                    {/* Decorative ring */}
+             
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-96 h-96 rounded-full border-4 border-red-500/20 animate-pulse"></div>
                         <div className="absolute w-80 h-80 rounded-full border-2 border-red-600/30 animate-ping"></div>
                     </div>
 
-                    {/* Main image */}
+                   
                     <div className="relative z-10 group">
                         <img
                             src="/images/pizza-hero.png"
@@ -166,18 +160,15 @@ export default function Hero() {
                             className="w-full max-w-xs sm:max-w-sm lg:max-w-md object-contain transition-all duration-700 group-hover:scale-110 group-hover:rotate-6 drop-shadow-2xl"
                         />
 
-                        {/* Floating elements */}
                         <div className="absolute -top-4 -right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold animate-bounce shadow-lg">
                             ¡Recién horneada!
                         </div>
 
-                        {/* Glow effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-transparent rounded-full blur-3xl -z-10 group-hover:from-red-400/30 transition-all duration-700"></div>
                     </div>
                 </div>
             </div>
 
-            {/* Bottom fade */}
             <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-red-900/20 to-transparent"></div>
         </section>
     );

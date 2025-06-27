@@ -19,7 +19,7 @@ export default function MenuPromosPage() {
   useEffect(() => {
     const fetchPromociones = async () => {
       try {
-        const res = await fetch('http://localhost:4000/api/promociones')
+        const res = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/promociones`)
         const data = await res.json()
         setPromos(data)
       } catch (error) {
@@ -35,7 +35,6 @@ export default function MenuPromosPage() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-      {/* Description Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -69,7 +68,6 @@ export default function MenuPromosPage() {
         </div>
       </div>
 
-      {/* Products Grid Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           {loading ? (

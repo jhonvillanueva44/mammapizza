@@ -12,8 +12,11 @@ export type ProductoCardProps = {
   descuento?: number
   isGrid?: boolean
   especial?: boolean
-  ruta?: String
-  mostrarPersonalizar?: boolean
+  ruta?: string
+  mostrarPersonalizar?: boolean,
+  tamanio?: string,
+  sabores?: string[] | null,
+  agregados?: string[] | null
 }
 
 const ProductoCard = ({
@@ -26,8 +29,11 @@ const ProductoCard = ({
   descuento,
   isGrid = false,
   especial,
-  ruta,
-  mostrarPersonalizar = true
+  ruta = '',
+  mostrarPersonalizar = true,
+  tamanio = '',
+  sabores = [],
+  agregados = []
 }: ProductoCardProps) => {
   const esPromocion = precioAntiguo !== undefined && descuento !== undefined
 
@@ -35,21 +41,27 @@ const ProductoCard = ({
     const existingCart = sessionStorage.getItem('carrito')
     let cart = existingCart ? JSON.parse(existingCart) : []
 
-    const existingProductIndex = cart.findIndex((item: any) => item.id === id)
-
-    if (existingProductIndex !== -1) {
-      cart[existingProductIndex].cantidad += 1
-    } else {
-      cart.push({
-        id,
-        titulo,
-        precio,
-        imagen,
-        cantidad: 1,
-      })
-    }
+    // Siempre agregamos un nuevo ítem, sin verificar duplicados
+    cart.push({
+      id,
+      titulo,
+      imagen,
+      precio: `${precio.toFixed(2)}`,
+      tamanio: tamanio || '',
+      sabores: sabores || [],
+      agregados: agregados || [],
+      // Agregamos un ID único para cada ítem del carrito
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9)
+    })
 
     sessionStorage.setItem('carrito', JSON.stringify(cart))
+  }
+
+  const getPersonalizarUrl = () => {
+    if (ruta === 'bebidas') {
+      return `/${ruta}/${id}`
+    }
+    return `/menu/${ruta}/${id}`
   }
 
   return (
@@ -58,11 +70,9 @@ const ProductoCard = ({
       ${isGrid ? 'max-w-[320px] w-full' : 'w-[200px] sm:w-[220px] lg:w-[240px]'}
       `}
     >
-      {/* Decorative gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-red-400/5 to-red-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
       <div className="relative z-10">
-        {/* Image container with enhanced effects */}
         <div className="relative w-full overflow-hidden rounded-t-xl">
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10"></div>
           <img
@@ -71,7 +81,6 @@ const ProductoCard = ({
             className="w-full h-[160px] object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
           />
 
-          {/* Floating badges with enhanced styling */}
           {esPromocion && (
             <div className="absolute top-3 left-3 z-20">
               <div className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full shadow-lg animate-pulse font-sans">
@@ -86,8 +95,8 @@ const ProductoCard = ({
             <div className="absolute top-3 right-3 z-20">
               <span
                 className={`text-xs font-medium px-2.5 py-1 rounded-full shadow-lg backdrop-blur-sm font-sans ${especial
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
-                    : 'bg-white/90 text-gray-700 border border-gray-200'
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white'
+                  : 'bg-white/90 text-gray-700 border border-gray-200'
                   }`}
               >
                 {especial ? '⭐ Especial' : 'Clásico'}
@@ -95,10 +104,9 @@ const ProductoCard = ({
             </div>
           )}
 
-          {/* Customize button with modern design */}
           {mostrarPersonalizar && (
             <Link
-              href={`/menu/${ruta}/${id}`}
+              href={getPersonalizarUrl()}
               className="absolute bottom-3 right-3 z-20 bg-red-600 hover:bg-red-700 text-white hover:text-white text-xs font-medium px-2.5 py-1.5 rounded-full shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer font-sans"
             >
               ✨ Personalizar
@@ -106,21 +114,17 @@ const ProductoCard = ({
           )}
         </div>
 
-        {/* Content section with improved spacing */}
         <div className="p-4">
-          {/* Title and description with better typography */}
           <div className="mb-3 min-h-[80px] flex flex-col justify-between">
             <h3 className="text-lg font-bold leading-tight line-clamp-2 overflow-hidden text-ellipsis h-[3.25rem] text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-serif">
               {titulo}
             </h3>
-
 
             <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-2 h-[3rem] overflow-hidden font-serif">
               {descripcion}
             </p>
           </div>
 
-          {/* Enhanced price display */}
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-sm font-bold bg-gradient-to-r from-red-600 to-red-600 bg-clip-text text-transparent font-sans">
@@ -134,14 +138,13 @@ const ProductoCard = ({
             </div>
             {esPromocion && (
               <div className="text-green-600 font-medium text-xs font-sans">
-                ¡Ahorra S/ {((precioAntiguo! - precio)).toFixed(2)}!
+                ¡Ahorra S/ {(precioAntiguo! - precio).toFixed(2)}!
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Enhanced add to cart button */}
       <div className="relative z-10 p-4 pt-0">
         <button
           onClick={handleAddToCart}
@@ -154,7 +157,6 @@ const ProductoCard = ({
         </button>
       </div>
 
-      {/* Subtle decorative elements */}
       <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-red-200/20 to-transparent rounded-full -translate-y-10 translate-x-10"></div>
       <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-red-200/20 to-transparent rounded-full translate-y-8 -translate-x-8"></div>
     </div>

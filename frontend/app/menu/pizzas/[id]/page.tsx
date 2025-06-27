@@ -1,11 +1,12 @@
-// pizza (versión optimizada con acordeones)
 'use client'
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 
 const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
+  const router = useRouter()
 
   const [pizza, setPizza] = useState<any>(null)
   const [tamanios, setTamanios] = useState<any[]>([])
@@ -15,19 +16,16 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   const [tamaniosSabores, setTamaniosSabores] = useState<any[]>([])
 
   const [tamanoSeleccionado, setTamanoSeleccionado] = useState<string>('1')
-  const [tamanoAgregadoSeleccionado, setTamanoAgregadoSeleccionado] = useState<string>('11')
   const [saboresPrincipalesIds, setSaboresPrincipalesIds] = useState<string[]>([])
   const [agregadosSeleccionados, setAgregadosSeleccionados] = useState<string[]>([])
   const [precioFinal, setPrecioFinal] = useState(0)
   const [esCombinacion, setEsCombinacion] = useState(false)
   const [saborPrincipalId, setSaborPrincipalId] = useState<string>('')
 
-  // Estados para controlar los acordeones
   const [openSections, setOpenSections] = useState({
     tamanio: true,
     saboresClasicos: false,
     saboresEspeciales: false,
-    tamanioAgregados: false,
     agregados: false
   })
 
@@ -42,12 +40,12 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pizzaRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`http://localhost:4000/api/productos/pizzas/${params.id}`),
-          fetch('http://localhost:4000/api/tamanios/pizza'),
-          fetch('http://localhost:4000/api/sabores/pizza'),
-          fetch('http://localhost:4000/api/sabores/agregado'),
-          fetch('http://localhost:4000/api/tamanios/agregado'),
-          fetch('http://localhost:4000/api/tamaniosabor'),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pizzas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
         ])
 
         const pizzaData = await pizzaRes.json()
@@ -77,7 +75,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
           setTamanoSeleccionado(tamanioId)
           setSaboresPrincipalesIds(saboresIds)
           setPrecioFinal(parseFloat(precioInicial))
-          actualizarPrecio(tamanioId, saboresIds, [], '11')
+          actualizarPrecio(tamanioId, saboresIds, [])
         } else {
           const tamanioId = pizzaData.unicos?.[0]?.tamanios_sabor?.tamanio?.id?.toString() || '1'
           const saborId = pizzaData.unicos?.[0]?.tamanios_sabor?.sabor?.id?.toString() || '1'
@@ -87,7 +85,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
           setSaborPrincipalId(saborId)
           setSaboresPrincipalesIds([saborId])
           setPrecioFinal(parseFloat(precioInicial))
-          actualizarPrecio(tamanioId, [saborId], [], '11')
+          actualizarPrecio(tamanioId, [saborId], [])
         }
       } catch (error) {
         console.error('Error al cargar los datos:', error)
@@ -98,7 +96,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   }, [params.id])
 
   const esTamanioRegular = (tamanioId: string) => {
-    return tamanioId === '1'
+    return tamanioId === '1' || tamanioId === '2'
   }
 
   const onChangeTamano = (id: string) => {
@@ -112,12 +110,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     
     setTamanoSeleccionado(id)
     setSaboresPrincipalesIds(nuevosSabores)
-    actualizarPrecio(id, nuevosSabores, agregadosSeleccionados, tamanoAgregadoSeleccionado)
-  }
-
-  const onChangeTamanoAgregado = (id: string) => {
-    setTamanoAgregadoSeleccionado(id)
-    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, agregadosSeleccionados, id)
+    actualizarPrecio(id, nuevosSabores, agregadosSeleccionados)
   }
 
   const onChangeSabor = (id: string) => {
@@ -137,7 +130,7 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     }
 
     setSaboresPrincipalesIds(nuevosSabores)
-    actualizarPrecio(tamanoSeleccionado, nuevosSabores, agregadosSeleccionados, tamanoAgregadoSeleccionado)
+    actualizarPrecio(tamanoSeleccionado, nuevosSabores, agregadosSeleccionados)
   }
 
   const onChangeAgregado = (id: string) => {
@@ -148,14 +141,13 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       nuevosAgregados.push(id)
     }
     setAgregadosSeleccionados(nuevosAgregados)
-    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, nuevosAgregados, tamanoAgregadoSeleccionado)
+    actualizarPrecio(tamanoSeleccionado, saboresPrincipalesIds, nuevosAgregados)
   }
 
   const actualizarPrecio = (
     tamanoId: string,
     saboresIds: string[],
-    agregadosIds: string[],
-    tamanoAgregadoId: string
+    agregadosIds: string[]
   ) => {
     let precioSabores = 0
 
@@ -180,6 +172,11 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       }
     }
 
+    const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoId)
+    
+    const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
+    const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
+
     const precioAgregados = agregadosIds.reduce((acc, aid) => {
       const combAgregado = tamaniosSabores.find(
         (ts: any) =>
@@ -193,6 +190,46 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     if (nuevoPrecio > 0) {
       setPrecioFinal(nuevoPrecio)
     }
+  }
+
+  const handleAddToCart = () => {
+    // Obtener el carrito actual del sessionStorage
+    const existingCart = sessionStorage.getItem('carrito')
+    let cart = existingCart ? JSON.parse(existingCart) : []
+
+    // Obtener los nombres de los sabores y agregados seleccionados
+    const nombresSabores = sabores
+      .filter(s => saboresPrincipalesIds.includes(s.id.toString()))
+      .map(s => s.nombre)
+
+    const nombresAgregados = agregados
+      .filter(a => agregadosSeleccionados.includes(a.id.toString()))
+      .map(a => a.nombre)
+
+    // Obtener el tamaño seleccionado
+    const tamanioSeleccionadoObj = tamanios.find(t => t.id.toString() === tamanoSeleccionado)
+    const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
+
+    // Crear el nuevo ítem del carrito
+    const newItem = {
+      id: pizza.id,
+      titulo: pizza.nombre,
+      imagen: pizza.imagen,
+      precio: precioFinal.toFixed(2),
+      tamanio: nombreTamanio,
+      sabores: nombresSabores,
+      agregados: nombresAgregados,
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9) // ID único para este ítem
+    }
+
+    // Añadir el nuevo ítem al carrito
+    const updatedCart = [...cart, newItem]
+    
+    // Guardar en sessionStorage
+    sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
+    
+    // Redirigir al carrito
+    router.push('/pedido')
   }
 
   if (!pizza || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosAgregados.length) {
@@ -213,6 +250,18 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     .filter(s => saboresPrincipalesIds.includes(s.id.toString()))
     .map(s => s.nombre)
     .join(', ')
+
+  const indiceTamanoPizza = tamanios.findIndex(t => t.id.toString() === tamanoSeleccionado)
+  const tamanoAgregadoCorrespondiente = tamaniosAgregados[indiceTamanoPizza]
+  const tamanoAgregadoId = tamanoAgregadoCorrespondiente?.id?.toString() || ''
+  
+  const agregadosDisponibles = agregados.filter(a => {
+    return tamaniosSabores.some(
+      (ts: any) =>
+        ts.tamanio_id.toString() === tamanoAgregadoId &&
+        ts.sabor_id.toString() === a.id.toString()
+    )
+  })
 
   return (
     <div className="min-h-screen bg-gray-50 font-['Poppins']">
@@ -245,8 +294,11 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors">
-                  Añadir al Carrito
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105"
+                >
+                  Añadir al Pedido
                 </button>
               </div>
             </div>
@@ -462,115 +514,68 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
               )}
             </div>
 
-            {/* Tamaño de Agregados */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <button 
-                onClick={() => toggleSection('tamanioAgregados')}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="text-lg font-bold text-gray-800">Tamaño de Agregados</h3>
-                <span className="text-gray-500">
-                  {openSections.tamanioAgregados ? '−' : '+'}
-                </span>
-              </button>
-              
-              {openSections.tamanioAgregados && (
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {tamaniosAgregados.map((t) => (
-                      <label 
-                        key={t.id} 
-                        className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
-                          tamanoAgregadoSeleccionado === t.id.toString()
-                            ? 'border-blue-500 bg-blue-50'
-                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="tamanoAgregado"
-                          value={t.id}
-                          checked={tamanoAgregadoSeleccionado === t.id.toString()}
-                          onChange={() => onChangeTamanoAgregado(t.id.toString())}
-                          className="sr-only"
-                        />
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                          tamanoAgregadoSeleccionado === t.id.toString()
-                            ? 'border-blue-500 bg-blue-500'
-                            : 'border-gray-300'
-                        }`}>
-                          {tamanoAgregadoSeleccionado === t.id.toString() && (
-                            <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
-                          )}
-                        </div>
-                        <span className="text-sm text-gray-700">{t.nombre}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Agregados */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden">
-              <button 
-                onClick={() => toggleSection('agregados')}
-                className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
-              >
-                <h3 className="text-lg font-bold text-gray-800">Agregados Extra</h3>
-                <span className="text-gray-500">
-                  {openSections.agregados ? '−' : '+'}
-                </span>
-              </button>
-              
-              {openSections.agregados && (
-                <div className="px-4 pb-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {agregados.map((a) => {
-                      const aid = a.id.toString()
-                      const checked = agregadosSeleccionados.includes(aid)
-                      const combAgregado = tamaniosSabores.find(
-                        (ts: any) =>
-                          ts.tamanio_id.toString() === tamanoAgregadoSeleccionado &&
-                          ts.sabor_id.toString() === aid
-                      )
-                      const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
+            {agregadosDisponibles.length > 0 && (
+              <div className="bg-white rounded-xl shadow-md overflow-hidden">
+                <button 
+                  onClick={() => toggleSection('agregados')}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <h3 className="text-lg font-bold text-gray-800">Agregados Extra</h3>
+                  <span className="text-gray-500">
+                    {openSections.agregados ? '−' : '+'}
+                  </span>
+                </button>
+                
+                {openSections.agregados && (
+                  <div className="px-4 pb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {agregadosDisponibles.map((a) => {
+                        const aid = a.id.toString()
+                        const checked = agregadosSeleccionados.includes(aid)
+                        const combAgregado = tamaniosSabores.find(
+                          (ts: any) =>
+                            ts.tamanio_id.toString() === tamanoAgregadoId &&
+                            ts.sabor_id.toString() === aid
+                        )
+                        const precioAgregado = combAgregado ? parseFloat(combAgregado.precio).toFixed(2) : '0.00'
 
-                      return (
-                        <label 
-                          key={aid} 
-                          className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
-                            checked
-                              ? 'border-green-500 bg-green-50'
-                              : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
-                          }`}
-                        >
-                          <input
-                            type="checkbox"
-                            name="agregado"
-                            value={aid}
-                            checked={checked}
-                            onChange={() => onChangeAgregado(aid)}
-                            className="sr-only"
-                          />
-                          <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
-                            checked
-                              ? 'border-green-500 bg-green-500'
-                              : 'border-gray-300'
-                          }`}>
-                            {checked && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <div className="flex-1">
-                            <span className="text-sm text-gray-700">{a.nombre}</span>
-                            <span className="block text-xs text-green-600 font-semibold">+S/ {precioAgregado}</span>
-                          </div>
-                        </label>
-                      )
-                    })}
+                        return (
+                          <label 
+                            key={aid} 
+                            className={`flex items-center gap-2 p-3 rounded-lg border transition-all ${
+                              checked
+                                ? 'border-green-500 bg-green-50'
+                                : 'border-gray-200 hover:border-green-300 hover:bg-green-50'
+                            }`}
+                          >
+                            <input
+                              type="checkbox"
+                              name="agregado"
+                              value={aid}
+                              checked={checked}
+                              onChange={() => onChangeAgregado(aid)}
+                              className="sr-only"
+                            />
+                            <div className={`w-4 h-4 rounded border-2 flex items-center justify-center ${
+                              checked
+                                ? 'border-green-500 bg-green-500'
+                                : 'border-gray-300'
+                            }`}>
+                              {checked && <span className="text-white text-xs">✓</span>}
+                            </div>
+                            <div className="flex-1">
+                              <span className="text-sm text-gray-700">{a.nombre}</span>
+                              <span className="block text-xs text-green-600 font-semibold">+S/ {precioAgregado}</span>
+                            </div>
+                          </label>
+                        )
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

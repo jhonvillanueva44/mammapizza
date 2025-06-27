@@ -74,7 +74,6 @@ function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
   const [selectedValue, setSelectedValue] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Establecer el primer tamaño como valor por defecto
   useEffect(() => {
     if (tamanios.length > 0 && !selectedValue) {
       setSelectedValue(tamanios[0].nombre)
@@ -166,8 +165,8 @@ export default function MenuPizzasPage() {
     const fetchData = async () => {
       try {
         const [pizzasRes, tamaniosRes] = await Promise.all([
-          fetch('http://localhost:4000/api/productos/pizzas'),
-          fetch('http://localhost:4000/api/tamanios/pizza')
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pizzas`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pizza`)
         ])
         
         const [pizzasData, tamaniosData] = await Promise.all([
@@ -187,7 +186,6 @@ export default function MenuPizzasPage() {
   }, [])
 
   const pizzasFiltradas = pizzas.filter((pizza) => {
-    // Si tiene combinaciones, aplicar filtros a las combinaciones
     if (pizza.combinaciones.length > 0) {
       const filtroTamanio =
         filter.tamanio === 'todos' ||
@@ -204,7 +202,6 @@ export default function MenuPizzasPage() {
 
       return filtroTamanio && filtroEspecial
     }
-    // Si tiene unicos, aplicar filtros a los unicos (mantenemos la lógica original)
     else if (pizza.unicos.length > 0) {
       const filtroTamanio =
         filter.tamanio === 'todos' ||
@@ -227,7 +224,6 @@ export default function MenuPizzasPage() {
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
 
-      {/* Filter Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -321,7 +317,6 @@ export default function MenuPizzasPage() {
         </div>
       </div>
 
-      {/* Products Grid Section */}
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           {loading ? (
@@ -351,9 +346,7 @@ export default function MenuPizzasPage() {
               
               <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
                 {pizzasFiltradas.map((pizza) => {
-                  // Lógica para productos con combinaciones
                   if (pizza.combinaciones.length > 0) {
-                    // Primero verificamos si la pizza debería mostrarse según los filtros
                     const shouldShowPizza = () => {
                       const cumpleTamanio = 
                         filter.tamanio === 'todos' || 
@@ -363,17 +356,14 @@ export default function MenuPizzasPage() {
                       if (filter.especial === 'especial') {
                         return cumpleTamanio && pizza.combinaciones.some(c => c.tamanio_sabor.sabor.especial);
                       }
-                      // 'clasico'
                       return cumpleTamanio && pizza.combinaciones.some(c => !c.tamanio_sabor.sabor.especial);
                     };
 
                     if (!shouldShowPizza()) return null;
 
-                    // Seleccionamos la combinación a mostrar
-                    let combinacionAMostrar = pizza.combinaciones[0]; // Valor por defecto
+                    let combinacionAMostrar = pizza.combinaciones[0]; 
 
                     if (filter.tamanio !== 'todos' || filter.especial !== 'todos') {
-                      // Intentamos encontrar una combinación que coincida exactamente con los filtros
                       const exactMatch = pizza.combinaciones.find(c => {
                         const cumpleTamanio = 
                           filter.tamanio === 'todos' || 
@@ -391,7 +381,6 @@ export default function MenuPizzasPage() {
                       if (exactMatch) {
                         combinacionAMostrar = exactMatch;
                       } else {
-                        // Si no hay match exacto, priorizamos el filtro de tamaño
                         const sizeMatch = pizza.combinaciones.find(c => 
                           filter.tamanio === 'todos' || 
                           c.tamanio_sabor.tamanio.nombre.toLowerCase() === filter.tamanio
@@ -399,7 +388,6 @@ export default function MenuPizzasPage() {
                         if (sizeMatch) {
                           combinacionAMostrar = sizeMatch;
                         }
-                        // Si no, se queda con la primera por defecto
                       }
                     }
 
@@ -415,10 +403,12 @@ export default function MenuPizzasPage() {
                         isGrid={true}
                         especial={combinacionAMostrar.tamanio_sabor.sabor.especial ?? false}
                         ruta="pizzas"
+                        tamanio={combinacionAMostrar.tamanio_sabor.tamanio.nombre}
+                        sabores={combinacionAMostrar.tamanio_sabor.sabor.nombre.split(',').map(s => s.trim())}
+                        agregados={[]}
                       />
                     );
                   }
-                  // Lógica original para productos con unicos
                   else if (pizza.unicos.length > 0) {
                     const unicoEspecial = pizza.unicos.find((u) => {
                       const esEspecial = u.tamanios_sabor.sabor.especial ?? false
@@ -450,6 +440,9 @@ export default function MenuPizzasPage() {
                         isGrid={true}
                         especial={unico.tamanios_sabor.sabor.especial ?? false}
                         ruta="pizzas"
+                        tamanio={unico.tamanios_sabor.tamanio.nombre}
+                        sabores={unico.tamanios_sabor.sabor.nombre.split(',').map(s => s.trim())}
+                        agregados={[]}
                       />
                     )
                   }

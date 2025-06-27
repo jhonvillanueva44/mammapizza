@@ -1,4 +1,3 @@
-//page.tsx
 "use client";
 
 import { useRef, useEffect, useState } from "react";
@@ -14,7 +13,7 @@ import SingleBannerSection from "@/components/SingleBannerSection";
 
 
 const transformarPromociones = (data: any[]): ProductoCardProps[] => {
-  // Verificar que data es un array
+
   if (!Array.isArray(data)) return [];
 
   return data.map(promocion => {
@@ -24,7 +23,6 @@ const transformarPromociones = (data: any[]): ProductoCardProps[] => {
       ? +(precioActual / (1 - descuento / 100)).toFixed(2)
       : undefined;
 
-    // Construir descripción combinada
     let descripcion = promocion.descripcion || "";
 
     const imagenValida =
@@ -109,13 +107,28 @@ const transformarPizzas = (data: any[]): ProductoCardProps[] => {
       producto.combinaciones?.[0]?.tamanio_sabor?.sabor?.descripcion ??
       "";
 
+    const tamanio =
+      producto.unicos?.[0]?.tamanios_sabor?.tamanio?.nombre ??
+      producto.combinaciones?.[0]?.tamanio_sabor?.tamanio?.nombre ??
+      "";
+
+    const sabores =
+      producto.unicos?.[0]?.tamanios_sabor?.sabor?.nombre
+        ? [producto.unicos[0].tamanios_sabor.sabor.nombre]
+        : producto.combinaciones?.map((c: any) => c.tamanio_sabor?.sabor?.nombre).filter(Boolean) ?? [];
+
+    const agregados: string[] = [];
+
     return {
       id: producto.id,
       titulo: producto.nombre,
       descripcion,
       precio: precioActual,
       imagen: imagenValida,
-      ruta: 'pizzas'
+      ruta: 'pizzas',
+      tamanio,
+      sabores,
+      agregados,
     };
   });
 };
@@ -123,7 +136,6 @@ const transformarPizzas = (data: any[]): ProductoCardProps[] => {
 
 export default function Home() {
 
-  // INFORMACION PARA CATEGORIAS
   const categories = [
     { title: "Pizzas", image: "/images/category-pizza.png", link: "/menu/pizzas" },
     { title: "Calzone", image: "/images/category-calzone.png", link: "/menu/calzone" },
@@ -132,7 +144,6 @@ export default function Home() {
     { title: "Promociones", image: "/images/category-promocion.png", link: "/menu/promos" },
   ];
 
-  // INFORMACION PARA PRODUCTOS
   const promoRef = useRef<HTMLDivElement>(null);
 
   const calzoneRef = useRef<HTMLDivElement>(null);
@@ -142,22 +153,22 @@ export default function Home() {
   const pizzasRef = useRef<HTMLDivElement>(null);
 
   const { productos: productosPromocion } = useFetchProductos(
-    "http://localhost:4000/api/promociones",
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/promociones`,
     transformarPromociones
   );
 
   const { productos: productosCalzone } = useFetchProductos(
-    "http://localhost:4000/api/productos/calzones",
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/calzones`,
     transformarCalzones
   );
 
   const { productos: productosPastas } = useFetchProductos(
-    "http://localhost:4000/api/productos/pastas",
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas`,
     transformarPastas
   );
 
   const { productos: productosPizzas } = useFetchProductos(
-    "http://localhost:4000/api/productos/pizzas",
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pizzas`,
     transformarPizzas
   );
 
@@ -216,7 +227,7 @@ export default function Home() {
   useEffect(() => {
     const fetchAdicionales = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/productos/adicionales');
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/adicionales`);
         const data = await response.json();
         setAdicionales(data.filter((item: any) => item.destacado));
       } catch (error) {
@@ -235,10 +246,9 @@ export default function Home() {
   useEffect(() => {
     const fetchBebidas = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/productos/bebidas');
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas`);
         const data = await response.json();
 
-        // Filtramos solo las bebidas destacadas y las transformamos al formato BebidaItem
         const bebidasTransformadas = data
           .filter((item: any) => item.destacado)
           .map((item: any) => ({
@@ -381,7 +391,7 @@ export default function Home() {
             </div>
           )}
         </div>
-      </section>
+      </section> 
 
       {/* BOTON DE WHATSAPP 
       <WhatsAppButton /> */}

@@ -330,9 +330,8 @@ export const getAdicionalById = async (req, res) => {
 };
 
 
-// Obtener todas las bebidas
 export const getProductosByBebidas = async (req, res) => {
-    const categoriaId = 7; // Asigna el ID correcto para bebidas según tu base de datos
+    const categoriaId = 7; 
 
     try {
         const productos = await findAllProductosUniquesNestedService(categoriaId);
@@ -352,10 +351,9 @@ export const getProductosByBebidas = async (req, res) => {
     }
 };
 
-// Obtener una bebida por ID
 export const getBebidaById = async (req, res) => {
     const id = parseInt(req.params.id);
-    const categoriaId = 7; // Mismo ID que arriba
+    const categoriaId = 7; 
 
     try {
         const productos = await findAllProductosUniquesNestedService(categoriaId);
