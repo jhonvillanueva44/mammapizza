@@ -132,8 +132,13 @@ export default function CrudProductoPage() {
     setSelectedModalCategory(null);
   };
 
+  // Filtrar categorías para eliminar Agregados y Promociones
+  const categoriasValidas = categorias.filter((categoria: Categoria) => 
+    ![4, 5].includes(categoria.id)
+  );
+
   const getCategoriaNombre = (id: number) => {
-    return categorias.find(c => c.id === id)?.nombre || '-';
+    return categoriasValidas.find(c => c.id === id)?.nombre || '-';
   };
 
   const getSaborInfo = (producto: Producto) => {
@@ -171,7 +176,7 @@ export default function CrudProductoPage() {
       onError: setError,
       onSave: handleSuccess,
       refreshProductos: fetchData,
-      categorias: categorias,
+      categorias: categoriasValidas,
       onCategoryChange: (categoryId: number) => {
         if (modoEdicion && productoEditando?.categoria_id !== categoryId) {
           setProductoEditando(null);
@@ -221,7 +226,7 @@ export default function CrudProductoPage() {
                 disabled={modoEdicion}
               >
                 <option value="">🔽 Seleccione una categoría para continuar</option>
-                {categorias.map((categoria) => (
+                {categoriasValidas.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     📂 {categoria.nombre}
                   </option>
@@ -249,7 +254,6 @@ export default function CrudProductoPage() {
                 {selectedModalCategory === 1 && <ModalPizza {...commonProps} />}
                 {selectedModalCategory === 2 && <ModalPCA {...commonProps} tipoProducto="Calzone" categoriaId={2} />}
                 {selectedModalCategory === 3 && <ModalPCA {...commonProps} tipoProducto="Pasta" categoriaId={3} />}
-                {selectedModalCategory === 4 && <ModalPCA {...commonProps} tipoProducto="Agregado" categoriaId={4} />}
                 {selectedModalCategory === 6 && <ModalBA {...commonProps} tipoProducto="Adicional" />}
                 {selectedModalCategory === 7 && <ModalPCA {...commonProps} tipoProducto="Bebida" categoriaId={7} />}
               </div>
@@ -313,7 +317,7 @@ export default function CrudProductoPage() {
               onChange={(e) => setCategoriaId(e.target.value ? parseInt(e.target.value) : null)}
             >
               <option value="">Todas las categorías</option>
-              {categorias.map((categoria) => (
+              {categoriasValidas.map((categoria) => (
                 <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
               ))}
             </select>
