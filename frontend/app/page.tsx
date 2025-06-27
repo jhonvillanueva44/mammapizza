@@ -361,7 +361,6 @@ export default function Home() {
             <p className="text-base sm:text-lg text-gray-600 font-['Open_Sans']">
               El complemento perfecto para tus platillos favoritos
             </p>
-
           </div>
 
           {loadingBebidas ? (
