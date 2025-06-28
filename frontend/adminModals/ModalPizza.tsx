@@ -67,11 +67,11 @@ export default function ModalPizzaIntegrado({
   const [combinaciones, setCombinaciones] = useState<Combinacion[]>([{ tamanio_id: null, sabor_id: null }]);
   const [combinacionesExistentes, setCombinacionesExistentes] = useState<{tamanio: Tamanio, sabor: Sabor, id: number}[]>([]);
 
-  const TAMANIOS_URL = 'http://localhost:4000/api/tamanios';
-  const TAMANIO_SABORES_URL = 'http://localhost:4000/api/tamanioSabor';
-  const SABORES_URL = 'http://localhost:4000/api/sabores';
-  const PRODUCTOS_URL = 'http://localhost:4000/api/productos';
-  const CATEGORIAS_URL = 'http://localhost:4000/api/categorias';
+  const TAMANIOS_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tamanios`;
+  const TAMANIO_SABORES_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tamanioSabor`;
+  const SABORES_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/sabores`;
+  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/productos`;
+  const CATEGORIAS_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categorias`;
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, setState: (val: number | null) => void) => {
     const value = e.target.value;

@@ -35,9 +35,8 @@ type TamanioSaborModalProps = {
   loading?: boolean;
 };
 
-const API_BASE_URL = 'http://localhost:4000/api/tamanioSabor';
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tamanioSabor`;
 
-// Tipos disponibles basados en las categorías del proyecto
 const TIPOS_DISPONIBLES = ['Pizza', 'Calzone', 'Pasta', 'Bebida', 'Agregado'];
 
 export default function TamanioSaborModal({

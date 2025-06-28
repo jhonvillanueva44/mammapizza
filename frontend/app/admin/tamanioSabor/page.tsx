@@ -29,6 +29,8 @@ export type TamanioSabor = {
   sabor?: Sabor;    
 };
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function CrudTamanioSaborPage() {
   const [data, setData] = useState<TamanioSabor[]>([]);
   const [tamanios, setTamanios] = useState<Tamanio[]>([]);
@@ -45,15 +47,15 @@ export default function CrudTamanioSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = 'http://localhost:4000/api/tamanioSabor';
+  const API_BASE_URL = `${backendUrl}/api/tamanioSabor`;
 
   const obtenerDatos = async () => {
     try {
       setLoading(true);
       const [resComb, resTam, resSab] = await Promise.all([
         fetch(`${API_BASE_URL}?include=tamanio,sabor`),
-        fetch('http://localhost:4000/api/tamanios'),
-        fetch('http://localhost:4000/api/sabores')
+        fetch(`${backendUrl}/api/tamanios`),
+        fetch(`${backendUrl}/api/sabores`)
       ]);
       
       if (!resComb.ok || !resTam.ok || !resSab.ok) {

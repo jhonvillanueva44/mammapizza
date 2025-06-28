@@ -35,7 +35,7 @@ export default function ModalBA({
   const [imagenPreview, setImagenPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const PRODUCTOS_URL = 'http://localhost:4000/api/productos';
+  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/productos`;
 
   // Si es tipo "Bebida", no renderizar el modal
   if (tipoProducto === 'Bebida') {

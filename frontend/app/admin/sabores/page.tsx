@@ -19,6 +19,8 @@ type Sabor = {
 
 const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Bebida'];
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function CrudSaborPage() {
   const [sabores, setSabores] = useState<Sabor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ export default function CrudSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_URL = 'http://localhost:4000/api/sabores';
+  const API_URL = `${backendUrl}/api/sabores`;
 
   const obtenerSabores = async () => {
     try {

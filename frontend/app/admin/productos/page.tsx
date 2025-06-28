@@ -49,7 +49,8 @@ export default function CrudProductoPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = 'http://localhost:4000/api';
+  const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+  const API_BASE_URL = `${backendUrl}/api`;
   const PRODUCTOS_URL = `${API_BASE_URL}/productos`;
   const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
   const UPLOADS_URL = `${API_BASE_URL}/uploads`;

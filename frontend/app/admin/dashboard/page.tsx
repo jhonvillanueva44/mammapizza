@@ -18,6 +18,8 @@ interface Stats {
   preciosPromedio: PreciosPromedio[];
 }
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +29,7 @@ export default function DashboardPage() {
     const fetchStats = async () => {
       try {
         setLoading(true);        
-        const response = await fetch('http://localhost:4000/api/estadisticas/productos', {
+        const response = await fetch(`${backendUrl}/api/estadisticas/productos`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
