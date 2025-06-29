@@ -14,8 +14,6 @@ type Categoria = {
   descripcion: string;
 };
 
-const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
-
 export default function CrudCategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [nombre, setNombre] = useState('');
@@ -32,7 +30,7 @@ export default function CrudCategoriasPage() {
   const [busqueda, setBusqueda] = useState('');
   const categoriasPorPagina = 15;
 
-  const API_URL = `${backendUrl}/api/categorias`;
+  const API_URL = 'http://localhost:4000/api/categorias';
 
   const obtenerCategorias = async () => {
     try {

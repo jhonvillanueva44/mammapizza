@@ -14,6 +14,7 @@ interface Sabor {
   id: number;
   nombre: string;
   descripcion?: string;
+  especial?: boolean;
 }
 
 interface TamaniosSabor {
@@ -148,14 +149,17 @@ export default function MenuPastasPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch pastas
-        const pastasRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas`);
-        const pastasData = await pastasRes.json();
+        const [pastasRes, tamaniosRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pastas`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pasta`)
+        ]);
+        
+        const [pastasData, tamaniosData] = await Promise.all([
+          pastasRes.json(),
+          tamaniosRes.json()
+        ]);
+        
         setPastas(pastasData);
-
-        // Fetch tamaños para el filtro
-        const tamaniosRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pasta`);
-        const tamaniosData = await tamaniosRes.json();
         setTamanios(tamaniosData);
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -168,6 +172,7 @@ export default function MenuPastasPage() {
   }, []);
 
   const pastasFiltradas = pastas.filter((pasta) => {
+    if (pasta.habilitado !== true) return false;
     return (
       filter.tamanio === 'todos' ||
       pasta.unicos.some(
@@ -178,7 +183,6 @@ export default function MenuPastasPage() {
 
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -248,9 +252,8 @@ export default function MenuPastasPage() {
             <>
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
-                  Nuestras Especialidades
+                  Nuestras Pastas
                 </h2>
-               
               </div>
               
               <div className="grid gap-6 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]">
@@ -270,13 +273,18 @@ export default function MenuPastasPage() {
                       id={pasta.id}
                       titulo={pasta.nombre}
                       descripcion={
-                        pasta.descripcion || unico.tamanios_sabor.sabor.descripcion || ''
+                        pasta.descripcion || 
+                        unico.tamanios_sabor.sabor.descripcion || 
+                        "Exquisita pasta preparada con los mejores ingredientes"
                       }
                       precio={parseFloat(unico.tamanios_sabor.precio)}
                       imagen={pasta.imagen || '/images/card-pasta.jpg'}
                       descuento={pasta.descuento ?? undefined}
                       isGrid={true}
                       ruta="pastas"
+                      tamanio={unico.tamanios_sabor.tamanio.nombre}
+                      sabores={unico.tamanios_sabor.sabor.nombre.split(',').map(s => s.trim())}
+                      agregados={[]}
                     />
                   );
                 })}

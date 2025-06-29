@@ -7,6 +7,8 @@ import {
 
 export const getProductStatsService = async () => {
   try {
+    console.log('Obteniendo estadísticas de productos...');
+
     const productosPorCategoria = await getProductosPorCategoria();
     const stockPorCategoria = await getStockPorCategoria();
     const preciosPromedio = await getPreciosPromedio();

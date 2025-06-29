@@ -4,8 +4,7 @@ import { useState } from 'react';
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 import StockTable from '@/components/adminComponents/StockTable';
-
-const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+import AddProductModal from '@/components/adminComponents/AddProductModal';
 
 export default function StockPage() {
   const [showAddProduct, setShowAddProduct] = useState(false);
@@ -26,9 +25,9 @@ export default function StockPage() {
         <Topbar title="Gestión de Stock" />
         <main className="p-6">
           <StockTable products={products} setProducts={setProducts} onAddProduct={() => setShowAddProduct(true)} />
+          {showAddProduct && <AddProductModal onClose={() => setShowAddProduct(false)} />}
         </main>
       </div>
     </div>
   );
 }
-  

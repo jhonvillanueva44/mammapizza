@@ -19,8 +19,6 @@ type Sabor = {
 
 const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Bebida'];
 
-const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
-
 export default function CrudSaborPage() {
   const [sabores, setSabores] = useState<Sabor[]>([]);
   const [loading, setLoading] = useState(false);
@@ -42,7 +40,7 @@ export default function CrudSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_URL = `${backendUrl}/api/sabores`;
+  const API_URL = 'http://localhost:4000/api/sabores';
 
   const obtenerSabores = async () => {
     try {
@@ -244,9 +242,6 @@ export default function CrudSaborPage() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Descripción
                       </th>
-                      <th scope="col" className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Especial
-                      </th>
                       <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Acciones
                       </th>
@@ -267,19 +262,6 @@ export default function CrudSaborPage() {
                           <div className="text-sm text-gray-500 max-w-xs line-clamp-2">
                             {sabor.descripcion || <span className="text-gray-400">Sin descripción</span>}
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          {sabor.tipo === 'Pizza' ? (
-                            sabor.especial ? (
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-500 mx-auto" viewBox="0 0 20 20" fill="currentColor">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            ) : (
-                              <span className="text-gray-400">-</span>
-                            )
-                          ) : (
-                            <span className="text-gray-400">-</span>
-                          )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-3">
@@ -307,7 +289,7 @@ export default function CrudSaborPage() {
                     ))}
                     {saboresPagina.length === 0 && !loading && (
                       <tr>
-                        <td colSpan={5} className="px-6 py-8 text-center">
+                        <td colSpan={4} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center justify-center text-gray-500">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 opacity-50 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

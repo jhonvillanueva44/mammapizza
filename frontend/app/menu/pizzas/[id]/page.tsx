@@ -193,11 +193,9 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
   }
 
   const handleAddToCart = () => {
-    // Obtener el carrito actual del sessionStorage
     const existingCart = sessionStorage.getItem('carrito')
     let cart = existingCart ? JSON.parse(existingCart) : []
 
-    // Obtener los nombres de los sabores y agregados seleccionados
     const nombresSabores = sabores
       .filter(s => saboresPrincipalesIds.includes(s.id.toString()))
       .map(s => s.nombre)
@@ -206,11 +204,9 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       .filter(a => agregadosSeleccionados.includes(a.id.toString()))
       .map(a => a.nombre)
 
-    // Obtener el tamaño seleccionado
     const tamanioSeleccionadoObj = tamanios.find(t => t.id.toString() === tamanoSeleccionado)
     const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
 
-    // Crear el nuevo ítem del carrito
     const newItem = {
       id: pizza.id,
       titulo: pizza.nombre,
@@ -219,16 +215,14 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
       tamanio: nombreTamanio,
       sabores: nombresSabores,
       agregados: nombresAgregados,
-      itemId: Date.now() + Math.random().toString(36).substring(2, 9) // ID único para este ítem
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9),
+      productos: []
     }
 
-    // Añadir el nuevo ítem al carrito
     const updatedCart = [...cart, newItem]
     
-    // Guardar en sessionStorage
     sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
     
-    // Redirigir al carrito
     router.push('/pedido')
   }
 
@@ -289,15 +283,18 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                   {nombresSabores || pizza.nombre}
                 </h2>
                 
-                <div className="bg-red-600 text-white rounded-lg p-3 mb-4">
+                <div className="bg-green-600 text-white rounded-lg p-3 mb-4">
                   <p className="text-sm font-medium mb-1">PRECIO TOTAL</p>
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
                 <button 
                   onClick={handleAddToCart}
-                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105"
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
                 >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
                   Añadir al Pedido
                 </button>
               </div>

@@ -13,7 +13,6 @@ import SingleBannerSection from "@/components/SingleBannerSection";
 
 
 const transformarPromociones = (data: any[]): ProductoCardProps[] => {
-
   if (!Array.isArray(data)) return [];
 
   return data.map(promocion => {
@@ -30,6 +29,13 @@ const transformarPromociones = (data: any[]): ProductoCardProps[] => {
         ? promocion.imagen
         : "/images/card-pizza.jpg";
 
+    const productos = promocion.detalles_promocion?.map((detalle: any) => ({
+      [detalle.producto_id]: [
+        detalle.producto.nombre, 
+        detalle.cantidad
+      ]
+    })) || [];
+
     return {
       id: promocion.id,
       titulo: promocion.nombre,
@@ -40,6 +46,7 @@ const transformarPromociones = (data: any[]): ProductoCardProps[] => {
       descuento,
       ruta: 'promos',
       mostrarPersonalizar: false,
+      productos 
     };
   });
 };
@@ -59,10 +66,16 @@ const transformarCalzones = (data: any[]): ProductoCardProps[] => {
       id: producto.id,
       titulo: producto.nombre,
       descripcion:
-        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
+        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? 
+        "Delicioso calzone relleno con los mejores ingredientes",
       precio: precioActual,
       imagen: imagenValida,
-      ruta: 'calzone'
+      ruta: 'calzone',
+      tamanio: producto.unicos?.[0]?.tamanios_sabor?.tamanio?.nombre || 'Único',
+      sabores: producto.unicos?.[0]?.tamanios_sabor?.sabor?.nombre 
+        ? [producto.unicos[0].tamanios_sabor.sabor.nombre] 
+        : [],
+      agregados: []
     };
   });
 };
@@ -76,16 +89,23 @@ const transformarPastas = (data: any[]): ProductoCardProps[] => {
     const imagenValida =
       producto.imagen && producto.imagen.trim() !== ""
         ? producto.imagen
-        : "/images/card-calzone.jpg";
+        : "/images/card-pasta.jpg"; 
 
     return {
       id: producto.id,
       titulo: producto.nombre,
       descripcion:
-        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? "",
+        producto.unicos?.[0]?.tamanios_sabor?.sabor?.descripcion ?? 
+        "Exquisita pasta preparada con los mejores ingredientes",
       precio: precioActual,
       imagen: imagenValida,
-      ruta: 'pastas'
+      ruta: 'pastas',
+      mostrarPersonalizar: true,
+      tamanio: producto.unicos?.[0]?.tamanios_sabor?.tamanio?.nombre || 'Estándar',
+      sabores: producto.unicos?.[0]?.tamanios_sabor?.sabor?.nombre 
+        ? [producto.unicos[0].tamanios_sabor.sabor.nombre] 
+        : [],
+      agregados: producto.agregados?.map((ag: any) => ag.nombre) || []
     };
   });
 };
@@ -371,6 +391,7 @@ export default function Home() {
             <p className="text-base sm:text-lg text-gray-600 font-['Open_Sans']">
               El complemento perfecto para tus platillos favoritos
             </p>
+
           </div>
 
           {loadingBebidas ? (

@@ -18,8 +18,6 @@ type Tamano = {
 
 const tiposDisponibles = ['Pizza', 'Calzone', 'Pasta', 'Agregado', 'Bebida'];
 
-const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
-
 export default function CrudTamaniosPage() {
   const [tamanos, setTamanos] = useState<Tamano[]>([]);
   const [nombre, setNombre] = useState('');
@@ -38,7 +36,7 @@ export default function CrudTamaniosPage() {
   const [paginaActual, setPaginaActual] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_URL = `${backendUrl}/api/tamanios`;
+  const API_URL = 'http://localhost:4000/api/tamanios';
 
   const obtenerTamanos = async () => {
     try {

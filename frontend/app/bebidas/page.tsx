@@ -14,6 +14,7 @@ interface Sabor {
   id: number;
   nombre: string;
   descripcion?: string;
+  especial?: boolean;
 }
 
 interface TamaniosSabor {
@@ -62,7 +63,6 @@ function FilterButtons({ onChange, tamanios }: FilterButtonsProps) {
   const [selectedValue, setSelectedValue] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false)
 
-  // Establecer el primer tamaño como valor por defecto
   useEffect(() => {
     if (tamanios.length > 0 && !selectedValue) {
       setSelectedValue(tamanios[0].nombre)
@@ -149,12 +149,17 @@ export default function MenuBebidasPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const bebidasRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas`);
-        const bebidasData = await bebidasRes.json();
+        const [bebidasRes, tamaniosRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/bebidas`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/bebida`)
+        ]);
+        
+        const [bebidasData, tamaniosData] = await Promise.all([
+          bebidasRes.json(),
+          tamaniosRes.json()
+        ]);
+        
         setBebidas(bebidasData);
-
-        const tamaniosRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/bebida`);
-        const tamaniosData = await tamaniosRes.json();
         setTamanios(tamaniosData);
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -167,6 +172,7 @@ export default function MenuBebidasPage() {
   }, []);
 
   const bebidasFiltradas = bebidas.filter((bebida) => {
+    if (bebida.habilitado !== true) return false;
     return (
       filter.tamanio === 'todos' ||
       bebida.unicos.some(
@@ -177,12 +183,11 @@ export default function MenuBebidasPage() {
 
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
-          
+              {/* Filtros */}
               <div className="flex flex-col items-start gap-6 lg:max-w-[400px] w-full lg:w-auto">
                 <div className="space-y-4">
                   <h2 className="text-xl font-bold text-gray-800 font-['Playfair_Display'] flex items-center gap-2">
@@ -193,6 +198,7 @@ export default function MenuBebidasPage() {
                 </div>
               </div>
 
+              {/* Descripción */}
               <div className="flex-1 lg:pl-8 lg:border-l-2 lg:border-red-100 w-full">
                 <div className="bg-gradient-to-r from-red-50 to-red-50/50 rounded-xl p-6">
                   {filter.tamanio !== 'todos' && (
@@ -267,13 +273,19 @@ export default function MenuBebidasPage() {
                       id={bebida.id}
                       titulo={bebida.nombre}
                       descripcion={
-                        bebida.descripcion || unico.tamanios_sabor.sabor.descripcion || ''
+                        bebida.descripcion || 
+                        unico.tamanios_sabor.sabor.descripcion || 
+                        "Refrescante bebida para acompañar tu comida"
                       }
                       precio={parseFloat(unico.tamanios_sabor.precio)}
                       imagen={bebida.imagen || '/images/card-bebida.jpg'}
                       descuento={bebida.descuento ?? undefined}
                       isGrid={true}
                       ruta="bebidas"
+                      mostrarPersonalizar={true}
+                      tamanio={unico.tamanios_sabor.tamanio.nombre}
+                      sabores={unico.tamanios_sabor.sabor.nombre.split(',').map(s => s.trim())}
+                      agregados={[]} 
                     />
                   );
                 })}

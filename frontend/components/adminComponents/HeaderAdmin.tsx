@@ -6,6 +6,7 @@ const menuItems = [
   { label: 'Dashboard', path: '/admin/dashboard' },
   { label: 'Gestión de Stock', path: '/admin/stock' },
   { label: 'Pedidos', path: '/admin/orders' },
+  { label: 'Reportes', path: '/admin/reports' },
   { label: 'Tamaños', path: '/admin/tamanio' },
   { label: 'Sabores', path: '/admin/sabores' },
   { label: 'Categorias', path: '/admin/categorias' },

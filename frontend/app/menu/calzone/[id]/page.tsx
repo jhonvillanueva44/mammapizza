@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 
 const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
+  const router = useRouter()
 
   const [calzone, setCalzone] = useState<any>(null)
   const [tamanios, setTamanios] = useState<any[]>([])
@@ -35,12 +37,12 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     const fetchData = async () => {
       try {
         const [calzoneRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/calzones/${params.id}`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/calzone`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/calzone`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/agregado`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/agregado`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/calzones/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/calzone`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/calzone`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
         ])
 
         const calzoneData = await calzoneRes.json()
@@ -124,6 +126,37 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     }
   }
 
+  const handleAddToCart = () => {
+    const existingCart = sessionStorage.getItem('carrito')
+    let cart = existingCart ? JSON.parse(existingCart) : []
+
+    const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || calzone.nombre
+    const nombresAgregados = agregados
+      .filter(a => agregadosSeleccionados.includes(a.id.toString()))
+      .map(a => a.nombre)
+
+    const tamanioSeleccionadoObj = tamanios.find(t => t.id.toString() === tamanoSeleccionado)
+    const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
+
+    const newItem = {
+      id: calzone.id,
+      titulo: calzone.nombre,
+      imagen: calzone.imagen,
+      precio: precioFinal.toFixed(2),
+      tamanio: nombreTamanio,
+      sabores: [nombreSaborPrincipal],
+      agregados: nombresAgregados,
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9),
+      productos: [] 
+    }
+
+    const updatedCart = [...cart, newItem]
+
+    sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
+
+    router.push('/pedido')
+  }
+
   if (!calzone || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosAgregados.length) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -176,13 +209,19 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
                   Calzone {nombreSaborPrincipal}
                 </h2>
                 
-                <div className="bg-red-600 text-white rounded-lg p-3 mb-4">
+                <div className="bg-green-600 text-white rounded-lg p-3 mb-4">
                   <p className="text-sm font-medium mb-1">PRECIO TOTAL</p>
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors">
-                  Añadir al Carrito
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  Añadir al Pedido
                 </button>
               </div>
             </div>

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Tamanio {
   id: number
@@ -35,6 +36,7 @@ interface Bebida {
 
 const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
+  const router = useRouter()
 
   const [bebida, setBebida] = useState<Bebida | null>(null)
   const [tamanios, setTamanios] = useState<Tamanio[]>([])
@@ -64,10 +66,10 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     const fetchData = async () => {
       try {
         const [bebidaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas/${params.id}`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/bebida`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/bebida`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/bebidas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/bebida`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/bebida`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
         ])
 
         const bebidaData = await bebidaRes.json()
@@ -147,6 +149,40 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     }
   }
 
+  const handleAddToCart = () => {
+    // Obtener el carrito actual del sessionStorage
+    const existingCart = sessionStorage.getItem('carrito')
+    let cart = existingCart ? JSON.parse(existingCart) : []
+
+    // Obtener el nombre del sabor principal
+    const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || ''
+
+    // Obtener el tamaño seleccionado
+    const tamanioSeleccionadoObj = tamaniosDisponibles.find(t => t.id.toString() === tamanoSeleccionado)
+    const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
+
+    // Crear el nuevo ítem del carrito
+    const newItem = {
+      id: bebida?.id,
+      titulo: bebida?.nombre || '',
+      imagen: bebida?.imagen || '',
+      precio: precioFinal.toFixed(2),
+      tamanio: nombreTamanio,
+      sabores: nombreSaborPrincipal ? [nombreSaborPrincipal] : [],
+      agregados: [], // Lista vacía como solicitado
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9) // ID único para este ítem
+    }
+
+    // Añadir el nuevo ítem al carrito
+    const updatedCart = [...cart, newItem]
+    
+    // Guardar en sessionStorage
+    sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
+    
+    // Redirigir al carrito
+    router.push('/pedido')
+  }
+
   if (!bebida || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosDisponibles.length) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -193,8 +229,11 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors">
-                  Añadir al Carrito
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105"
+                >
+                  Añadir al Pedido
                 </button>
               </div>
             </div>

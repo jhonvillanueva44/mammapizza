@@ -9,8 +9,8 @@ export default function PedidoPage() {
   const [isMounted, setIsMounted] = useState(false)
   const [deliveryOption, setDeliveryOption] = useState<'recoger' | 'delivery'>('recoger')
   const [deliveryAddress, setDeliveryAddress] = useState('')
+  const [customerName, setCustomerName] = useState('')
 
-  // CARGAR PEDIDO DESDE SESSION STORAGE
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedCart = sessionStorage.getItem('carrito')
@@ -21,14 +21,12 @@ export default function PedidoPage() {
     }
   }, [])
 
-  // GUARDAR LOS CAMBIOS DESPUES DE HABERSE CARGADO EL SESSION STORAGE
   useEffect(() => {
     if (isMounted) {
       sessionStorage.setItem('carrito', JSON.stringify(cartItems))
     }
   }, [cartItems, isMounted])
 
-  // MANEJADORES PARA EL CARRITO
   const handleAddDuplicate = (itemId: string) => {
     const itemToAdd = cartItems.find(item => item.itemId === itemId)
     if (itemToAdd) {
@@ -55,9 +53,8 @@ export default function PedidoPage() {
     setCartItems(updatedItems)
   }
 
-  // Función para agrupar items similares
   const groupedCartItems = cartItems.reduce((acc, item) => {
-    const key = `${item.id}-${item.tamanio}-${JSON.stringify(item.sabores)}-${JSON.stringify(item.agregados)}`
+    const key = `${item.id}-${item.tamanio}-${JSON.stringify(item.sabores)}-${JSON.stringify(item.agregados)}-${JSON.stringify(item.productos)}`
     if (!acc[key]) {
       acc[key] = {
         ...item,
@@ -71,40 +68,52 @@ export default function PedidoPage() {
     return acc
   }, {})
 
-  // CALCULAR TOTAL DEL PEDIDO
   const subtotal = cartItems.reduce((total, item) => total + parseFloat(item.precio), 0)
-  const deliveryFee = deliveryOption === 'delivery' ? 5 : 0
-  const totalPrice = subtotal + deliveryFee
+  const igv = subtotal * 0.10
+  const totalPrice = subtotal + igv
 
-  // Generar mensaje para WhatsApp
   const generateWhatsAppMessage = () => {
-    let message = `¡Hola! Quiero realizar el siguiente pedido:\n\n`
+    let message = `Hola MammaPizza, quiero realizar el siguiente pedido:\n\n`
     
-    // Detalles de los productos
+    message += `*Nombre:* ${customerName}\n\n`
+    
     Object.values(groupedCartItems).forEach((group: any) => {
       message += `*${group.titulo}* (${group.count}x)\n`
-      message += `- Tamaño: ${group.tamanio}\n`
+      
+      const sizeLabel = group.titulo.toLowerCase().includes('pasta') || 
+                        group.titulo.toLowerCase().includes('lagsana') ? 
+                        'Tipo' : 'Tamaño'
+      
+      if (group.tamanio) {
+        message += `- ${sizeLabel}: ${group.tamanio}\n`
+      }
+      
       if (group.sabores?.length > 0) {
         message += `- Sabores: ${group.sabores.join(', ')}\n`
       }
       if (group.agregados?.length > 0) {
         message += `- Extras: ${group.agregados.join(', ')}\n`
       }
+
+      if (group.productos?.length > 0) {
+        message += `- Incluye:\n`
+        group.productos.forEach((prod: Record<number, [string, number]>) => {
+          const [id, [nombre, cantidad]] = Object.entries(prod)[0]
+          message += `  • ${nombre} (${cantidad}x)\n`
+        })
+      }
+
       message += `- Subtotal: S/ ${(parseFloat(group.precio) * group.count).toFixed(2)}\n\n`
     })
 
-    // Método de entrega
     message += `*Método de entrega:* ${deliveryOption === 'delivery' ? 'Delivery' : 'Recoger en local'}\n`
     if (deliveryOption === 'delivery' && deliveryAddress) {
       message += `*Dirección:* ${deliveryAddress}\n`
     }
 
-    // Resumen de pago
     message += `\n*Resumen de pago:*\n`
     message += `- Subtotal: S/ ${subtotal.toFixed(2)}\n`
-    if (deliveryOption === 'delivery') {
-      message += `- Costo de envío: S/ 5.00\n`
-    }
+    message += `- IGV (10%): S/ ${igv.toFixed(2)}\n`
     message += `*Total a pagar: S/ ${totalPrice.toFixed(2)}*\n\n`
     message += `Por favor confirmen mi pedido. ¡Gracias!`
 
@@ -112,6 +121,39 @@ export default function PedidoPage() {
   }
 
   const whatsappUrl = `https://wa.me/${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}?text=${generateWhatsAppMessage()}`
+  const whatsappWebUrl = `https://web.whatsapp.com/send?phone=${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}&text=${generateWhatsAppMessage()}`
+
+  const handleWhatsAppClick = (e: React.MouseEvent) => {
+    if (!customerName || (deliveryOption === 'delivery' && !deliveryAddress)) {
+      e.preventDefault()
+      return
+    }
+
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    
+    if (isMobile) {
+      window.open(whatsappUrl, '_blank')
+      sessionStorage.removeItem('carrito')
+      setCartItems([])
+    } else {
+      const newWindow = window.open(whatsappWebUrl, '_blank')
+      
+      setTimeout(() => {
+        if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
+          if (confirm('¿No tienes WhatsApp Web abierto? ¿Deseas abrir WhatsApp en tu aplicación de escritorio?')) {
+            window.open(whatsappUrl, '_blank')
+            sessionStorage.removeItem('carrito')
+            setCartItems([])
+          }
+        } else {
+          sessionStorage.removeItem('carrito')
+          setCartItems([])
+        }
+      }, 1000)
+      
+      e.preventDefault()
+    }
+  }
 
   if (!isMounted) {
     return (
@@ -144,7 +186,7 @@ export default function PedidoPage() {
           <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
-          <h2 className="text-xl font-medium text-gray-700 mb-2">Tu carrito está vacío</h2>
+          <h2 className="text-xl font-medium text-gray-700 mb-2">Tu pedido está vacío</h2>
           <p className="text-gray-500 mb-6">Añade algunos productos para comenzar tu pedido</p>
           <Link 
             href="/menu/pizzas" 
@@ -155,13 +197,11 @@ export default function PedidoPage() {
         </div>
       ) : (
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* LISTA DE PRODUCTOS */}
           <div className="lg:col-span-2 space-y-6">
             {Object.values(groupedCartItems).map((group: any) => (
               <div key={group.itemId} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
                 <div className="p-5 sm:p-6">
                   <div className="flex flex-col sm:flex-row gap-5">
-                    {/* IMAGEN DEL PRODUCTO */}
                     <div className="relative flex-shrink-0">
                       <img 
                         src={group.imagen} 
@@ -173,7 +213,6 @@ export default function PedidoPage() {
                       </span>
                     </div>
 
-                    {/* DETALLES DEL PRODUCTO */}
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-start gap-3">
                         <h3 className="text-lg font-semibold text-gray-900 truncate">
@@ -188,11 +227,14 @@ export default function PedidoPage() {
                         <span className="font-medium">Precio unitario:</span> S/ {parseFloat(group.precio).toFixed(2)}
                       </p>
 
-                      {/* VARIANTES */}
                       <div className="mt-3 space-y-2">
                         {group.tamanio && (
                           <div className="flex items-center">
-                            <span className="text-sm font-medium text-gray-700 w-20">Tamaño:</span>
+                            <span className="text-sm font-medium text-gray-700 w-20">
+                              {group.titulo.toLowerCase().includes('pasta') || 
+                               group.titulo.toLowerCase().includes('lasaña') ? 
+                               'Tipo:' : 'Tamaño:'}
+                            </span>
                             <span className="text-sm bg-gray-100 text-gray-800 px-3 py-1 rounded-full">
                               {group.tamanio}
                             </span>
@@ -224,14 +266,29 @@ export default function PedidoPage() {
                             </div>
                           </div>
                         )}
+
+                        {group.productos?.length > 0 && (
+                          <div className="flex items-start">
+                            <span className="text-sm font-medium text-gray-700 w-20">Incluye:</span>
+                            <div className="flex flex-col gap-1">
+                              {group.productos.map((prod: Record<number, [string, number]>, i: number) => {
+                                const [id, [nombre, cantidad]] = Object.entries(prod)[0]
+                                return (
+                                  <span key={i} className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                                    {nombre} ({cantidad}x)
+                                  </span>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
                       </div>
 
-                      {/* CONTROLES */}
                       <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
                         <div className="flex items-center gap-1 bg-gray-100 rounded-full p-1">
                           <button
                             onClick={() => handleRemoveOne(group.items[0].itemId)}
-                            className="w-8 h-8 bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
+                            className="w-8 cursor-pointer h-8 bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
                             aria-label="Quitar uno"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -241,7 +298,7 @@ export default function PedidoPage() {
                           <span className="w-8 text-center font-medium">{group.count}</span>
                           <button
                             onClick={() => handleAddDuplicate(group.items[0].itemId)}
-                            className="w-8 h-8 bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
+                            className="w-8 h-8 cursor-pointer bg-white hover:bg-red-50 rounded-full text-red-600 transition-all duration-300 flex items-center justify-center shadow-sm"
                             aria-label="Añadir otro"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -251,7 +308,7 @@ export default function PedidoPage() {
                         </div>
                         <button
                           onClick={() => handleRemoveAll(group.items[0].itemId)}
-                          className="text-sm text-red-600 hover:text-red-800 font-medium flex items-center gap-1 transition-colors duration-300"
+                          className="text-sm cursor-pointer text-red-600 hover:text-red-800 font-medium flex items-center gap-1 transition-colors duration-300"
                           aria-label="Eliminar todos"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -267,19 +324,36 @@ export default function PedidoPage() {
             ))}
           </div>
 
-          {/* RESUMEN DEL PEDIDO */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden sticky top-6">
               <div className="p-5 sm:p-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-6">Resumen del Pedido</h2>
                 
+                <div className="mb-4">
+                  <label htmlFor="customerName" className="block text-sm font-medium text-gray-700 mb-1">
+                    Nombre completo *
+                  </label>
+                  <input
+                    type="text"
+                    id="customerName"
+                    value={customerName}
+                    onChange={(e) => setCustomerName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-red-500 focus:border-red-500"
+                    placeholder="Ingresa tu nombre completo"
+                    required
+                  />
+                </div>
+
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal ({cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'}):</span>
                     <span className="font-medium">S/ {subtotal.toFixed(2)}</span>
                   </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">IGV (10%):</span>
+                    <span className="font-medium">S/ {igv.toFixed(2)}</span>
+                  </div>
 
-                  {/* Opciones de envío */}
                   <div className="pt-2">
                     <h3 className="text-sm font-medium text-gray-700 mb-2">Método de entrega:</h3>
                     <div className="flex flex-col gap-2">
@@ -301,15 +375,14 @@ export default function PedidoPage() {
                           onChange={() => setDeliveryOption('delivery')}
                           className="h-4 w-4 text-red-600 border-gray-300 focus:ring-red-500"
                         />
-                        <span className="text-sm text-gray-700">Delivery (+S/ 5.00)</span>
+                        <span className="text-sm text-gray-700">Delivery</span>
                       </label>
                     </div>
 
-                    {/* Campo de dirección para delivery */}
                     {deliveryOption === 'delivery' && (
                       <div className="mt-3">
                         <label htmlFor="deliveryAddress" className="block text-sm font-medium text-gray-700 mb-1">
-                          Dirección de entrega
+                          Dirección de entrega *
                         </label>
                         <input
                           type="text"
@@ -320,7 +393,6 @@ export default function PedidoPage() {
                           placeholder="Ingresa tu dirección completa"
                           required
                         />
-                        <p className="mt-1 text-xs text-gray-500">El costo de envío es de S/ 5.00</p>
                       </div>
                     )}
                   </div>
@@ -333,19 +405,18 @@ export default function PedidoPage() {
                   <span className="text-xl font-bold text-red-600">S/ {totalPrice.toFixed(2)}</span>
                 </div>
 
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`w-full flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-green-500/20 ${
-                    deliveryOption === 'delivery' && !deliveryAddress
-                      ? 'opacity-50 cursor-not-allowed pointer-events-none'
+                <button
+                  onClick={handleWhatsAppClick}
+                  disabled={!customerName || (deliveryOption === 'delivery' && !deliveryAddress)}
+                  className={`w-full cursor-pointer flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-300 shadow-lg hover:shadow-green-500/20 ${
+                    !customerName || (deliveryOption === 'delivery' && !deliveryAddress)
+                      ? 'opacity-50 cursor-not-allowed'
                       : ''
                   }`}
                 >
                   <FaWhatsapp className="text-xl" />
                   Proceder con el Pedido
-                </a>
+                </button>
               </div>
             </div>
           </div>

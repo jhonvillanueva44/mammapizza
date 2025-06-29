@@ -14,6 +14,7 @@ interface Sabor {
   id: number;
   nombre: string;
   descripcion?: string;
+  especial?: boolean;
 }
 
 interface TamaniosSabor {
@@ -148,12 +149,17 @@ export default function MenuCalzonePage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const calzonesRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/calzones`);
-        const calzonesData = await calzonesRes.json();
+        const [calzonesRes, tamaniosRes] = await Promise.all([
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/calzones`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/calzone`)
+        ]);
+        
+        const [calzonesData, tamaniosData] = await Promise.all([
+          calzonesRes.json(),
+          tamaniosRes.json()
+        ]);
+        
         setCalzones(calzonesData);
-
-        const tamaniosRes = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/calzone`);
-        const tamaniosData = await tamaniosRes.json();
         setTamanios(tamaniosData);
       } catch (error) {
         console.error('Error al obtener datos:', error);
@@ -166,6 +172,7 @@ export default function MenuCalzonePage() {
   }, []);
 
   const calzonesFiltrados = calzones.filter((calzone) => {
+    if (calzone.habilitado !== true) return false;
     return (
       filter.tamanio === 'todos' ||
       calzone.unicos.some(
@@ -176,7 +183,6 @@ export default function MenuCalzonePage() {
 
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -203,7 +209,8 @@ export default function MenuCalzonePage() {
                         , cuidadosamente preparados para que disfrutes el mejor sabor.
                       </p>
                       <p className="text-gray-600 text-sm font-['Open_Sans'] leading-relaxed">
-                        Disfruta de nuestro menú en diferentes tamaños, según tu antojo o compañía. Cada calzone está horneado a la perfección para ofrecerte una experiencia única.
+                        Disfruta de nuestro menú en diferentes tamaños, según tu antojo o compañía. 
+                        Cada calzone está horneado a la perfección para ofrecerte una experiencia única.
                       </p>
                     </>
                   )}
@@ -246,7 +253,7 @@ export default function MenuCalzonePage() {
             <>
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
-                  Nuestras Especialidades
+                  Nuestros Calzones
                 </h2>
               </div>
               
@@ -267,13 +274,18 @@ export default function MenuCalzonePage() {
                       id={calzone.id}
                       titulo={calzone.nombre}
                       descripcion={
-                        calzone.descripcion || unico.tamanios_sabor.sabor.descripcion || ''
+                        calzone.descripcion || 
+                        unico.tamanios_sabor.sabor.descripcion || 
+                        "Delicioso calzone relleno con los mejores ingredientes"
                       }
                       precio={parseFloat(unico.tamanios_sabor.precio)}
                       imagen={calzone.imagen || '/images/card-calzone.jpg'}
                       descuento={calzone.descuento ?? undefined}
                       isGrid={true}
                       ruta="calzone"
+                      tamanio={unico.tamanios_sabor.tamanio.nombre}
+                      sabores={unico.tamanios_sabor.sabor.nombre.split(',').map(s => s.trim())}
+                      agregados={[]}
                     />
                   );
                 })}

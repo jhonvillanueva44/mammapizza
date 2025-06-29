@@ -32,12 +32,9 @@ type TamanioSaborModalProps = {
   onSubmitSuccess: (message: string) => void;
   onError: (message: string) => void;
   setLoading: (loading: boolean) => void;
-  loading?: boolean;
 };
 
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/tamanioSabor`;
-
-const TIPOS_DISPONIBLES = ['Pizza', 'Calzone', 'Pasta', 'Bebida', 'Agregado'];
+const API_BASE_URL = 'http://localhost:4000/api/tamanioSabor';
 
 export default function TamanioSaborModal({
   isOpen,
@@ -48,108 +45,48 @@ export default function TamanioSaborModal({
   onSubmitSuccess,
   onError,
   setLoading,
-  loading = false,
 }: TamanioSaborModalProps) {
   const [precio, setPrecio] = useState('');
-  const [tipoSeleccionado, setTipoSeleccionado] = useState('');
   const [tamanioId, setTamanioId] = useState<number | null>(null);
   const [saborId, setSaborId] = useState<number | null>(null);
   const [saboresFiltrados, setSaboresFiltrados] = useState<Sabor[]>([]);
-  const [tamaniosFiltrados, setTamaniosFiltrados] = useState<Tamanio[]>([]);
-  const [tipos, setTipos] = useState<string[]>(TIPOS_DISPONIBLES);
-  
-  // Estado para rastrear si los campos han sido tocados
-  const [touched, setTouched] = useState({
-    tipo: false,
-    tamanio: false,
-    sabor: false,
-    precio: false
-  });
 
-  // Filtrar tamaños según el tipo seleccionado
-  useEffect(() => {
-    if (tipoSeleccionado) {
-      const tamaniosFiltradosPorTipo = tamanios.filter(t => t.tipo === tipoSeleccionado);
-      setTamaniosFiltrados(tamaniosFiltradosPorTipo);
-      
-      // Resetear tamaño si el actual no está en los filtrados
-      if (tamanioId && !tamaniosFiltradosPorTipo.some(t => t.id === tamanioId)) {
-        setTamanioId(null);
-      }
-    } else {
-      setTamaniosFiltrados([]);
-      setTamanioId(null);
-    }
-  }, [tipoSeleccionado, tamanios]);
 
-  // Filtrar sabores según el tipo de tamaño
+const tipoTamanioSeleccionado = tamanios.find(t => t.id === tamanioId)?.tipo || '';
   useEffect(() => {
-    if (tipoSeleccionado) {
-      const saboresFiltradosPorTipo = sabores.filter(s => s.tipo === tipoSeleccionado);
-      setSaboresFiltrados(saboresFiltradosPorTipo);
+    if (tipoTamanioSeleccionado) {
+      const saboresFiltrados = sabores.filter(s => s.tipo === tipoTamanioSeleccionado);
+      setSaboresFiltrados(saboresFiltrados);
       
-      // Resetear sabor si el actual no está en los filtrados
-      if (saborId && !saboresFiltradosPorTipo.some(s => s.id === saborId)) {
+      if (saborId && !saboresFiltrados.some(s => s.id === saborId)) {
         setSaborId(null);
       }
     } else {
       setSaboresFiltrados([]);
       setSaborId(null);
     }
-  }, [tipoSeleccionado, sabores]);
+  }, [tipoTamanioSeleccionado, sabores, saborId]);
 
-  // Restaurar estado de edición
   useEffect(() => {
     if (editingItem) {
       setPrecio(editingItem.precio.toString());
+      setTamanioId(editingItem.tamanio_id);
+      setSaborId(editingItem.sabor_id);
       
-      // Encontrar el tamaño y su tipo
       const tamanioEditado = tamanios.find(t => t.id === editingItem.tamanio_id);
       if (tamanioEditado) {
-        setTipoSeleccionado(tamanioEditado.tipo);
-        setTamanioId(editingItem.tamanio_id);
-        setSaborId(editingItem.sabor_id);
-        
-        // Establecer touched para todos los campos
-        setTouched({
-          tipo: true,
-          tamanio: true,
-          sabor: true,
-          precio: true
-        });
+        setSaboresFiltrados(sabores.filter(s => s.tipo === tamanioEditado.tipo));
       }
     } else {
       resetForm();
     }
   }, [editingItem, tamanios, sabores]);
 
-  // Filtrar tipos basados en los tamaños y sabores disponibles
-  useEffect(() => {
-    const tiposTamanios = new Set(tamanios.map(t => t.tipo));
-    const tiposSabores = new Set(sabores.map(s => s.tipo));
-    
-    // Intersección de tipos de tamaños y sabores
-    const tiposFiltrados = TIPOS_DISPONIBLES.filter(tipo => 
-      tiposTamanios.has(tipo) && tiposSabores.has(tipo)
-    );
-
-    setTipos(tiposFiltrados);
-  }, [tamanios, sabores]);
-
   const resetForm = () => {
     setPrecio('');
-    setTipoSeleccionado('');
     setTamanioId(null);
     setSaborId(null);
     setSaboresFiltrados([]);
-    setTamaniosFiltrados([]);
-    // Restablecer estado de touched
-    setTouched({
-      tipo: false,
-      tamanio: false,
-      sabor: false,
-      precio: false
-    });
   };
 
   const handleGuardar = async () => {
@@ -158,8 +95,8 @@ export default function TamanioSaborModal({
       return;
     }
 
-    if (!tipoSeleccionado || !tamanioId || !saborId) {
-      onError('Debes seleccionar un tipo, tamaño y sabor');
+    if (!tamanioId || !saborId) {
+      onError('Debes seleccionar un tamaño y un sabor');
       return;
     }
 
@@ -208,32 +145,12 @@ export default function TamanioSaborModal({
         onClick={onClose}
       />
 
-      <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-md mx-4 border-2">
+      <div className="relative z-50 bg-white rounded-lg shadow-lg p-6 w-full max-w-2xl mx-4 border-2">
         <h2 className="text-xl font-bold mb-4">
           {editingItem ? 'Editar Combinación' : 'Agregar Combinación'}
         </h2>
 
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-            <select
-              value={tipoSeleccionado}
-              onChange={(e) => {
-                setTipoSeleccionado(e.target.value);
-                // Resetear tamaño y sabor al cambiar tipo
-                setTamanioId(null);
-                setSaborId(null);
-              }}
-              disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-            >
-              <option value="">Seleccione un tipo</option>
-              {tipos.map((tipo) => (
-                <option key={tipo} value={tipo}>{tipo}</option>
-              ))}
-            </select>
-          </div>
-
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tamaño *</label>
             <select
@@ -242,11 +159,10 @@ export default function TamanioSaborModal({
                 setTamanioId(e.target.value ? Number(e.target.value) : null);
                 setSaborId(null); // Resetear sabor al cambiar tamaño
               }}
-              disabled={!tipoSeleccionado || loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className={`w-full border ${!tamanioId ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500`}
             >
-              <option value="">{tipoSeleccionado ? 'Seleccione un tamaño' : 'Primero seleccione un tipo'}</option>
-              {tamaniosFiltrados.map((t) => (
+              <option value="">Seleccione un tamaño</option>
+              {tamanios.map((t) => (
                 <option key={t.id} value={t.id}>{t.nombre}</option>
               ))}
             </select>
@@ -257,10 +173,10 @@ export default function TamanioSaborModal({
             <select
               value={saborId || ''}
               onChange={(e) => setSaborId(e.target.value ? Number(e.target.value) : null)}
-              disabled={!tipoSeleccionado || !tamanioId || loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className={`w-full border ${!saborId ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500`}
+              disabled={!tamanioId}
             >
-              <option value="">{!tipoSeleccionado ? 'Primero seleccione un tipo' : !tamanioId ? 'Primero seleccione un tamaño' : 'Seleccione un sabor'}</option>
+              <option value="">{tamanioId ? 'Seleccione un sabor' : 'Primero seleccione un tamaño'}</option>
               {saboresFiltrados.map((s) => (
                 <option key={s.id} value={s.id}>{s.nombre}</option>
               ))}
@@ -274,8 +190,7 @@ export default function TamanioSaborModal({
               placeholder="Ej: 10.99"
               value={precio}
               onChange={(e) => setPrecio(e.target.value)}
-              disabled={loading}
-              className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+              className={`w-full border ${!precio ? 'border-red-500' : 'border-gray-300'} rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500`}
               step="0.01"
               min="0"
             />
@@ -292,7 +207,7 @@ export default function TamanioSaborModal({
           <button
             onClick={handleGuardar}
             className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 flex items-center justify-center min-w-[100px]"
-            disabled={!touched.tipo || !touched.tamanio || !touched.sabor || !touched.precio}
+            disabled={!precio || !tamanioId || !saborId}
           >
             {editingItem ? 'Actualizar' : 'Guardar'}
           </button>

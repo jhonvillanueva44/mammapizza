@@ -56,16 +56,18 @@ export default function Footer() {
             </h3>
             <div className="space-y-3">
               <a
-                href="https://facebook.com/mammapizza"
+                href="https://www.facebook.com/share/14DTtQHt138/?mibextid=wwXIfr"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 text-gray-300 hover:text-blue-400 transition-colors"
               >
                 <FaFacebook className="text-xl" />
                 <span>Facebook</span>
               </a>
               <a
-                href="https://www.instagram.com/mammapizzatrujillo"
+                href="https://www.instagram.com/mammapizzatrujillo?igsh=cXU3ZDlvZjYxNGh2"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-3 text-gray-300 hover:text-pink-500 transition-colors"
               >
                 <FaInstagram className="text-xl" />

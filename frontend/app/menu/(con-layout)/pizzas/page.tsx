@@ -186,6 +186,8 @@ export default function MenuPizzasPage() {
   }, [])
 
   const pizzasFiltradas = pizzas.filter((pizza) => {
+    if (pizza.habilitado !== true) return false;
+
     if (pizza.combinaciones.length > 0) {
       const filtroTamanio =
         filter.tamanio === 'todos' ||

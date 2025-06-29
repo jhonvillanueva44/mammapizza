@@ -22,9 +22,10 @@ export default function MenuAdicionalesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/adicionales`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/adicionales`);
         const data = await res.json();
-        setAdicionales(data);
+        // Filtrar solo los adicionales habilitados
+        setAdicionales(data.filter((adicional: Adicional) => adicional.habilitado === true));
       } catch (error) {
         console.error('Error al obtener adicionales:', error);
       } finally {
@@ -37,7 +38,6 @@ export default function MenuAdicionalesPage() {
 
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
@@ -58,7 +58,7 @@ export default function MenuAdicionalesPage() {
                   <div className="text-center py-4">
                     <div className="text-4xl mb-3">🍟</div>
                     <p className="text-gray-800 text-base mb-4 font-medium">
-                      Complementa tu comida with nuestros deliciosos adicionales.
+                      Complementa tu comida con nuestros deliciosos adicionales.
                     </p>
                     <p className="text-gray-600 text-sm font-['Open_Sans'] leading-relaxed">
                       Añade un extra de sabor a tu pedido con nuestras opciones adicionales. Desde papas crujientes hasta salsas especiales, encuentra el complemento perfecto para tu comida.
@@ -84,10 +84,10 @@ export default function MenuAdicionalesPage() {
             <div className="text-center py-16">
               <div className="text-6xl mb-4">🍟</div>
               <h3 className="text-2xl font-bold text-gray-800 font-['Playfair_Display'] mb-2">
-                ¡Ups! No encontramos adicionales
+                ¡Ups! No encontramos adicionales disponibles
               </h3>
               <p className="text-gray-600 font-['Open_Sans']">
-                No hay adicionales disponibles en este momento. Vuelve pronto para ver nuestras opciones.
+                No hay adicionales habilitados en este momento. Vuelve pronto para ver nuestras opciones.
               </p>
             </div>
           ) : (
@@ -109,7 +109,11 @@ export default function MenuAdicionalesPage() {
                     imagen={adicional.imagen || '/images/card-adicional.jpg'}
                     descuento={adicional.descuento ?? undefined}
                     isGrid={true}
+                    ruta="adicionales"
                     mostrarPersonalizar={false}
+                    tamanio=""
+                    sabores={[]}
+                    agregados={[]}
                   />
                 ))}
               </div>

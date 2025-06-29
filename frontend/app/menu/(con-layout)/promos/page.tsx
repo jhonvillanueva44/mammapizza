@@ -3,6 +3,16 @@
 import { useEffect, useState } from 'react'
 import ProductoCard from '@/components/ProductoCard'
 
+interface DetallePromocion {
+  id: number
+  cantidad: number
+  producto_id: number
+  producto: {
+    id: number
+    nombre: string
+  }
+}
+
 interface Promocion {
   id: number
   nombre: string
@@ -10,6 +20,7 @@ interface Promocion {
   precio: string
   imagen?: string
   descuento?: number | null
+  detalles_promocion?: DetallePromocion[]
 }
 
 export default function MenuPromosPage() {
@@ -19,7 +30,7 @@ export default function MenuPromosPage() {
   useEffect(() => {
     const fetchPromociones = async () => {
       try {
-        const res = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/promociones`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/promociones`)
         const data = await res.json()
         setPromos(data)
       } catch (error) {
@@ -32,14 +43,18 @@ export default function MenuPromosPage() {
     fetchPromociones()
   }, [])
 
+  const transformarProductos = (detalles: DetallePromocion[] = []): Record<number, [string, number]>[] => {
+    return detalles.map(detalle => ({
+      [detalle.producto_id]: [detalle.producto.nombre, detalle.cantidad]
+    }))
+  }
+
   return (
     <div className="min-h-screen font-['Inter'] bg-gradient-to-br from-red-50/30 via-white to-red-50/20">
-
       <div className="py-8 px-6">
         <div className="max-w-7xl mx-auto">
           <div className="bg-white rounded-2xl shadow-xl border border-red-100 p-6 md:p-8">
             <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6">
-              {/* Título */}
               <div className="flex flex-col items-start gap-6 lg:max-w-[400px] w-full lg:w-auto">
                 <div className="space-y-4">
                   <h1 className="text-3xl font-bold text-gray-800 font-['Playfair_Display'] flex items-center gap-3">
@@ -49,7 +64,6 @@ export default function MenuPromosPage() {
                 </div>
               </div>
 
-              {/* Descripción */}
               <div className="flex-1 lg:pl-8 lg:border-l-2 lg:border-red-100 w-full">
                 <div className="bg-gradient-to-r from-red-50 to-red-50/50 rounded-xl p-6">
                   <div className="text-center py-4">
@@ -99,8 +113,9 @@ export default function MenuPromosPage() {
                 {promos.map((promo) => {
                   const precioActual = parseFloat(promo.precio)
                   const descuento = promo.descuento ?? 0
-                  const precioAntiguo =
-                    descuento > 0 ? +(precioActual / (1 - descuento / 100)).toFixed(2) : undefined
+                  const precioAntiguo = descuento > 0 
+                    ? +(precioActual / (1 - descuento / 100)).toFixed(2) 
+                    : undefined
 
                   return (
                     <ProductoCard
@@ -113,6 +128,8 @@ export default function MenuPromosPage() {
                       precioAntiguo={precioAntiguo}
                       descuento={descuento || undefined}
                       isGrid={true}
+                      mostrarPersonalizar={false}
+                      productos={transformarProductos(promo.detalles_promocion)}
                     />
                   )
                 })}

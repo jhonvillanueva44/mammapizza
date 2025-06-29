@@ -49,8 +49,7 @@ export default function CrudProductoPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
-  const API_BASE_URL = `${backendUrl}/api`;
+  const API_BASE_URL = 'http://localhost:4000/api';
   const PRODUCTOS_URL = `${API_BASE_URL}/productos`;
   const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
   const UPLOADS_URL = `${API_BASE_URL}/uploads`;
@@ -133,13 +132,8 @@ export default function CrudProductoPage() {
     setSelectedModalCategory(null);
   };
 
-  // Filtrar categorías para eliminar Agregados y Promociones
-  const categoriasValidas = categorias.filter((categoria: Categoria) => 
-    ![4, 5].includes(categoria.id)
-  );
-
   const getCategoriaNombre = (id: number) => {
-    return categoriasValidas.find(c => c.id === id)?.nombre || '-';
+    return categorias.find(c => c.id === id)?.nombre || '-';
   };
 
   const getSaborInfo = (producto: Producto) => {
@@ -177,7 +171,7 @@ export default function CrudProductoPage() {
       onError: setError,
       onSave: handleSuccess,
       refreshProductos: fetchData,
-      categorias: categoriasValidas,
+      categorias: categorias,
       onCategoryChange: (categoryId: number) => {
         if (modoEdicion && productoEditando?.categoria_id !== categoryId) {
           setProductoEditando(null);
@@ -227,7 +221,7 @@ export default function CrudProductoPage() {
                 disabled={modoEdicion}
               >
                 <option value="">🔽 Seleccione una categoría para continuar</option>
-                {categoriasValidas.map((categoria) => (
+                {categorias.map((categoria) => (
                   <option key={categoria.id} value={categoria.id}>
                     📂 {categoria.nombre}
                   </option>
@@ -255,6 +249,7 @@ export default function CrudProductoPage() {
                 {selectedModalCategory === 1 && <ModalPizza {...commonProps} />}
                 {selectedModalCategory === 2 && <ModalPCA {...commonProps} tipoProducto="Calzone" categoriaId={2} />}
                 {selectedModalCategory === 3 && <ModalPCA {...commonProps} tipoProducto="Pasta" categoriaId={3} />}
+                {selectedModalCategory === 4 && <ModalPCA {...commonProps} tipoProducto="Agregado" categoriaId={4} />}
                 {selectedModalCategory === 6 && <ModalBA {...commonProps} tipoProducto="Adicional" />}
                 {selectedModalCategory === 7 && <ModalPCA {...commonProps} tipoProducto="Bebida" categoriaId={7} />}
               </div>
@@ -318,7 +313,7 @@ export default function CrudProductoPage() {
               onChange={(e) => setCategoriaId(e.target.value ? parseInt(e.target.value) : null)}
             >
               <option value="">Todas las categorías</option>
-              {categoriasValidas.map((categoria) => (
+              {categorias.map((categoria) => (
                 <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
               ))}
             </select>

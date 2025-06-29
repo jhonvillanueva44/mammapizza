@@ -5,15 +5,20 @@ import { getProductStatsService } from '../services/estadisticas.service.js';
 const router = express.Router();
 
 router.get('/productos', async (req, res) => {
-  try {    
+  try {
+    console.log('Solicitud recibida en /api/estadisticas/productos'); // Debug
+    
     const stats = await getProductStatsService();
-        
+    
+    console.log('Estadísticas obtenidas exitosamente:', stats); // Debug
+    
     res.status(200).json({ 
       success: true, 
       data: stats,
       message: 'Estadísticas obtenidas correctamente'
     });
   } catch (error) {
+    console.error('Error en ruta /productos:', error); // Debug
     
     res.status(500).json({ 
       success: false, 
@@ -23,6 +28,7 @@ router.get('/productos', async (req, res) => {
   }
 });
 
+// Ruta de prueba para verificar que el endpoint funciona
 router.get('/test', (req, res) => {
   res.json({ 
     success: true, 

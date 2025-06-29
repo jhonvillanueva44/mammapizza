@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { use } from 'react'
+import { useRouter } from 'next/navigation'
 
 interface Tamanio {
   id: number
@@ -35,6 +36,7 @@ interface Pasta {
 
 const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: string }> }) => {
   const params = use(paramsPromise)
+  const router = useRouter()
 
   const [pasta, setPasta] = useState<Pasta | null>(null)
   const [tamanios, setTamanios] = useState<Tamanio[]>([])
@@ -63,10 +65,10 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pastaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas/${params.id}`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pasta`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/sabores/pasta`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pastas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pasta`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/pasta`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
         ])
 
         const pastaData = await pastaRes.json()
@@ -135,6 +137,34 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     }
   }
 
+  const handleAddToCart = () => {
+    const existingCart = sessionStorage.getItem('carrito')
+    let cart = existingCart ? JSON.parse(existingCart) : []
+
+    const nombreSaborPrincipal = sabores.find(s => s.id.toString() === saborPrincipalId)?.nombre || ''
+
+    const tamanioSeleccionadoObj = tamaniosDisponibles.find(t => t.id.toString() === tamanoSeleccionado)
+    const nombreTamanio = tamanioSeleccionadoObj?.nombre || ''
+
+    const newItem = {
+      id: pasta?.id,
+      titulo: pasta?.nombre || '',
+      imagen: pasta?.imagen || '',
+      precio: precioFinal.toFixed(2),
+      tamanio: nombreTamanio,
+      sabores: nombreSaborPrincipal ? [nombreSaborPrincipal] : [],
+      agregados: [],
+      itemId: Date.now() + Math.random().toString(36).substring(2, 9),
+      productos: []
+    }
+
+    const updatedCart = [...cart, newItem]
+    
+    sessionStorage.setItem('carrito', JSON.stringify(updatedCart))
+    
+    router.push('/pedido')
+  }
+
   if (!pasta || !tamanios.length || !sabores.length || !tamaniosSabores.length || !tamaniosDisponibles.length) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -176,13 +206,19 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                   {tituloProducto}
                 </h2>
                 
-                <div className="bg-red-600 text-white rounded-lg p-3 mb-4">
+                <div className="bg-green-600 text-white rounded-lg p-3 mb-4">
                   <p className="text-sm font-medium mb-1">PRECIO TOTAL</p>
                   <p className="text-3xl font-bold">S/ {precioFinal.toFixed(2)}</p>
                 </div>
 
-                <button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors">
-                  Añadir al Carrito
+                <button 
+                  onClick={handleAddToCart}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow transition-colors duration-300 hover:scale-105 cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  Añadir al Pedido
                 </button>
               </div>
             </div>
@@ -196,7 +232,7 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
                 onClick={() => toggleSection('tamanio')}
                 className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
               >
-                <h3 className="text-lg font-bold text-gray-800">Tamaño de Pasta</h3>
+                <h3 className="text-lg font-bold text-gray-800">Tipo de Pasta</h3>
                 <span className="text-gray-500">
                   {openSections.tamanio ? '−' : '+'}
                 </span>

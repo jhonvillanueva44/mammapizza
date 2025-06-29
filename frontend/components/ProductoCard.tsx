@@ -13,10 +13,11 @@ export type ProductoCardProps = {
   isGrid?: boolean
   especial?: boolean
   ruta?: string
-  mostrarPersonalizar?: boolean,
-  tamanio?: string,
-  sabores?: string[] | null,
+  mostrarPersonalizar?: boolean
+  tamanio?: string
+  sabores?: string[] | null
   agregados?: string[] | null
+  productos?: Record<number, [string, number]>[]
 }
 
 const ProductoCard = ({
@@ -33,7 +34,8 @@ const ProductoCard = ({
   mostrarPersonalizar = true,
   tamanio = '',
   sabores = [],
-  agregados = []
+  agregados = [],
+  productos = []
 }: ProductoCardProps) => {
   const esPromocion = precioAntiguo !== undefined && descuento !== undefined
 
@@ -41,7 +43,6 @@ const ProductoCard = ({
     const existingCart = sessionStorage.getItem('carrito')
     let cart = existingCart ? JSON.parse(existingCart) : []
 
-    // Siempre agregamos un nuevo ítem, sin verificar duplicados
     cart.push({
       id,
       titulo,
@@ -50,7 +51,7 @@ const ProductoCard = ({
       tamanio: tamanio || '',
       sabores: sabores || [],
       agregados: agregados || [],
-      // Agregamos un ID único para cada ítem del carrito
+      productos: productos || [],
       itemId: Date.now() + Math.random().toString(36).substring(2, 9)
     })
 
@@ -72,7 +73,7 @@ const ProductoCard = ({
     >
       <div className="absolute inset-0 bg-gradient-to-r from-red-400/5 to-red-400/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col h-full">
         <div className="relative w-full overflow-hidden rounded-t-xl">
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10"></div>
           <img
@@ -114,33 +115,39 @@ const ProductoCard = ({
           )}
         </div>
 
-        <div className="p-4">
-          <div className="mb-3 min-h-[80px] flex flex-col justify-between">
-            <h3 className="text-lg font-bold leading-tight line-clamp-2 overflow-hidden text-ellipsis h-[3.25rem] text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-serif">
+        <div className="p-4 flex flex-col flex-grow">
+          <div className="mb-3">
+            <h3 className="text-lg font-bold leading-tight line-clamp-2 overflow-hidden text-ellipsis h-[47px] text-gray-800 group-hover:text-red-800 transition-colors duration-300 font-serif">
               {titulo}
             </h3>
 
-            <p className="text-sm text-gray-600 mt-2 leading-relaxed line-clamp-2 h-[3rem] overflow-hidden font-serif">
-              {descripcion}
-            </p>
+            <div className={`${isGrid ? 'max-h-[none]' : 'h-[3rem]'}`}>
+              <p className={`text-sm text-gray-600 mt-2 leading-relaxed font-serif ${
+                isGrid ? '' : 'line-clamp-2 overflow-hidden'
+              }`}>
+                {descripcion}
+              </p>
+            </div>
           </div>
 
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold bg-gradient-to-r from-red-600 to-red-600 bg-clip-text text-transparent font-sans">
-                S/ {precio.toFixed(2)}
-              </span>
-              {esPromocion && (
-                <span className="text-xs text-gray-500 line-through bg-gray-100 px-1.5 py-0.5 rounded-md font-sans">
-                  S/ {precioAntiguo?.toFixed(2)}
+          <div className="mt-auto">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold bg-gradient-to-r from-red-600 to-red-600 bg-clip-text text-transparent font-sans">
+                  S/ {precio.toFixed(2)}
                 </span>
+                {esPromocion && (
+                  <span className="text-xs text-gray-500 line-through bg-gray-100 px-1 py-0.5 rounded-md font-sans">
+                    S/ {precioAntiguo?.toFixed(2)}
+                  </span>
+                )}
+              </div>
+              {esPromocion && (
+                <div className="text-green-600 font-medium text-xs font-sans">
+                  ¡Ahorra S/ {(precioAntiguo! - precio).toFixed(2)}!
+                </div>
               )}
             </div>
-            {esPromocion && (
-              <div className="text-green-600 font-medium text-xs font-sans">
-                ¡Ahorra S/ {(precioAntiguo! - precio).toFixed(2)}!
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -152,7 +159,7 @@ const ProductoCard = ({
         >
           <span className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/button:translate-x-[100%] transition-transform duration-500 skew-x-12"></span>
           <span className="relative flex items-center justify-center gap-2">
-            Añadir al Carrito
+            Añadir al Pedido
           </span>
         </button>
       </div>

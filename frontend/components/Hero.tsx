@@ -17,7 +17,7 @@ const texts = [
         emoji: '🇮🇹'
     },
     {
-        title: 'Ingredientes frescos y deliciosos',
+        title: 'Ingredientes frescos',
         subtitle: 'Calidad en cada pizza',
         description: 'Seleccionamos los mejores ingredientes del mercado para ofrecerte una pizza gourmet sin igual.',
         emoji: '🌟'
