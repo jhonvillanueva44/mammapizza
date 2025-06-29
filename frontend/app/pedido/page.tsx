@@ -124,34 +124,34 @@ export default function PedidoPage() {
   const whatsappWebUrl = `https://web.whatsapp.com/send?phone=${process.env.NEXT_PUBLIC_WHATSAPP_NUMBER}&text=${generateWhatsAppMessage()}`
 
   const handleWhatsAppClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+
     if (!customerName || (deliveryOption === 'delivery' && !deliveryAddress)) {
-      e.preventDefault()
       return
     }
+
+    // Generar mensaje antes de limpiar el carrito
+    const message = generateWhatsAppMessage()
+    const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER
+    
+    // Limpiar el carrito primero
+    sessionStorage.removeItem('carrito')
+    setCartItems([])
 
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     
     if (isMobile) {
-      window.open(whatsappUrl, '_blank')
-      sessionStorage.removeItem('carrito')
-      setCartItems([])
+      window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank')
     } else {
-      const newWindow = window.open(whatsappWebUrl, '_blank')
+      const newWindow = window.open(`https://web.whatsapp.com/send?phone=${whatsappNumber}&text=${message}`, '_blank')
       
       setTimeout(() => {
         if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
           if (confirm('¿No tienes WhatsApp Web abierto? ¿Deseas abrir WhatsApp en tu aplicación de escritorio?')) {
-            window.open(whatsappUrl, '_blank')
-            sessionStorage.removeItem('carrito')
-            setCartItems([])
+            window.open(`https://wa.me/${whatsappNumber}?text=${message}`, '_blank')
           }
-        } else {
-          sessionStorage.removeItem('carrito')
-          setCartItems([])
         }
       }, 1000)
-      
-      e.preventDefault()
     }
   }
 

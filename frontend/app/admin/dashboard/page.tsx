@@ -18,6 +18,8 @@ interface Stats {
   preciosPromedio: PreciosPromedio[];
 }
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function DashboardPage() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -26,30 +28,27 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        setLoading(true);
-        console.log('Fetching stats...'); // Debug
-        
-        const response = await fetch('http://localhost:4000/api/estadisticas/productos', {
+        setLoading(true);        
+        const response = await fetch(`${backendUrl}/api/estadisticas/productos`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
-
-        console.log('Response status:', response.status); // Debug
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log('Received data:', data); // Debug
         
         if (data.success) {
-          // Filtrar datos vacíos o nulos
           const filteredData = {
             productosPorCategoria: data.data.productosPorCategoria?.filter((item: { categoria: any; cantidad: null | undefined; }) => 
-              item.categoria && item.cantidad !== null && item.cantidad !== undefined
+              item.categoria && 
+              item.cantidad !== null && 
+              item.cantidad !== undefined &&
+              !['Promociones', 'Agregados'].includes(item.categoria)
             ) || [],
             stockPorCategoria: data.data.stockPorCategoria?.filter((item: { categoria: any; stock: number | null | undefined; }) => 
               item.categoria && item.stock !== null && item.stock !== undefined && item.stock > 0
@@ -58,14 +57,11 @@ export default function DashboardPage() {
               item.categoria && item.precio_promedio !== null && item.precio_promedio !== undefined
             ) || []
           };
-          
-          console.log('Filtered data:', filteredData); // Debug
-          setStats(filteredData);
+                    setStats(filteredData);
         } else {
           setError(data.message || 'Error al obtener los datos');
         }
       } catch (err) {
-        console.error('Error fetching stats:', err); // Debug
         setError(err instanceof Error ? err.message : 'Error al cargar las estadísticas');
       } finally {
         setLoading(false);
@@ -75,7 +71,6 @@ export default function DashboardPage() {
     fetchStats();
   }, []);
 
-  // Función para formatear el tooltip del precio
   const formatPriceTooltip = (value: number, name: string) => {
     return [`$${value.toFixed(2)}`, name];
   };
@@ -271,15 +266,6 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              {/* Debug info (eliminar en producción) */}
-              {process.env.NODE_ENV === 'development' && (
-                <div className="bg-gray-100 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-2">Debug Info:</h3>
-                  <pre className="text-xs overflow-auto">
-                    {JSON.stringify(stats, null, 2)}
-                  </pre>
-                </div>
-              )}
             </div>
           )}
         </main>

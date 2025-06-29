@@ -1,4 +1,3 @@
-//hola
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -14,6 +13,8 @@ type Categoria = {
   nombre: string;
   descripcion: string;
 };
+
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
 
 export default function CrudCategoriasPage() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -31,7 +32,7 @@ export default function CrudCategoriasPage() {
   const [busqueda, setBusqueda] = useState('');
   const categoriasPorPagina = 15;
 
-  const API_URL = 'http://localhost:4000/api/categorias';
+  const API_URL = `${backendUrl}/api/categorias`;
 
   const obtenerCategorias = async () => {
     try {

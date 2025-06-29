@@ -10,3 +10,4 @@ export default function LoadingSpinner({ size = 8 }: { size?: number }) {
     </div>
   );
 }
+// hola

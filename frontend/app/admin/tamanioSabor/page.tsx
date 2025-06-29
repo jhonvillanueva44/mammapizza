@@ -29,6 +29,8 @@ export type TamanioSabor = {
   sabor?: Sabor;    
 };
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function CrudTamanioSaborPage() {
   const [data, setData] = useState<TamanioSabor[]>([]);
   const [tamanios, setTamanios] = useState<Tamanio[]>([]);
@@ -45,15 +47,15 @@ export default function CrudTamanioSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = 'http://localhost:4000/api/tamanioSabor';
+  const API_BASE_URL = `${backendUrl}/api/tamanioSabor`;
 
   const obtenerDatos = async () => {
     try {
       setLoading(true);
       const [resComb, resTam, resSab] = await Promise.all([
         fetch(`${API_BASE_URL}?include=tamanio,sabor`),
-        fetch('http://localhost:4000/api/tamanios'),
-        fetch('http://localhost:4000/api/sabores')
+        fetch(`${backendUrl}/api/tamanios`),
+        fetch(`${backendUrl}/api/sabores`)
       ]);
       
       if (!resComb.ok || !resTam.ok || !resSab.ok) {
@@ -95,6 +97,7 @@ export default function CrudTamanioSaborPage() {
     const texto = busqueda.toLowerCase();
     const coincideBusqueda = item.sabor?.nombre.toLowerCase().includes(texto) || 
                            item.tamanio?.nombre.toLowerCase().includes(texto) ||
+                           item.tamanio?.tipo.toLowerCase().includes(texto) ||
                            item.precio.toString().includes(texto);
     return coincideTamanio && coincideBusqueda;
   });
@@ -140,7 +143,7 @@ export default function CrudTamanioSaborPage() {
       <HeaderAdmin />
 
       <div className="flex-1 overflow-auto min-w-0">
-        <Topbar title="Gestión de Combinaciones Tamaño-Sabor" />
+        <Topbar title="Gestión de Carta" />
 
         <main className="p-6 space-y-6">
           {error && <Alert message={error} onClose={() => setError(null)} type="error" />}
@@ -155,7 +158,7 @@ export default function CrudTamanioSaborPage() {
           />
 
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-semibold text-gray-800">Listado de Combinaciones</h2>
+            <h2 className="text-2xl font-semibold text-gray-800">Listado de Carta</h2>
             <button
               onClick={() => {
                 setEditingItem(null);
@@ -166,7 +169,7 @@ export default function CrudTamanioSaborPage() {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
               </svg>
-              Agregar Combinación
+              Agregar Carta
             </button>
           </div>
 
@@ -184,7 +187,7 @@ export default function CrudTamanioSaborPage() {
 
             <input
               type="text"
-              placeholder="Buscar por sabor, tamaño o precio..."
+              placeholder="Buscar por sabor, tamaño, tipo o precio..."
               className="border border-gray-300 rounded-md px-3 py-2 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 flex-1 min-w-[200px]"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
@@ -202,6 +205,9 @@ export default function CrudTamanioSaborPage() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Tipo
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Tamaño
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -210,6 +216,7 @@ export default function CrudTamanioSaborPage() {
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Precio
                       </th>
+                      
                       <th scope="col" className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Acciones
                       </th>
@@ -219,13 +226,16 @@ export default function CrudTamanioSaborPage() {
                     {datosPagina.map((item) => (
                       <tr key={item.id} className="hover:bg-gray-50 transition-colors">
                         <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{item.tamanio?.tipo}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">{item.tamanio?.nombre}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">{item.sabor?.nombre}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">${Number(item.precio).toFixed(2)}</div>
+                          <div className="text-sm text-gray-900">S/.{Number(item.precio).toFixed(2)}</div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <div className="flex justify-end space-x-3">
@@ -239,7 +249,7 @@ export default function CrudTamanioSaborPage() {
                               </svg>
                             </button>
                             <button
-                              onClick={() => handleEliminar(item.id!)} // ← Agregamos ! porque sabemos que existe en items del listado
+                              onClick={() => handleEliminar(item.id!)} 
                               className="text-red-600 hover:text-red-900 transition-colors cursor-pointer"
                               disabled={loading}
                             >
@@ -253,7 +263,7 @@ export default function CrudTamanioSaborPage() {
                     ))}
                     {datosPagina.length === 0 && !loading && (
                       <tr>
-                        <td colSpan={4} className="px-6 py-8 text-center">
+                        <td colSpan={5} className="px-6 py-8 text-center">
                           <div className="flex flex-col items-center justify-center text-gray-500">
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 opacity-50 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />

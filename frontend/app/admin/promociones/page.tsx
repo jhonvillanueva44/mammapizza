@@ -46,6 +46,8 @@ type Producto = {
   descripcion: string;
 };
 
+const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
+
 export default function CrudPromocionesPage() {
   const [promociones, setPromociones] = useState<Promocion[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
@@ -66,7 +68,7 @@ export default function CrudPromocionesPage() {
   
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = 'http://localhost:4000/api';
+  const API_BASE_URL = `${backendUrl}/api`;
   const PROMOCIONES_URL = `${API_BASE_URL}/promociones`;
   const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
   const PRODUCTOS_URL = `${API_BASE_URL}/productos`;

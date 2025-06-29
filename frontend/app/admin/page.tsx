@@ -1,6 +1,6 @@
 // app/admin/page.tsx
 'use client';
-
+// hola
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';

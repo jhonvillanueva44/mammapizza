@@ -1,6 +1,6 @@
 // components/Alert.tsx
 'use client';
-
+// hola
 import { useEffect } from 'react';
 import { X, CheckCircle, AlertCircle, Info, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';

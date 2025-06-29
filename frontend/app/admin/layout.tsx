@@ -6,3 +6,4 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     </div>
   );
 }
+// This layout component wraps the admin pages, providing a consistent background and structure.

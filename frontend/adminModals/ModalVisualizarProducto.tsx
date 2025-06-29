@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-
+// hola
 // Types
 type Categoria = { id: number; nombre: string };
 type Producto = {
