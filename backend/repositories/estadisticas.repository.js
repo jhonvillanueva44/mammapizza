@@ -1,4 +1,3 @@
-// Hola
 import { sequelize } from '../database/database.js';
 
 export const getProductosPorCategoria = async () => {

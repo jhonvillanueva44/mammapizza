@@ -1,4 +1,3 @@
-// Aqui definiremos en un mapa las variables de entorno que usaremos en el proyecto
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -10,6 +9,9 @@ const config = {
     DB_DATABASE: process.env.DB_DATABASE,
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_PORT: process.env.DB_PORT,
+    NODE_ENV: process.env.NODE_ENV,
+    JWT_SECRET: process.env.JWT_SECRET,
+    FRONTEND_HOST: process.env.FRONTEND_HOST
 }
 
 export default config;

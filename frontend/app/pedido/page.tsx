@@ -69,8 +69,7 @@ export default function PedidoPage() {
   }, {})
 
   const subtotal = cartItems.reduce((total, item) => total + parseFloat(item.precio), 0)
-  const igv = subtotal * 0.10
-  const totalPrice = subtotal + igv
+  const totalPrice = subtotal
 
   const generateWhatsAppMessage = () => {
     let message = `Hola MammaPizza, quiero realizar el siguiente pedido:\n\n`
@@ -113,7 +112,6 @@ export default function PedidoPage() {
 
     message += `\n*Resumen de pago:*\n`
     message += `- Subtotal: S/ ${subtotal.toFixed(2)}\n`
-    message += `- IGV (10%): S/ ${igv.toFixed(2)}\n`
     message += `*Total a pagar: S/ ${totalPrice.toFixed(2)}*\n\n`
     message += `Por favor confirmen mi pedido. ¡Gracias!`
 
@@ -348,10 +346,6 @@ export default function PedidoPage() {
                   <div className="flex justify-between">
                     <span className="text-gray-600">Subtotal ({cartItems.length} {cartItems.length === 1 ? 'producto' : 'productos'}):</span>
                     <span className="font-medium">S/ {subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">IGV (10%):</span>
-                    <span className="font-medium">S/ {igv.toFixed(2)}</span>
                   </div>
 
                   <div className="pt-2">

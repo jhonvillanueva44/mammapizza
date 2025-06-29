@@ -1,4 +1,3 @@
-// services/estadisticas.service.js
 import {
   getProductosPorCategoria,
   getStockPorCategoria,

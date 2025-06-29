@@ -1,36 +1,68 @@
-// app/admin/page.tsx
 'use client';
-// hola
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef } from 'react';
 
 export default function AdminLogin() {
-  const [credentials, setCredentials] = useState({
-    username: '',
-    password: ''
-  });
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const isMounted = useRef(true);
-  
+
   useEffect(() => {
-    return () => {
-      isMounted.current = false;
+    // Verificar si ya está autenticado
+    const checkAuth = async () => {
+      try {
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
+          credentials: 'include',
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.usuario.rol === 'admin') {
+            router.push('/admin/dashboard');
+          }
+        }
+      } catch (error) {
+        console.log('No está autenticado');
+      }
     };
-  }, []);
-  const handleSubmit = (e: React.FormEvent) => {
+    checkAuth();
+  }, [router]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-  
-    setTimeout(() => {
-      if (isMounted.current) {
-        setLoading(false);
-        router.push('/admin/dashboard');
+    setError('');
+
+    try {
+      const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        if (data.usuario.rol === 'admin') {
+          router.push('/admin/dashboard');
+        } else {
+          setError('Acceso denegado. Solo administradores pueden acceder.');
+        }
+      } else {
+        setError(data.message || 'Error al iniciar sesión');
       }
-    }, 1000);
+    } catch (error) {
+      setError('Error de conexión. Intente nuevamente.');
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
   return (
     <div className="min-h-screen bg-[#0C1011] flex items-center justify-center px-4 relative overflow-hidden">
       <div className="absolute -top-20 -left-20 w-64 h-64 rounded-full bg-[#E74C3C]/10 blur-xl"></div>
@@ -39,26 +71,33 @@ export default function AdminLogin() {
       <div className="max-w-md w-full bg-[#1A2226] rounded-xl shadow-2xl p-10 backdrop-blur-sm border border-[#2C3E50]/30 relative z-10">
         <div className="text-center mb-10">
           <div className="mx-auto w-24 h-24 bg-[#E74C3C]/10 rounded-full flex items-center justify-center mb-6 border border-[#E74C3C]/20">
-            <span className="text-4xl text-[#E74C3C]">🍕</span>
+            <span className="text-4xl text-[#E74C3C]">🔒</span>
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2 font-serif">MammaPizza</h2>
-          <p className="text-[#95A5A6] text-sm">Panel de Administración</p>
+          <h2 className="text-3xl font-bold text-white mb-2 font-serif">Admin Panel</h2>
+          <p className="text-[#95A5A6] text-sm">Inicio de sesión seguro</p>
           <div className="mt-4 h-px bg-gradient-to-r from-transparent via-[#E74C3C]/40 to-transparent"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {error && (
+            <div className="bg-red-900/20 border border-red-700 text-red-300 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          )}
+          
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-[#ECF0F1] mb-2">
-              Usuario
+            <label htmlFor="email" className="block text-sm font-medium text-[#ECF0F1] mb-2">
+              Email
             </label>
             <input
-              id="username"
-              type="text"
+              id="email"
+              name="email"
+              type="email"
               required
-              value={credentials.username}
-              onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 bg-[#2C3E50]/30 border border-[#2C3E50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E74C3C]/50 focus:border-transparent text-white placeholder-[#95A5A6] transition-all"
-              placeholder="Ingresa tu usuario"
+              placeholder="Ingresa tu email"
             />
           </div>
 
@@ -68,10 +107,11 @@ export default function AdminLogin() {
             </label>
             <input
               id="password"
+              name="password"
               type="password"
               required
-              value={credentials.password}
-              onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-3 bg-[#2C3E50]/30 border border-[#2C3E50] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#E74C3C]/50 focus:border-transparent text-white placeholder-[#95A5A6] transition-all"
               placeholder="••••••••"
             />
@@ -95,7 +135,7 @@ export default function AdminLogin() {
         </form>
 
         <div className="mt-8 text-center text-xs text-[#95A5A6]">
-          <p>@Tecsup - 2025</p>
+          <p>@AdminSystem - 2025</p>
           <div className="mt-2 flex items-center justify-center space-x-2">
             <div className="w-2 h-2 rounded-full bg-[#27AE60] animate-pulse"></div>
             <span>Sistema en línea</span>

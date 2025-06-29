@@ -1,6 +1,6 @@
-// routes/estadisticas.routes.js
 import express from 'express';
 import { getProductStatsService } from '../services/estadisticas.service.js';
+import config  from '../config/config.js';
 
 const router = express.Router();
 
@@ -18,7 +18,7 @@ router.get('/productos', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       message: error.message || 'Error interno del servidor',
-      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: config.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });

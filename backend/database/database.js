@@ -1,4 +1,3 @@
-// Aqui se configura la conexión a la base de datos utilizando Sequelize
 import Sequelize from "sequelize";
 import config from "../config/config.js";
 

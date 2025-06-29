@@ -5,7 +5,7 @@ import { sequelize } from "./database/database.js";
 
 async function main() {
   try {
-    await sequelize.sync();
+    await sequelize.sync({ force: false, alter: false });
     app.listen(config.PORT);
     console.log(`Servidor corriendo en http://localhost:${config.PORT}`);
   } catch (error) {

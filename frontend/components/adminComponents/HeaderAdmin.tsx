@@ -4,13 +4,11 @@ import { usePathname, useRouter } from 'next/navigation';
 
 const menuItems = [
   { label: 'Dashboard', path: '/admin/dashboard' },
-  { label: 'Gestión de Stock', path: '/admin/stock' },
-  { label: 'Pedidos', path: '/admin/orders' },
   { label: 'Tamaños', path: '/admin/tamanio' },
   { label: 'Sabores', path: '/admin/sabores' },
   { label: 'Categorias', path: '/admin/categorias' },
   { label: 'Productos', path: '/admin/productos' },
-  { label: 'Tamaño Sabor', path: '/admin/tamanioSabor' },
+  { label: 'Carta', path: '/admin/tamanioSabor' },
   { label: 'Promociones', path: '/admin/promociones' },
 
 ];
@@ -32,7 +30,7 @@ export default function HeaderAdmin() {
             <li key={item.path}>
               <button
                 onClick={() => router.push(item.path)}
-                className={`w-full text-left px-4 py-2 rounded-md transition-colors ${
+                className={`w-full cursor-pointer text-left px-4 py-2 rounded-md transition-colors ${
                   pathname === item.path ? 'bg-red-600 text-white' : 'text-gray-300 hover:bg-[#2C3E50]'
                 }`}
               >

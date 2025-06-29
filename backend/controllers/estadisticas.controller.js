@@ -1,5 +1,5 @@
 import { getProductStatsService } from '../services/estadisticas.service.js';
-// hola
+
 export const getProductStatsController = async (req, res) => {
     try {
         const data = await getProductStatsService();
