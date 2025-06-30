@@ -65,10 +65,10 @@ const PastaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pastaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pastas/${params.id}`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pasta`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/pasta`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/pastas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/pasta`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/pasta`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamaniosabor`),
         ])
 
         const pastaData = await pastaRes.json()

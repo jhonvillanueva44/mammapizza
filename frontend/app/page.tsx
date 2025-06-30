@@ -173,22 +173,22 @@ export default function Home() {
   const pizzasRef = useRef<HTMLDivElement>(null);
 
   const { productos: productosPromocion } = useFetchProductos(
-    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/promociones`,
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }api/promociones`,
     transformarPromociones
   );
 
   const { productos: productosCalzone } = useFetchProductos(
-    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/calzones`,
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/calzones`,
     transformarCalzones
   );
 
   const { productos: productosPastas } = useFetchProductos(
-    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pastas`,
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/pastas`,
     transformarPastas
   );
 
   const { productos: productosPizzas } = useFetchProductos(
-    `${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pizzas`,
+    `${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/pizzas`,
     transformarPizzas
   );
 
@@ -247,7 +247,7 @@ export default function Home() {
   useEffect(() => {
     const fetchAdicionales = async () => {
       try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/adicionales`);
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/adicionales`);
         const data = await response.json();
         setAdicionales(data.filter((item: any) => item.destacado));
       } catch (error) {
@@ -266,7 +266,7 @@ export default function Home() {
   useEffect(() => {
     const fetchBebidas = async () => {
       try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/bebidas`);
+        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/bebidas`);
         const data = await response.json();
 
         const bebidasTransformadas = data

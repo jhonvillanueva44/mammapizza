@@ -66,10 +66,10 @@ const BebidaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: str
     const fetchData = async () => {
       try {
         const [bebidaRes, tamaniosRes, saboresRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/bebidas/${params.id}`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/bebida`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/bebida`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/bebidas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/bebida`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/bebida`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamaniosabor`),
         ])
 
         const bebidaData = await bebidaRes.json()

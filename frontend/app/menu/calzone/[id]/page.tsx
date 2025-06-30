@@ -37,12 +37,12 @@ const CalzoneDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: st
     const fetchData = async () => {
       try {
         const [calzoneRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/calzones/${params.id}`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/calzone`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/calzone`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/agregado`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/agregado`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/calzones/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/calzone`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/calzone`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamaniosabor`),
         ])
 
         const calzoneData = await calzoneRes.json()

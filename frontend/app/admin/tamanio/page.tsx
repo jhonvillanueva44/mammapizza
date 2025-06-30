@@ -8,7 +8,7 @@ import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import ModalFormularioTamano from '@/adminModals/ModalFormularioTamano';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 type Tamano = {
   id: number;
@@ -41,24 +41,7 @@ export default function CrudTamaniosPage() {
   const [paginaActual, setPaginaActual] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_URL = `${backendUrl}/api/tamanios`;
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
+  const API_URL = `${backendUrl}api/tamanios`;
 
   const obtenerTamanos = async () => {
     try {
@@ -363,6 +346,6 @@ export default function CrudTamaniosPage() {
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

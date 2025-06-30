@@ -40,12 +40,12 @@ const PizzaDetailPage = ({ params: paramsPromise }: { params: Promise<{ id: stri
     const fetchData = async () => {
       try {
         const [pizzaRes, tamaniosRes, saboresRes, agregadosRes, tamaniosAgregadosRes, tamaniosSaboresRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/pizzas/${params.id}`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/pizza`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/pizza`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores/agregado`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/agregado`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamaniosabor`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/pizzas/${params.id}`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/pizza`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/agregado`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamaniosabor`),
         ])
 
         const pizzaData = await pizzaRes.json()

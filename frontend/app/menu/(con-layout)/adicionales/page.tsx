@@ -22,7 +22,7 @@ export default function MenuAdicionalesPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/adicionales`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/adicionales`);
         const data = await res.json();
         // Filtrar solo los adicionales habilitados
         setAdicionales(data.filter((adicional: Adicional) => adicional.habilitado === true));

@@ -11,24 +11,11 @@ export default function AdminLogin() {
   const router = useRouter();
 
   useEffect(() => {
-    // Verificar si ya está autenticado
-    const checkAuth = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.usuario.rol === 'admin') {
-            router.push('/admin/dashboard');
-          }
-        }
-      } catch (error) {
-        console.log('No está autenticado');
-      }
-    };
-    checkAuth();
-  }, [router]);
+    const nombre = localStorage.getItem('admin_nombre');
+    if (nombre) {
+      router.replace('/admin/dashboard'); // Cambiado a replace para evitar historial
+    }
+  }, []); // Eliminada la dependencia del router para evitar bucles
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,29 +23,22 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }api/usuarios`);
+      if (!response.ok) throw new Error('Error al obtener usuarios');
+      
+      const usuarios = await response.json();
+      const usuario = usuarios.find(
+        (u: any) => u.email === email && u.password === password
+      );
 
-      const data = await response.json();
+      if (!usuario) throw new Error('Credenciales incorrectas');
+      if (usuario.rol !== 'admin') throw new Error('Solo administradores pueden acceder');
 
-      if (data.success) {
-        if (data.usuario.rol === 'admin') {
-          router.push('/admin/dashboard');
-        } else {
-          setError('Acceso denegado. Solo administradores pueden acceder.');
-        }
-      } else {
-        setError(data.message || 'Error al iniciar sesión');
-      }
+      localStorage.setItem('admin_nombre', usuario.nombre);
+      router.replace('/admin/dashboard'); // Cambiado a replace
+
     } catch (error) {
-      setError('Error de conexión. Intente nuevamente.');
-    } finally {
+      setError(error instanceof Error ? error.message : 'Error al iniciar sesión');
       setLoading(false);
     }
   };

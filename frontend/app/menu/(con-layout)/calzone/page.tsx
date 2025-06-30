@@ -150,8 +150,8 @@ export default function MenuCalzonePage() {
     const fetchData = async () => {
       try {
         const [calzonesRes, tamaniosRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/calzones`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/calzone`)
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/calzones`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/calzone`)
         ]);
         
         const [calzonesData, tamaniosData] = await Promise.all([

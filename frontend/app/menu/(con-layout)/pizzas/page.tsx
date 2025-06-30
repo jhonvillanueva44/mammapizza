@@ -165,8 +165,8 @@ export default function MenuPizzasPage() {
     const fetchData = async () => {
       try {
         const [pizzasRes, tamaniosRes] = await Promise.all([
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/productos/pizzas`),
-          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/tamanios/pizza`)
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }api/productos/pizzas`),
+          fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }api/tamanios/pizza`)
         ])
         
         const [pizzasData, tamaniosData] = await Promise.all([

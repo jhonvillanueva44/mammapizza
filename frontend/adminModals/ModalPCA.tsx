@@ -75,10 +75,10 @@ export default function ModalPCA({
   const [combinacion, setCombinacion] = useState<Combinacion>({ tamanio_id: null, sabor_id: null });
   const [combinacionesExistentes, setCombinacionesExistentes] = useState<{tamanio: Tamanio, sabor: Sabor, id: number}[]>([]);
 
-  const TAMANIOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios`;
-  const TAMANIO_SABORES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanioSabor`;
-  const SABORES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/sabores`;
-  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos`;
+  const TAMANIOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios`;
+  const TAMANIO_SABORES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanioSabor`;
+  const SABORES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/sabores`;
+  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/productos`;
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, setState: (val: number | null) => void) => {
     const value = e.target.value;

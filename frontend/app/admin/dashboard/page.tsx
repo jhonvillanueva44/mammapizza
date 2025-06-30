@@ -6,7 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import HeaderAdmin from '@/components/adminComponents/HeaderAdmin';
 import Topbar from '@/components/adminComponents/Topbar';
 import { useRouter } from 'next/navigation';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658'];
 
@@ -29,29 +29,12 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
-
   // ¡ESTE ES EL useEffect FALTANTE!
   useEffect(() => {
     const fetchStats = async () => {
       try {
         setLoading(true);        
-        const response = await fetch(`${backendUrl}/api/estadisticas/productos`, {
+        const response = await fetch(`${backendUrl}api/estadisticas/productos`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
@@ -293,6 +276,6 @@ export default function DashboardPage() {
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

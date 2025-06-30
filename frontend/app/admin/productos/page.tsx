@@ -11,7 +11,7 @@ import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import ModalPizza from '@/adminModals/ModalPizza';
 import ModalPCA from '@/adminModals/ModalPCA';
 import ModalBA from '@/adminModals/ModalBA';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 type Producto = {
   id: number;
@@ -54,28 +54,10 @@ export default function CrudProductoPage() {
   const ITEMS_POR_PAGINA = 15;
 
   const backendUrl = process.env.NEXT_PUBLIC_BACK_HOST;
-  const API_BASE_URL = `${backendUrl}/api`;
+  const API_BASE_URL = `${backendUrl}api`;
   const PRODUCTOS_URL = `${API_BASE_URL}/productos`;
   const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
   const UPLOADS_URL = `${API_BASE_URL}/uploads`;
-
-  // Funciones de autenticación
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
 
   const fetchData = async () => {
     try {
@@ -529,6 +511,6 @@ export default function CrudProductoPage() {
           }
         `}</style>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

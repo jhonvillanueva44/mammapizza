@@ -5,21 +5,10 @@ import { useRouter } from 'next/navigation';
 export default function Topbar({ title }: { title: string }) {
   const router = useRouter();
 
-  const handleLogout = async () => {
-    try {
-      const response = await fetch('http://localhost:4000/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
-      
-      if (response.ok) {
-        router.push('/admin');
-      } else {
-        console.error('Error al cerrar sesión');
-      }
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
-    }
+  const handleLogout = () => {
+    localStorage.removeItem('admin_nombre');
+    
+    router.push('/admin');
   };
 
   return (

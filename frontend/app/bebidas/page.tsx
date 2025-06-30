@@ -150,8 +150,8 @@ export default function MenuBebidasPage() {
     const fetchData = async () => {
       try {
         const [bebidasRes, tamaniosRes] = await Promise.all([
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos/bebidas`),
-          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanios/bebida`)
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/productos/bebidas`),
+          fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanios/bebida`)
         ]);
         
         const [bebidasData, tamaniosData] = await Promise.all([

@@ -8,7 +8,7 @@ import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import ModalFormularioSabor from '@/adminModals/ModalFormularioSabor';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 type Sabor = {
   id: number;
@@ -45,24 +45,7 @@ export default function CrudSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_URL = `${backendUrl}/api/sabores`;
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
+  const API_URL = `${backendUrl}api/sabores`;
 
   const obtenerSabores = async () => {
     try {
@@ -411,6 +394,6 @@ export default function CrudSaborPage() {
           </main>
         </div>
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

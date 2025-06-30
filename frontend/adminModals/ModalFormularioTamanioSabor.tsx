@@ -35,7 +35,7 @@ type TamanioSaborModalProps = {
   loading?: boolean;
 };
 
-const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/tamanioSabor`;
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/tamanioSabor`;
 
 const TIPOS_DISPONIBLES = ['Pizza', 'Calzone', 'Pasta', 'Bebida', 'Agregado'];
 

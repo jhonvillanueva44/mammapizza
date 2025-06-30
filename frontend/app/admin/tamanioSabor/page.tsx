@@ -8,7 +8,7 @@ import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import TamanioSaborModal from '@/adminModals/ModalFormularioTamanioSabor';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 export type Tamanio = { 
   id: number; 
@@ -51,32 +51,15 @@ export default function CrudTamanioSaborPage() {
   const [pagina, setPagina] = useState(1);
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = `${backendUrl}/api/tamanioSabor`;
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
+  const API_BASE_URL = `${backendUrl}api/tamanioSabor`;
 
   const obtenerDatos = async () => {
     try {
       setLoading(true);
       const [resComb, resTam, resSab] = await Promise.all([
         fetch(`${API_BASE_URL}?include=tamanio,sabor`),
-        fetch(`${backendUrl}/api/tamanios`),
-        fetch(`${backendUrl}/api/sabores`)
+        fetch(`${backendUrl}api/tamanios`),
+        fetch(`${backendUrl}api/sabores`)
       ]);
       
       if (!resComb.ok || !resTam.ok || !resSab.ok) {
@@ -353,6 +336,6 @@ export default function CrudTamanioSaborPage() {
           setLoading={setLoading}
         />
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

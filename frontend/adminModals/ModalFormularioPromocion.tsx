@@ -85,8 +85,8 @@ export default function ModalPromociones({
   // Estado para el modal de visualización
   const [showModalVisualizacion, setShowModalVisualizacion] = useState(false);
 
-  const PROMOCIONES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/promociones`;
-  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}/api/productos`;
+  const PROMOCIONES_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/promociones`;
+  const PRODUCTOS_URL = `${process.env.NEXT_PUBLIC_BACK_HOST}api/productos`;
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, setState: (val: number | null) => void) => {
     const value = e.target.value;

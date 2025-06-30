@@ -30,7 +30,7 @@ export default function MenuPromosPage() {
   useEffect(() => {
     const fetchPromociones = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/promociones`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}api/promociones`)
         const data = await res.json()
         setPromos(data)
       } catch (error) {

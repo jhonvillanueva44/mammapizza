@@ -8,7 +8,7 @@ import Alert from '@/components/adminComponents/Alert';
 import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import ModalFormularioCategoria from '@/adminModals/ModalFormularioCategoria';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 type Categoria = {
   id: number;
@@ -36,24 +36,7 @@ export default function CrudCategoriasPage() {
   const [busqueda, setBusqueda] = useState('');
   const categoriasPorPagina = 15;
 
-  const API_URL = `${backendUrl}/api/categorias`;
-
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${ process.env.NEXT_PUBLIC_BACK_HOST }/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
+  const API_URL = `${backendUrl}api/categorias`;
 
   const obtenerCategorias = async () => {
     try {
@@ -328,6 +311,6 @@ export default function CrudCategoriasPage() {
           setDescripcion={setDescripcion}
         />
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }

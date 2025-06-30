@@ -10,7 +10,7 @@ import ConfirmationModal from '@/components/adminComponents/ConfirmationModal';
 import LoadingSpinner from '@/components/adminComponents/LoadingSpinner';
 import ModalPromociones from '@/adminModals/ModalFormularioPromocion';
 import ModalVisualizarProductos from '@/adminModals/ModalVisualizarProducto';
-import ProtectedRoute from '../../../components/adminComponents/ProtectedRoute';
+import ProtectedRoute from '@/components/adminComponents/ProtectedRoute';
 
 type ProductoPromocion = {
   producto_id: number;
@@ -75,29 +75,11 @@ export default function CrudPromocionesPage() {
   
   const ITEMS_POR_PAGINA = 15;
 
-  const API_BASE_URL = `${backendUrl}/api`;
+  const API_BASE_URL = `${backendUrl}api`;
   const PROMOCIONES_URL = `${API_BASE_URL}/promociones`;
   const CATEGORIAS_URL = `${API_BASE_URL}/categorias`;
   const PRODUCTOS_URL = `${API_BASE_URL}/productos`;
   const UPLOADS_URL = `${API_BASE_URL}/uploads`;
-
-  // Verificación de usuario autenticado
-  useEffect(() => {
-    const getUser = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACK_HOST}/api/auth/verify`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setUser(data.usuario);
-        }
-      } catch (error) {
-        console.error('Error obteniendo usuario:', error);
-      }
-    };
-    getUser();
-  }, []);
 
 const fetchData = async () => {
   try {
@@ -534,6 +516,6 @@ const handleVerDetalles = (promocion: Promocion) => {
           />
         )}
       </div>
-    </ProtectedRoute>
+      </ProtectedRoute>
   );
 }
